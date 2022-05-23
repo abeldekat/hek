@@ -1,0 +1,60 @@
+---
+- hosts: wgvps_servers
+  remote_user: root
+  gather_facts: false
+  # on debian: mkpasswd --method=SHA-512
+  vars:
+    - drb_password: '$6$4AJcweVG$ww2ta9FD8ULuGIzgdWBkXiFr4yfQjFzd0HI9mXl4RxVtobcsrdqa.5KsPfC4PXGDdbddCVdLRev2MOjwGYwca0'
+
+  # ansible webserver -m ping
+  # ansible webserver -m shell -a id
+  # protect ssh
+  # add drb user as sudo
+  tasks:
+
+    - name: Add a new user
+      ansible.builtin.user:
+        name: drb
+        password: "{{ drb_password }}"
+        append: true
+        groups: sudo
+        update_password: on_create
+
+    - name: Add user to the sudoers
+      ansible.builtin.copy:
+        dest: "/etc/sudoers.d/drb"
+        content: "drb  ALL=(ALL)  NOPASSWD: ALL"
+        # TODO!
+        mode: 0644
+
+    - name: add SSH Key to authorized
+      ansible.posix.authorized_key:
+        user: drb
+        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/laptop2drieberen.pub') }}"
+        state: present
+
+#     - name: Disable Password Authentication
+#      lineinfile:
+#            dest=/etc/ssh/sshd_config
+#            regexp='^PasswordAuthentication'
+#            line="PasswordAuthentication no"
+#            state=present
+#            backup=yes
+#      notify:
+#        - restart ssh
+# #
+# #   - name: Disable Root Login
+# #     lineinfile:
+# #           dest=/etc/ssh/sshd_config
+# #           regexp='^PermitRootLogin'
+# #           line="PermitRootLogin no"
+# #           state=present
+# #           backup=yes
+# #     notify:
+# #       - restart ssh
+# #
+#     handlers:
+#     - name: restart ssh
+#       service:
+#         name=sshd
+#         state=restarted
