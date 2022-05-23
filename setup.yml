@@ -1,0 +1,15 @@
+---
+- name: "Sanity check"
+  import_playbook: sanity_check.yml
+
+- name: "Set up a personal vps"
+  hosts: "{{ target if target is defined else 'wgvps_servers' }}"
+  # become: true
+
+  # vars_files:
+  #   - roles/matrix-synapse/vars/workers.yml
+
+  # roles:
+    # - wgvps-base
+    # - wgvps-wireguard
+    # - wgvps-common-after
