@@ -15,7 +15,7 @@
 
     - name: Add a new user
       ansible.builtin.user:
-        name: drb
+        name: ajb
         password: "{{ drb_password }}"
         append: true
         # groups: adm, netdev
@@ -25,7 +25,7 @@
 
     - name: add SSH Key to authorized
       ansible.posix.authorized_key:
-        user: drb
+        user: ajb
         key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/laptop2drieberen.pub') }}"
         state: present
 

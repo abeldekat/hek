@@ -99,9 +99,9 @@
       - htop
     sysctl:
       - item: net.ipv4.ip_forward
-        value: 1
+        value: 0
       - item: net.ipv4.conf.all.forwarding
-        value: 1
+        value: 0
       - item: net.ipv6.conf.all.forwarding
         value: 0
 
