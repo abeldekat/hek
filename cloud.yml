@@ -17,15 +17,15 @@
         name: drb
         password: "{{ drb_password }}"
         append: true
-        groups: sudo
+        groups: adm, netdev
         update_password: on_create
+        shell: /bin/bash
 
     - name: Add user to the sudoers
       ansible.builtin.copy:
         dest: "/etc/sudoers.d/drb"
         content: "drb  ALL=(ALL)  NOPASSWD: ALL"
-        # TODO!
-        mode: 0644
+        mode: 0440
 
     - name: add SSH Key to authorized
       ansible.posix.authorized_key:
@@ -33,28 +33,50 @@
         key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/laptop2drieberen.pub') }}"
         state: present
 
-#     - name: Disable Password Authentication
-#      lineinfile:
-#            dest=/etc/ssh/sshd_config
-#            regexp='^PasswordAuthentication'
-#            line="PasswordAuthentication no"
-#            state=present
-#            backup=yes
-#      notify:
-#        - restart ssh
-# #
-# #   - name: Disable Root Login
-# #     lineinfile:
-# #           dest=/etc/ssh/sshd_config
-# #           regexp='^PermitRootLogin'
-# #           line="PermitRootLogin no"
-# #           state=present
-# #           backup=yes
-# #     notify:
-# #       - restart ssh
-# #
-#     handlers:
-#     - name: restart ssh
-#       service:
-#         name=sshd
-#         state=restarted
+    # For state=present, the pattern to replace if found. Only the last line found will be replaced.
+    # If the regular expression is not matched, the line will be added to the file in keeping with insertbefore or insertafter settings.
+    - name: Ensure no password Authentication
+      ansible.builtin.lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication'
+        line: "PasswordAuthentication no"
+        state: present
+        backup: true
+      notify:
+        - restart ssh
+
+    - name: Ensure no root Login
+      ansible.builtin.lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: "PermitRootLogin no"
+        state: present
+        backup: true
+      notify:
+        - restart ssh
+
+    - name: Ensure SSH only ip4
+      ansible.builtin.lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: '^AddressFamily'
+        line: "AddressFamily inet"
+        state: present
+        backup: true
+      notify:
+        - restart ssh
+
+    - name: Ensure no SSH ChallengeResponseAuthentication
+      ansible.builtin.lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: '^ChallengeResponseAuthentication'
+        line: "ChallengeResponseAuthentication no"
+        state: present
+        backup: true
+      notify:
+        - restart ssh
+
+  handlers:
+    - name: restart ssh
+      ansible.builtin.service:
+        name: sshd
+        state: restarted

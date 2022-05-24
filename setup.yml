@@ -9,12 +9,12 @@
 # # https://www.howtoforge.com/tutorial/setup-new-user-and-ssh-key-authentication-using-ansible/
 # - name: "Set up a personal vps"
 #   hosts: "{{ target if target is defined else 'wgvps_servers' }}"
-  # become: true
+# become: true
 
   # vars_files:
   #   - roles/matrix-synapse/vars/workers.yml
 
-  # roles:
-    # - wgvps-base
-    # - wgvps-wireguard
-    # - wgvps-common-after
+# roles:
+# - wgvps-base
+# - wgvps-wireguard
+# - wgvps-common-after
