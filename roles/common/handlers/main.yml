@@ -1,0 +1,26 @@
+---
+- name: restart rsyslog
+  ansible.builtin.service: name=rsyslog state=restarted
+
+- name: restart ipfw
+  ansible.builtin.service: name=ipfw state=restarted
+
+- name: flush routing cache
+  ansible.builtin.shell: echo 1 > /proc/sys/net/ipv4/route/flush
+
+- name: restart systemd-networkd
+  ansible.builtin.systemd:
+    name: systemd-networkd
+    state: restarted
+    daemon_reload: true
+
+- name: restart systemd-resolved
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    state: restarted
+
+- name: restart iptables
+  ansible.builtin.service: name=netfilter-persistent state=restarted
+
+- name: netplan apply
+  ansible.builtin.command: netplan apply

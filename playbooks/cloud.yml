@@ -1,6 +1,7 @@
 ---
 # on debian: mkpasswd --method=SHA-512
-# override ansible_ssh_user in shellscript
+# override ansible_ssh_user in invoking shellscript
+# Note: algo does ipv6: true
 - hosts: wgvps_servers
   gather_facts: false
   vars:

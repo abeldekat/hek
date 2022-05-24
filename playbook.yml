@@ -1,17 +1,26 @@
 ---
-- name: "Sanity check"
-  import_playbook: sanity_check.yml
+- name: Configure the server and install required software
+  hosts: wgvps_servers
+  gather_facts: false
+  become: true
 
-# # https://serversforhackers.com/c/create-user-in-ansible
-# # https://www.howtoforge.com/tutorial/setup-new-user-and-ssh-key-authentication-using-ansible/
-# - name: "Set up a personal vps"
-#   hosts: "{{ target if target is defined else 'wgvps_servers' }}"
-# become: true
+  # vars_files:
+  # - config.cfg
 
-# vars_files:
-#   - roles/matrix-synapse/vars/workers.yml
+  tasks:
+    - name: Import common role
+      ansible.builtin.import_role:
+        name: common
+      tags: common
 
-# roles:
-# - wgvps-base
-# - wgvps-wireguard
-# - wgvps-common-after
+# - import_role:
+#     name: dns
+#   when:
+#     - algo_dns_adblocking or
+#       dns_encryption
+#   tags: dns
+
+# - import_role:
+#     name: wireguard
+#   when: wireguard_enabled
+#   tags: wireguard

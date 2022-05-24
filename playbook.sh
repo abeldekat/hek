@@ -19,7 +19,7 @@
 # provider=digitalocean
 # ondemand_cellular=false
 # ondemand_wifi=false
-ansible-playbook -i inventory/hosts playbook.yml -e "server_name=algo
+ansible-playbook -K -i inventory/hosts playbook.yml -e "server_name=algo
                                 dns_adblocking=true
                                 ssh_tunneling=true
                                 store_pki=true
