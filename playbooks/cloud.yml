@@ -1,8 +1,8 @@
 ---
+# on debian: mkpasswd --method=SHA-512
+# override ansible_ssh_user in shellscript
 - hosts: wgvps_servers
-  remote_user: root
   gather_facts: false
-  # on debian: mkpasswd --method=SHA-512
   vars:
     - drb_password: '$6$4AJcweVG$ww2ta9FD8ULuGIzgdWBkXiFr4yfQjFzd0HI9mXl4RxVtobcsrdqa.5KsPfC4PXGDdbddCVdLRev2MOjwGYwca0'
 
@@ -17,15 +17,10 @@
         name: drb
         password: "{{ drb_password }}"
         append: true
-        groups: adm, netdev
+        # groups: adm, netdev
+        groups: sudo
         update_password: on_create
         shell: /bin/bash
-
-    - name: Add user to the sudoers
-      ansible.builtin.copy:
-        dest: "/etc/sudoers.d/drb"
-        content: "drb  ALL=(ALL)  NOPASSWD: ALL"
-        mode: 0440
 
     - name: add SSH Key to authorized
       ansible.posix.authorized_key:

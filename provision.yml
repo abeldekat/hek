@@ -1,0 +1,6 @@
+---
+- name: "Sanity check"
+  import_playbook: playbooks/sanity_check.yml
+
+- name: "Cloud setup"
+  import_playbook: playbooks/cloud.yml
