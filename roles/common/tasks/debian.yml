@@ -86,6 +86,7 @@
   ansible.builtin.set_fact:
     tools:
       - git
+      - nftables
       # - screen
       # - apparmor-utils
       # - uuid-runtime
@@ -119,5 +120,5 @@
 #   when: install_headers | bool
 
 
-# - include_tasks: iptables.yml
-#   tags: iptables
+- include_tasks: nftables.yml
+  tags: nftables

@@ -1,0 +1,12 @@
+---
+- name: Ensure nftables configured
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+    - {src: nftables.conf.j2, dest: /etc/nftables.conf}
+  notify:
+    - restart iptables
