@@ -35,11 +35,11 @@
 - name: Include unattended upgrades configuration
   import_tasks: unattended-upgrades.yml
 
-# - name: Disable MOTD on login and SSHD
-#   replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
-#   with_items:
-#     - { regexp: '^session.*optional.*pam_motd.so.*', line: '# MOTD DISABLED', file: '/etc/pam.d/login' }
-#     - { regexp: '^session.*optional.*pam_motd.so.*', line: '# MOTD DISABLED', file: '/etc/pam.d/sshd' }
+- name: Disable MOTD on login and SSHD
+  ansible.builtin.replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
+  with_items:
+    - {regexp: '^session.*optional.*pam_motd.so.*', line: '# MOTD DISABLED', file: '/etc/pam.d/login'}
+    - {regexp: '^session.*optional.*pam_motd.so.*', line: '# MOTD DISABLED', file: '/etc/pam.d/sshd'}
 
 # - name: Ensure fallback resolvers are set
 #   ini_file:
