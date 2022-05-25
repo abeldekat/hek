@@ -1,6 +1,7 @@
 ---
 
 # The task includes an option with an undefined variable. The error was: 'ansible_default_ipv4' is undefined
+# Gather facts should run...
 - name: Gather facts
   ansible.builtin.setup:
 
@@ -51,12 +52,13 @@
   notify:
     - restart systemd-resolved
 
-# - name: Loopback for services configured
-#   template:
-#     src: 10-algo-lo100.network.j2
-#     dest: /etc/systemd/network/10-algo-lo100.network
-#   notify:
-#     - restart systemd-networkd
+- name: Loopback for services configured
+  ansible.builtin.template:
+    src: 10-wgvps-lo100.network.j2
+    dest: /etc/systemd/network/10-wgvps-lo100.network
+    mode: 0644
+  notify:
+    - restart systemd-networkd
 
 - name: Ensure systemd services enabled and started
   ansible.builtin.systemd:
