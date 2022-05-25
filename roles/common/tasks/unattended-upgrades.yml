@@ -1,21 +1,31 @@
 ---
+
+# Default installed on debain 11 digital ocean: apt-listchanges
+
+# Default installed on debain 11 digital ocean
 - name: Install unattended-upgrades
-  apt:
+  ansible.builtin.apt:
     name: unattended-upgrades
     state: present
 
+# Default installed on debain 11 digital ocean
 - name: Configure unattended-upgrades
-  template:
+  ansible.builtin.template:
     src: 50unattended-upgrades.j2
     dest: /etc/apt/apt.conf.d/50unattended-upgrades
     owner: root
     group: root
     mode: 0644
 
+# Not installed on debain 11 digital ocean
+# Debian uses 20auto-upgrades, not 10periodic
+# The j2 file adds to lines to the default:
+# APT::Periodic::Download-Upgradeable-Packages "1";
+# APT::Periodic::AutocleanInterval "7";
 - name: Periodic upgrades configured
-  template:
-    src: 10periodic.j2
-    dest: /etc/apt/apt.conf.d/10periodic
+  ansible.builtin.template:
+    src: 20auto-upgrades.j2
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
     owner: root
     group: root
     mode: 0644

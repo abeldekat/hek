@@ -32,8 +32,8 @@
     timeout: 320
   when: reboot_required is defined and reboot_required.stdout == 'required'
 
-# - name: Include unattended upgrades configuration
-#   import_tasks: unattended-upgrades.yml
+- name: Include unattended upgrades configuration
+  import_tasks: unattended-upgrades.yml
 
 # - name: Disable MOTD on login and SSHD
 #   replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
@@ -66,6 +66,7 @@
   with_items:
     - systemd-networkd
     - systemd-resolved
+    - unattended-upgrades
 
 - name: Force all notified handlers to run at this point, not waiting for normal sync points
   ansible.builtin.meta: flush_handlers
