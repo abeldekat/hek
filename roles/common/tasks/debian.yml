@@ -1,6 +1,8 @@
 ---
-# - name: Gather facts
-#   setup:
+
+# The task includes an option with an undefined variable. The error was: 'ansible_default_ipv4' is undefined
+- name: Gather facts
+  ansible.builtin.setup:
 
 - name: Install software updates
   ansible.builtin.apt:
@@ -68,34 +70,72 @@
 - name: Force all notified handlers to run at this point, not waiting for normal sync points
   ansible.builtin.meta: flush_handlers
 
-# - name: Check apparmor support
-#   command: apparmor_status
-#   ignore_errors: yes
-#   changed_when: false
-#   register: apparmor_status
+- name: Check apparmor support
+  ansible.builtin.command: apparmor_status
+  # ignore_errors: yes
+  changed_when: false
+  register: apparmor_status
 
-# - name: Set fact if apparmor enabled
-#   set_fact:
-#     apparmor_enabled: true
-#   when: '"profiles are in enforce mode" in apparmor_status.stdout'
+- name: Set fact if apparmor enabled
+  ansible.builtin.set_fact:
+    apparmor_enabled: true
+  when: '"profiles are in enforce mode" in apparmor_status.stdout'
 
 # - name: Gather additional facts
+# p12_export_password
+# CA_password
+# IP_subject_alt_name
 #   import_tasks: facts.yml
+- name: Set IPv6 support as a fact
+  ansible.builtin.set_fact:
+    ipv6_support: false
 
+- name: Check size of MTU
+  ansible.builtin.set_fact:
+    reduce_mtu: "{{ 1500 - ansible_default_ipv4['mtu']|int if reduce_mtu|int == 0 and ansible_default_ipv4['mtu']|int < 1500 else reduce_mtu|int }}"
+
+# Apparmor is installed and active by default on debian 11, at least on digital ocean
+# Apparmor-utilities provides utilities that operate on AppArmor profiles.
+# Profiles can be created, updated, enforced, set to complain mode, and disabled with tools such as aa-genprof, aa-enforce, aa-complain and aa-disabled.
+# Installs apparmor-utils python3-apparmor python3-libapparmor
+#
+# The libuuid library generates and parses 128-bit Universally Unique IDs (UUIDs).
+# A UUID is an identifier that is unique within the space of all such identifiers across both space and time.
+# It can be used for multiple purposes, from tagging objects with an extremely short lifetime to reliably identifying very persistent objects across a network.
+# This package contains the uuidgen program and the uuidd daemon.
+# Already installed on debian 11
+#
+# Coreutils is already installed
+# This package contains the basic file, shell and text manipulation utilities which are expected to exist on every operating system
+#
+# GnuPG is GNU's tool for secure communication and data storage.
+# It can be used to encrypt data and to create digital signatures. It includes an advanced key management facility and is compliant with
+# the proposed OpenPGP Internet standard as described in RFC4880.
+# Already installled
+#
+# Openssl already installed
+# This package is part of the OpenSSL project's implementation of the SSL and TLS cryptographic protocols for secure communication over the Internet.
+#
+# Control Groups (cgroups) provide a mechanism for aggregating/partitioning sets of tasks, and all their future children,
+# into hierarchical groups with specialized behaviour.
+# libcgroup allows one to manipulate, control, administrate and monitor cgroups and the associated controllers.
+# This package contains the command-line tools.
+# Installs cgroup-tools libcgroup1
+#
+# Algo required screen instead of tmux and iptables-persistent instead of nftables
+#
 - name: Set OS specific facts
   ansible.builtin.set_fact:
     tools:
       - git
       - nftables
-      # - screen
-      # - apparmor-utils
-      # - uuid-runtime
-      # - coreutils
-      # - iptables-persistent
-      # - cgroup-tools
-      # - openssl
-      # - gnupg2
       - tmux
+      - apparmor-utils
+      - coreutils
+      - uuid-runtime
+      - cgroup-tools
+      - openssl
+      - gnupg2
       - htop
     sysctl:
       - item: net.ipv4.ip_forward
@@ -110,15 +150,6 @@
     name: "{{ tools|default([]) }}"
     state: present
     update_cache: true
-
-# - name: Install headers
-#   apt:
-#     name:
-#       - linux-headers-generic
-#       - "linux-headers-{{ ansible_kernel }}"
-#     state: present
-#   when: install_headers | bool
-
 
 - include_tasks: nftables.yml
   tags: nftables
