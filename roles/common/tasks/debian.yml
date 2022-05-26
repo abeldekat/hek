@@ -86,13 +86,13 @@
   when: '"profiles are in enforce mode" in apparmor_status.stdout'
 
 # - name: Gather additional facts
+#   import_tasks: facts.yml
 # p12_export_password
 # CA_password
-# IP_subject_alt_name
-#   import_tasks: facts.yml
+# TODO: IP_subject_alt_name: "{{ IP_subject_alt_name }}"
 - name: Set IPv6 support as a fact
   ansible.builtin.set_fact:
-    ipv6_support: false
+    ipv6_support: "{% if ansible_default_ipv6['gateway'] is defined %}true{% else %}false{% endif %}"
 
 - name: Check size of MTU
   ansible.builtin.set_fact:
@@ -143,17 +143,21 @@
       - htop
     sysctl:
       - item: net.ipv4.ip_forward
-        value: 0
+        value: 1
       - item: net.ipv4.conf.all.forwarding
-        value: 0
-      - item: net.ipv6.conf.all.forwarding
-        value: 0
+        value: 1
+      - item: "{{ 'net.ipv6.conf.all.forwarding' if ipv6_support else none }}"
+        value: 1
 
 - name: Ensure tools are installed
   ansible.builtin.apt:
     name: "{{ tools|default([]) }}"
     state: present
     update_cache: true
+
+# - name: Configure the alternative ingress ip
+#   include_tasks: aip/main.yml
+#   when: alternative_ingress_ip
 
 - include_tasks: nftables.yml
   tags: nftables

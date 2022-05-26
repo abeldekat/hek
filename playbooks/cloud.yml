@@ -51,15 +51,15 @@
       notify:
         - restart ssh
 
-    - name: Ensure SSH only ip4
-      ansible.builtin.lineinfile:
-        dest: /etc/ssh/sshd_config
-        regexp: '^AddressFamily'
-        line: "AddressFamily inet"
-        state: present
-        backup: true
-      notify:
-        - restart ssh
+    # - name: Ensure SSH only ip4
+    #   ansible.builtin.lineinfile:
+    #     dest: /etc/ssh/sshd_config
+    #     regexp: '^AddressFamily'
+    #     line: "AddressFamily inet"
+    #     state: present
+    #     backup: true
+    #   notify:
+    #     - restart ssh
 
     - name: Ensure no SSH ChallengeResponseAuthentication
       ansible.builtin.lineinfile:

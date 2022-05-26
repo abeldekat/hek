@@ -99,7 +99,7 @@ table ip6 filter {
     ip6 nexthdr icmpv6 counter name accept_ipsix_icmp_v6 accept comment "accept all ICMP types"
 
     # accept ssh( todo maybe wireguard just for ssh? Fail2ban!) 
-    # tcp dport 22 counter name accept_ipsix_ssh accept comment "accept SSH"
+    tcp dport 22 counter name accept_ipsix_ssh accept comment "accept SSH"
 
     ### http https ###
     # tcp dport 80 counter name accept_ipsix_http accept
