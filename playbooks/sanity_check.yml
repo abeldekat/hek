@@ -14,12 +14,19 @@
           Ansible is being run in a world writable directory ({{ playbook_dir }}), ignoring it as an ansible.cfg source.
           For more information see https://docs.ansible.com/ansible/devel/reference_appendices/config.html#cfg-in-world-writable-dir
 
-    - name: Ensure the requirements installed
+    - name: Ensure ipaddr pip installed
       ansible.builtin.debug:
-        msg: "{{ '' | ipaddr }}"
+        msg: "{{ '' | ansible.utils.ipaddr }}"
       ignore_errors: true
       no_log: true
       register: ipaddr
+
+    - name: Ensure segno pip installed
+      ansible.builtin.command: which segno
+      ignore_errors: true
+      changed_when: false
+      no_log: true
+      register: segno
 
     - name: Set required ansible version as a fact
       ansible.builtin.set_fact:
@@ -41,6 +48,7 @@
         that:
           - ansible_version.full is version(required_ansible_version.ver, required_ansible_version.op)
           - not ipaddr.failed
+          - not segno.failed
         msg: >
           Ansible version is {{ ansible_version.full }}.
           You must update the requirements

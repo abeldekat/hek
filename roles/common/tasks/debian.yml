@@ -1,10 +1,5 @@
 ---
 
-# The task includes an option with an undefined variable. The error was: 'ansible_default_ipv4' is undefined
-# Gather facts should run...
-- name: Gather facts
-  ansible.builtin.setup:
-
 - name: Install software updates
   ansible.builtin.apt:
     update_cache: true
@@ -89,11 +84,12 @@
 #   import_tasks: facts.yml
 # p12_export_password
 # CA_password
-# TODO: IP_subject_alt_name: "{{ IP_subject_alt_name }}"
+- name: Set ip_subject_alt_name as a fact
+  ansible.builtin.set_fact:
+    ip_subject_alt_name: "{{ ansible_default_ipv4.address }}"
 - name: Set IPv6 support as a fact
   ansible.builtin.set_fact:
     ipv6_support: "{% if ansible_default_ipv6['gateway'] is defined %}true{% else %}false{% endif %}"
-
 - name: Check size of MTU
   ansible.builtin.set_fact:
     reduce_mtu: "{{ 1500 - ansible_default_ipv4['mtu']|int if reduce_mtu|int == 0 and ansible_default_ipv4['mtu']|int < 1500 else reduce_mtu|int }}"

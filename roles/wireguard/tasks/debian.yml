@@ -1,0 +1,12 @@
+---
+- name: Ensure wireguard installed
+  ansible.builtin.apt:
+    name: wireguard
+    state: present
+    update_cache: true
+
+# TODO: service_name is not a good variable name
+- name: Set OS specific facts
+  ansible.builtin.set_fact:
+    service_name: "wg-quick@{{ wireguard_interface }}"
+  tags: always

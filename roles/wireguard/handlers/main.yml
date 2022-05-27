@@ -1,0 +1,8 @@
+---
+
+# ansible.builtin.service:
+- name: restart wireguard
+  ansible.builtin.systemd:
+    name: "{{ service_name }}"
+    state: restarted
+    daemon_reload: true

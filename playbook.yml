@@ -1,11 +1,14 @@
 ---
 - name: Configure the server and install required software
   hosts: wgvps_servers
-  gather_facts: false
+  gather_facts: true
   become: true
 
-  # vars_files:
-  # - config.cfg
+  # This used to be in common debian.yml
+  # The task includes an option with an undefined variable. The error was: 'ansible_default_ipv4' is undefined
+  # Gather facts should run...
+  # - name: Gather facts
+  #   ansible.builtin.setup:
 
   tasks:
     - name: Import common role
@@ -21,7 +24,8 @@
           dns_encryption
       tags: dns
 
-# - import_role:
-#     name: wireguard
-#   when: wireguard_enabled
-#   tags: wireguard
+    - name: Import wireguard role
+      ansible.builtin.import_role:
+        name: wireguard
+      when: wireguard_enabled
+      tags: wireguard
