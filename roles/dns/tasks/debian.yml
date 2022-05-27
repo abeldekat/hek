@@ -1,0 +1,59 @@
+---
+
+# version 2.0.31 on ubuntu 20.04, not via ppa
+# version 2.0.45 on debian:
+# Get:1 http://deb.debian.org/debian bullseye/main amd64 dnscrypt-proxy amd64 2.0.45+ds1-1+b5 [2769 kB]
+# Created symlink /etc/systemd/system/multi-user.target.wants/dnscrypt-proxy-resolvconf.service → /lib/systemd/system/dnscrypt-proxy-resolvconf.service.
+# Created symlink /etc/systemd/system/sockets.target.wants/dnscrypt-proxy.socket → /lib/systemd/system/dnscrypt-proxy.socket.
+# Created symlink /etc/systemd/system/multi-user.target.wants/dnscrypt-proxy.service → /lib/systemd/system/dnscrypt-proxy.service.
+# No file added to etc/apparmor.d/
+#
+# After installation the service runs: sudo systemctl status dnscrypt-proxy
+# loaded: loaded (/lib/systemd/system/dnscrypt-proxy.service; enabled; vendor preset: enabled)
+# 3574 /usr/sbin/dnscrypt-proxy -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+# triggered by: dnscrypt-proxy.socket
+- name: Ensure dnscrypt-proxy is installed
+  ansible.builtin.apt:
+    name: dnscrypt-proxy
+    state: present
+    update_cache: true
+
+- block:
+    - name: Configure AppArmor policy for dnscrypt-proxy
+      ansible.builtin.copy:
+        src: apparmor.profile.dnscrypt-proxy
+        dest: /etc/apparmor.d/usr.bin.dnscrypt-proxy
+        owner: root
+        group: root
+        mode: 0600
+      notify: restart dnscrypt-proxy
+
+    - name: Enforce the dnscrypt-proxy AppArmor policy
+      ansible.builtin.command: aa-enforce usr.bin.dnscrypt-proxy
+      changed_when: false
+  tags: apparmor
+  when: apparmor_enabled|default(false)|bool
+
+- name: Ensure that the dnscrypt-proxy service directory exist
+  ansible.builtin.file:
+    path: /etc/systemd/system/dnscrypt-proxy.service.d/
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+
+# Drop-In: /etc/systemd/system/dnscrypt-proxy.service.d
+# └─99-algo.conf
+- name: Add custom requirements to successfully start the unit
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/dnscrypt-proxy.service.d/99-algo.conf
+    mode: 0644
+    content: |
+      [Unit]
+      After=systemd-resolved.service
+      Requires=systemd-resolved.service
+
+      [Service]
+      AmbientCapabilities=CAP_NET_BIND_SERVICE
+  notify:
+    - restart dnscrypt-proxy

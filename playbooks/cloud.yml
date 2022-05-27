@@ -13,6 +13,17 @@
   # add drb user as sudo
   tasks:
 
+    # [WARNING]: Module remote_tmp /root/.ansible/tmp did not exist and was created with a mode of 0700,
+    # this may cause issues when running as another user. To avoid this, create the remote_tmp
+    # dir with the correct permissions manually
+    - name: Ensure remote tmp exists, prevent warning
+      ansible.builtin.file:
+        path: /root/.ansible/tmp
+        state: directory
+        mode: 0755
+        owner: root
+        group: root
+
     - name: Add a new user
       ansible.builtin.user:
         name: ajb

@@ -1,0 +1,32 @@
+---
+- name: Include tasks for Debian
+  include_tasks: debian.yml
+
+- name: dnscrypt-proxy ip-blacklist configured
+  ansible.builtin.template:
+    src: ip-blacklist.txt.j2
+    dest: "{{ config_prefix|default('/') }}etc/dnscrypt-proxy/ip-blacklist.txt"
+    mode: 0644
+  notify:
+    - restart dnscrypt-proxy
+
+- name: dnscrypt-proxy configured
+  ansible.builtin.template:
+    src: dnscrypt-proxy.toml.j2
+    dest: "{{ config_prefix|default('/') }}etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    mode: 0644
+  notify:
+    - restart dnscrypt-proxy
+
+- name: Include DNS adblocking tasks
+  import_tasks: dns_adblocking.yml
+  when: wgvps_dns_adblocking
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  ansible.builtin.meta: flush_handlers
+
+- name: dnscrypt-proxy enabled and started
+  ansible.builtin.systemd:
+    name: dnscrypt-proxy
+    state: started
+    enabled: true
