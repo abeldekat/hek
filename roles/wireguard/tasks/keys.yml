@@ -9,6 +9,7 @@
     - "{{ users }}"
     - "{{ ip_subject_alt_name }}"
 
+# msg: Did not run command since '/etc/wireguard/private_phone.lock' exists
 - name: Generate private keys
   ansible.builtin.command: wg genkey
   register: wg_genkey
@@ -17,6 +18,10 @@
   with_items:
     - "{{ users }}"
     - "{{ ip_subject_alt_name }}"
+
+# - name: Debug wg_genkey
+#   ansible.builtin.debug:
+#     msg: "{{ wg_genkey }}"
 
 - block:
     - name: Save private keys

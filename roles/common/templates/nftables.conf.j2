@@ -11,61 +11,121 @@
 
 flush ruleset
 
+# define pub_iface = "eth0"
+define wg_port = {{ wireguard_port }}
+define wg_net = {{ wireguard_network_ipv4 }}
+
+# table netdev drop-bad-packets {
+#     chain ingress {
+#         # drop tcp "xmas" packets (bad flag combo)
+#         tcp flags & (fin | psh | urg) == fin | psh | urg drop
+#         # drop tcp packets with no flags
+#         tcp flags & (fin | syn | rst | psh | ack | urg) == 0x0 drop
+#         # drop tcp packets with mss below minimum
+#         tcp flags syn tcp option maxseg size 1-535 drop
+#     }
+
+#     chain ingress-eth0 {
+#         type filter hook ingress device "eth0" priority -450; policy accept;
+#         goto ingress
+#     }
+# }
+
+# table inet drop-bad-ct-states {
+#     chain prerouting {
+#         type filter hook prerouting priority -150; policy accept;
+
+#         # drop packets in "invalid" connection-tracking state
+#         ct state invalid drop
+#         # drop tcp packets for new connections that aren't syn packets
+#         ct state new tcp flags & (fin | syn | rst | ack) != syn drop
+#         # drop new connections over rate limit
+#         ct state new limit rate over 1/second burst 10 packets drop
+#     }
+# }
+
 table ip filter {
 
-  counter drop_ct_invalid {}
-  counter accept_ct_rel {}
-  counter drop_loop_v4 {}
-  counter accept_icmp_v4 {}
-  counter accept_ssh {}
-  counter accept_http {}
-  counter accept_https {}
-  counter drop_input {}
-  counter drop_forward {}
-  counter accept_output {}
+    counter drop_ct_invalid {}
+    counter accept_ct_rel {}
+    counter drop_loop_v4 {}
+    counter accept_icmp_v4 {}
+    counter accept_ssh {}
+    counter accept_http {}
+    counter accept_https {}
+    counter drop_input {}
+    counter drop_forward {}
+    counter accept_output {}
 
-  chain INPUT {
-    # input policy: drop
-    type filter hook input priority 0; policy drop;
+    # -A INPUT -p icmp --icmp-type echo-request -m hashlimit --hashlimit-upto 5/s --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-name icmp-echo-drop -j ACCEPT
+    chain INPUT {
+        # input policy: drop
+        type filter hook input priority 0; policy drop;
 
-    # connection tracker
-    ct state invalid counter name drop_ct_invalid drop comment "early drop of invalid packets"
-    ct state {established,related} counter name accept_ct_rel accept comment "accept all connections related to connections made by us"
+        # connection tracker
+        ct state invalid counter name drop_ct_invalid drop comment "early drop of invalid packets"
+        ct state {established,related} counter name accept_ct_rel accept comment "accept all connections related to connections made by us"
 
-    # accept all loopback traffic
-    iif lo accept comment "accept loopback"
+        # accept all loopback traffic
+        iif lo accept comment "accept loopback"
 
-    # drop loopback traffic on non-loopback interfaces
-    iif != lo ip daddr 127.0.0.1/8 counter name drop_loop_v4 drop comment "drop connections to loopback not coming from loopback"
+        # drop loopback traffic on non-loopback interfaces
+        iif != lo ip daddr 127.0.0.1/8 counter name drop_loop_v4 drop comment "drop connections to loopback not coming from loopback"
 
-    # accept icmp
-    ip protocol icmp counter name accept_icmp_v4 accept comment "accept all ICMP types"
+        # accept icmp
+        ip protocol icmp counter name accept_icmp_v4 accept comment "accept all ICMP types"
 
-    # accept ssh( todo maybe wireguard just for ssh? Fail2ban!) 
-    tcp dport 22 counter name accept_ssh accept comment "accept SSH"
+        # accept ssh( todo maybe wireguard just for ssh? Fail2ban!) 
+        tcp dport 22 counter name accept_ssh accept comment "accept SSH"
 
-    ### http https ###
-    # tcp dport 80 counter name accept_http accept
-    # tcp dport 443 counter name accept_https accept
+        ### public wireguard ###
+        #-A INPUT -p udp -m multiport --dports 51820 -j ACCEPT
+        # udp dport $wg_port ct state { new, untracked } accept
+        udp dport $wg_port accept
 
-    # count/log remaining (disabled because of log spam)
-    # counter name drop_input log prefix "DROP " comment "drop input"
-    counter name drop_input comment "count dropped packets"
-  }
+        # Accept DNS traffic to the local DNS resolver
+        # -A INPUT -d 172.24.117.23 -p udp --dport 53 -j ACCEPT
+        iifname wg0 udp dport 53 ip saddr $wg_net accept
 
-  chain FORWARD {
-		type filter hook forward priority 0; policy drop;
-		counter name drop_forward comment "count dropped packets"
-	}
+        ### http https ###
+        # tcp dport 80 counter name accept_http accept
+        # tcp dport 443 counter name accept_https accept
 
-	# chain DOCKER-USER {
-	# }
+        # count/log remaining (disabled because of log spam)
+        # counter name drop_input log prefix "DROP " comment "drop input"
+        counter name drop_input comment "count dropped packets"
+    }
 
-	# If you're not counting packets, this chain can be omitted.
-	chain OUTPUT {
-		type filter hook output priority 0; policy accept;
-		counter name accept_output comment "count accepted packets"
-	}
+    chain FORWARD {
+        type filter hook forward priority 0; policy drop;
+
+        ct state { established, related } accept
+        iifname "lo" accept
+
+        # Forward any traffic from the WireGuard VPN network
+        # -A FORWARD -m conntrack --ctstate NEW -s 10.49.0.0/16 -m policy --pol none --dir in -j ACCEPT
+        iifname wg0 oifname eth0 ct state new accept
+
+        counter name drop_forward comment "count dropped packets"
+    }
+
+    # chain DOCKER-USER {
+    # }
+
+    # If you're not counting packets, this chain can be omitted.
+    chain OUTPUT {
+        type filter hook output priority 0; policy accept;
+        counter name accept_output comment "count accepted packets"
+    }
+
+    # -A POSTROUTING -s 10.49.0.0/16 -m policy --pol none --dir out -j MASQUERADE
+    chain postrouting {
+        # type nat hook postrouting priority 100;
+        type nat hook postrouting priority srcnat;
+        ### masquerade
+        # ip saddr $wg_net masquerade
+        ip saddr $wg_net oif eth0 masquerade;
+    }
 }
 
 table ip6 filter {
@@ -96,6 +156,9 @@ table ip6 filter {
     iif != lo ip6 daddr ::1/128 counter name drop_ipsix_loop_v6 drop comment "drop connections to loopback not coming from loopback"
 
     # accept icmp
+    # accept neighbour discovery otherwise connectivity breaks
+    #
+    # icmpv6 type { nd-neighbor-solicit, nd-router-advert, nd-neighbor-advert } accept
     ip6 nexthdr icmpv6 counter name accept_ipsix_icmp_v6 accept comment "accept all ICMP types"
 
     # accept ssh( todo maybe wireguard just for ssh? Fail2ban!) 
