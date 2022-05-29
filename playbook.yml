@@ -4,13 +4,8 @@
   gather_facts: true
   become: true
 
-  # This used to be in common debian.yml
-  # The task includes an option with an undefined variable. The error was: 'ansible_default_ipv4' is undefined
-  # Gather facts should run...
-  # - name: Gather facts
-  #   ansible.builtin.setup:
-
   tasks:
+
     - name: Import common role
       ansible.builtin.import_role:
         name: common

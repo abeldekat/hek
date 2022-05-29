@@ -14,7 +14,7 @@
 
 flush ruleset
 
-define pub_iface = "eth0"
+define pub_iface = {{ ansible_default_ipv4.alias }}
 define wg_iface = {{ wireguard_interface }}
 define wg_port = {{ wireguard_port }}
 

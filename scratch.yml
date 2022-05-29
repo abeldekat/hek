@@ -1,0 +1,42 @@
+---
+
+# https://docs.ansible.com/ansible/latest/user_guide/playbooks_vars_facts.html
+- name: Configure the server and install required software
+  hosts: wgvps_servers
+  gather_facts: true
+  # Do not become, otherwise SSH_CLIENT fails on undefined and SSH_CONNECTION.split results in undefined
+  become: false
+
+  tasks:
+
+    - name: Debug home ip 1
+      ansible.builtin.debug:
+        msg: "{{ ansible_env['SSH_CLIENT'].split() | first }}"
+
+    - name: Debug ip adress used by ssh connection
+      ansible.builtin.debug: var=hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2]
+
+    - name: Debug ip4 adress default
+      # ansible.builtin.debug: var=hostvars[inventory_hostname]['ansible_default_ipv4']['address']
+      # ansible.builtin.debug: var=hostvars[inventory_hostname]['ansible_default_ipv4']['alias']
+      ansible.builtin.debug: var=ansible_default_ipv4.alias
+
+    - name: Debug ip4 adress eth0
+      ansible.builtin.debug: var=ansible_eth0.ipv4.address
+      # ansible.builtin.debug: var=ansible_eth0
+
+    - name: Debug ip4 adress enp0s3
+      ansible.builtin.debug: var=ansible_enp0s3.ipv4.address
+
+    - name: Debug ip6 adress default
+      ansible.builtin.debug: var=hostvars[inventory_hostname]['ansible_default_ipv6']['address']
+
+    - name: get my public IP
+      community.general.ipify_facts: api_url=http://api.ipify.org
+      connection: local
+
+    - name: Debug public ipfy ip
+      ansible.builtin.debug: var=ipify_public_ip
+
+      # - firewalld: rich_rule='rule family=ipv4 source address={{ ipify_public_ip }} accept' permanent=no state=enabled timeout=300
+      #   become: true

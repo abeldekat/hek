@@ -14,4 +14,5 @@
 #   libyaml = True
 
 # ansible-playbook -K playbook.yml --tags="searxng"
+# ansible-playbook -K playbook.yml --skip-tags="common,dns,wireguard,searxng"
 ansible-playbook -K playbook.yml
