@@ -94,8 +94,8 @@ table ip filter {
         iifname $wg_iface ip daddr $dns_ipv4 udp dport 53 accept comment "accept dns traffic to local dns resolver from wireguard"
 
         ### http https ###
-        # tcp dport 80 counter name accept_http accept
-        # tcp dport 443 counter name accept_https accept
+        tcp dport 80 counter name accept_http accept
+        tcp dport 443 counter name accept_https accept
 
         # count/log remaining (disabled because of log spam)
         # counter name drop_input log prefix "DROP " comment "drop input"
@@ -161,6 +161,9 @@ table ip6 filter {
 
         udp dport $wg_port accept comment "accept wireguard"
         iifname $wg_iface ip6 daddr $dns_ipv6 udp dport 53 accept comment "accept dns traffic to local dns resolver from wireguard"
+
+        tcp dport 80 counter name accept_ipsix_http accept
+        tcp dport 443 counter name accept_ipsix_https accept
 
         counter name drop_ipsix_input comment "count dropped packets"
     }

@@ -1,3 +1,52 @@
 ---
 - name: Import docker tasks
   import_tasks: setup_docker_debian.yml
+
+# https://github.com/searxng/searxng-docker
+# docker compose non root user:
+# https://docs.docker.com/engine/install/linux-postinstall
+
+- name: Checkout searxng fork
+  ansible.builtin.git:
+    clone: true
+    dest: /usr/local/searxng-docker
+    repo: "{{ searxng_git }}"
+    version: master
+    update: true
+    force: true
+
+- name: Ensure the settings are set
+  ansible.builtin.template:
+    src: .env.j2
+    dest: /usr/local/searxng-docker/.env
+    mode: 0644
+
+- name: Ensure the settings are set
+  ansible.builtin.template:
+    src: settings.yml.j2
+    dest: /usr/local/searxng-docker/searxng/settings.yml
+    mode: 0644
+
+- name: Copy searxng-docker.service.template to actual service file
+  ansible.builtin.copy:
+    src: /usr/local/searxng-docker/searxng-docker.service.template
+    dest: /usr/local/searxng-docker/searxng-docker.service
+    remote_src: true
+    mode: preserve
+    owner: root
+    group: root
+
+- name: Ensure the docker compose command in service file is correct
+  ansible.builtin.replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
+  with_items:
+    - {regexp: '\/usr\/local/bin/docker-compose', line: '/usr/bin/docker compose', file: '/usr/local/searxng-docker/searxng-docker.service'}
+
+- name: Searxng enabled
+  ansible.builtin.systemd:
+    name: /usr/local/searxng-docker/searxng-docker.service
+    enabled: true
+
+- name: Searxng started
+  ansible.builtin.systemd:
+    name: searxng-docker
+    state: started

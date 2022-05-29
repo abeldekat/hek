@@ -8,8 +8,8 @@
     mode: 0755
   with_items:
     - {src: nftables.conf.j2, dest: /etc/nftables.conf}
-    # notify:
-    #   - restart iptables
+  notify:
+    - restart nftables
 
 - name: Ensure nftables systemd service runs
   ansible.builtin.systemd:

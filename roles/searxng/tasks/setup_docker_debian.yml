@@ -26,7 +26,6 @@
     warn: false
     creates: "/usr/share/keyrings/docker-archive-keyring.gpg"
     executable: /bin/bash
-
 - name: Retrieve deb architecture
   ansible.builtin.command: dpkg --print-architecture
   changed_when: false
@@ -40,8 +39,8 @@
     update_cache: true
 
 # after: usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
-# on matrix twb: Docker version 20.10.16, build aa7e414
-# on this server: Docker version 20.10.16, build aa7e414
+# Docker Compose version v2.5.0
+# Note: use docker compose, not docker-compose
 - name: Ensure docker is installed
   ansible.builtin.apt:
     name:
@@ -56,5 +55,4 @@
   ansible.builtin.user:
     name: "{{ wgvps_user }}"
     append: true
-    # groups: adm, netdev
     groups: docker
