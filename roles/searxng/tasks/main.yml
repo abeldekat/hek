@@ -1,0 +1,3 @@
+---
+- name: Import docker tasks
+  import_tasks: setup_docker_debian.yml

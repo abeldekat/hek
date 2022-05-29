@@ -29,3 +29,9 @@
         name: wireguard
       when: wireguard_enabled
       tags: wireguard
+
+    - name: Import searxng role
+      ansible.builtin.import_role:
+        name: searxng
+      when: searxng_enabled
+      tags: searxng

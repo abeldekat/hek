@@ -18,6 +18,8 @@ define pub_iface = "eth0"
 define wg_iface = {{ wireguard_interface }}
 define wg_port = {{ wireguard_port }}
 
+define dns_ipv4 = {{ local_service_ip }}
+define dns_ipv6 = {{ local_service_ipv6 }}
 define wg_net_ipv4 = {{ wireguard_network_ipv4 }}
 define wg_net_ipv6 = {{ wireguard_network_ipv6 }}
 
@@ -89,7 +91,7 @@ table ip filter {
 
         # Accept DNS traffic to the local DNS resolver
         # -A INPUT -d 172.24.117.23 -p udp --dport 53 -j ACCEPT
-        iifname $wg_iface udp dport 53 ip saddr $wg_net_ipv4 accept comment "accept dns traffic to local dns resolver from wireguard"
+        iifname $wg_iface ip daddr $dns_ipv4 udp dport 53 accept comment "accept dns traffic to local dns resolver from wireguard"
 
         ### http https ###
         # tcp dport 80 counter name accept_http accept
@@ -104,12 +106,11 @@ table ip filter {
         type filter hook forward priority 0; policy drop;
 
         ct state { established, related } accept
-        iifname "lo" accept
+        iif "lo" accept
 
         # Forward any traffic from the WireGuard VPN network
         # -A FORWARD -m conntrack --ctstate NEW -s 10.49.0.0/16 -m policy --pol none --dir in -j ACCEPT
-        # TODO would filter by wg ip be faster?
-        iifname $wg_iface oif $pub_iface ct state new accept comment "forward wireguard traffic"
+        iifname $wg_iface oifname $pub_iface ct state new accept comment "forward wireguard traffic"
 
         counter name drop_forward comment "count dropped packets"
     }
@@ -125,9 +126,8 @@ table ip filter {
 
     # -A POSTROUTING -s 10.49.0.0/16 -m policy --pol none --dir out -j MASQUERADE
     chain POSTROUTING {
-        # type nat hook postrouting priority 100;
         type nat hook postrouting priority srcnat;
-        ip saddr $wg_net_ipv4 oif $pub_iface masquerade;
+        ip saddr $wg_net_ipv4 oifname $pub_iface masquerade;
     }
 }
 
@@ -146,35 +146,22 @@ table ip6 filter {
     chain INPUT {
         type filter hook input priority 0; policy drop;
 
-        # connection tracker
         ct state invalid counter name drop_ipsix_ct_invalid drop comment "early drop of invalid packets"
         ct state {established,related} counter name accept_ipsix_ct_rel accept comment "accept all connections related to connections made by us"
 
-        # accept all loopback traffic
         iif lo accept comment "accept loopback"
-
-        # drop loopback traffic on non-loopback interfaces
         iif != lo ip6 daddr ::1/128 counter name drop_ipsix_loop_v6 drop comment "drop connections to loopback not coming from loopback"
 
-        # accept icmp
         # accept neighbour discovery otherwise connectivity breaks
         #
         # icmpv6 type { nd-neighbor-solicit, nd-router-advert, nd-neighbor-advert } accept
         ip6 nexthdr icmpv6 counter name accept_ipsix_icmp_v6 accept comment "accept all ICMP types"
 
-        # accept ssh( todo maybe wireguard just for ssh? Fail2ban!) 
         tcp dport 22 counter name accept_ipsix_ssh accept comment "accept SSH"
 
-        ### public wireguard ###
         udp dport $wg_port accept comment "accept wireguard"
-        iifname $wg_iface udp dport 53 ip6 saddr $wg_net_ipv6 accept comment "accept dns traffic to local dns resolver from wireguard"
+        iifname $wg_iface ip6 daddr $dns_ipv6 udp dport 53 accept comment "accept dns traffic to local dns resolver from wireguard"
 
-        ### http https ###
-        # tcp dport 80 counter name accept_ipsix_http accept
-        # tcp dport 443 counter name accept_ipsix_https accept
-
-        # count/log remaining (disabled because of log spam)
-        # counter name drop_ipsix_input log prefix "DROP " comment "drop input"
         counter name drop_ipsix_input comment "count dropped packets"
     }
 
@@ -182,14 +169,11 @@ table ip6 filter {
         type filter hook forward priority 0; policy drop;
 
         ct state { established, related } accept
-        iifname "lo" accept
-
-        iifname $wg_iface oif $pub_iface ct state new accept comment "forward wireguard traffic"
-
+        iif "lo" accept
+        iifname $wg_iface oifname $pub_iface ct state new accept comment "forward wireguard traffic"
         counter name drop_ipsix_forward comment "count dropped packets"
 	}
 
-	# If you're not counting packets, this chain can be omitted.
     chain OUTPUT {
         type filter hook output priority 0; policy accept;
         counter name accept_ipsix_output comment "count accepted packets"
@@ -198,6 +182,6 @@ table ip6 filter {
     chain POSTROUTING {
         type nat hook postrouting priority srcnat;
 
-        ip6 saddr $wg_net_ipv6 oif $pub_iface masquerade;
+        ip6 saddr $wg_net_ipv6 oifname $pub_iface masquerade;
     }
 }
