@@ -4,8 +4,6 @@
 # Note: algo does ipv6: true
 - hosts: wgvps_servers
   gather_facts: false
-  vars:
-    - drb_password: '$6$4AJcweVG$ww2ta9FD8ULuGIzgdWBkXiFr4yfQjFzd0HI9mXl4RxVtobcsrdqa.5KsPfC4PXGDdbddCVdLRev2MOjwGYwca0'
 
   # ansible webserver -m ping
   # ansible webserver -m shell -a id
@@ -26,8 +24,8 @@
 
     - name: Add a new user
       ansible.builtin.user:
-        name: ajb
-        password: "{{ drb_password }}"
+        name: "{{ wgvps_user }}"
+        password: "{{ wgvps_password }}"
         append: true
         # groups: adm, netdev
         groups: sudo
@@ -36,7 +34,7 @@
 
     - name: add SSH Key to authorized
       ansible.posix.authorized_key:
-        user: ajb
+        user: "{{ wgvps_user }}"
         key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/laptop2drieberen.pub') }}"
         state: present
 

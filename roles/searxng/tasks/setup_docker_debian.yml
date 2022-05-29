@@ -51,3 +51,10 @@
       - docker-compose-plugin
       - "python{{'3' if ansible_python.version.major == 3 else ''}}-docker"
     state: present
+
+- name: Ensure user is added to the docker group
+  ansible.builtin.user:
+    name: "{{ wgvps_user }}"
+    append: true
+    # groups: adm, netdev
+    groups: docker
