@@ -3,6 +3,11 @@
   import_tasks: setup_docker_debian.yml
 
 # https://github.com/searxng/searxng-docker
+#
+# TODO:
+# @blocked not remote_ip <ip1> <ip2> <ip3>
+# respond @blocked "Nope" 403
+#
 # docker compose non root user:
 # https://docs.docker.com/engine/install/linux-postinstall
 
@@ -40,6 +45,8 @@
   ansible.builtin.replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
   with_items:
     - {regexp: '\/usr\/local/bin/docker-compose', line: '/usr/bin/docker compose', file: '/usr/local/searxng-docker/searxng-docker.service'}
+
+
 
 - name: Searxng enabled
   ansible.builtin.systemd:
