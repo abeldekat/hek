@@ -5,9 +5,25 @@
 # https://github.com/searxng/searxng-docker
 #
 # TODO:
-# @blocked not remote_ip <ip1> <ip2> <ip3>
-# respond @blocked "Nope" 403
+
+# @notimageproxy {
+#       not path /image_proxy
+# }
+
+# @blocked {
+#       not remote_ip 83.84.153.250 10.49.0.0/16
+# }
 #
+# # SearXNG
+# handle {
+#       encode zstd gzip
+#       respond @blocked 403
+
+#       reverse_proxy localhost:8080 {
+#              header_up X-Forwarded-Port {http.request.port}
+#              header_up X-Forwarded-Proto {http.request.scheme}
+#       }
+# }
 # docker compose non root user:
 # https://docs.docker.com/engine/install/linux-postinstall
 
