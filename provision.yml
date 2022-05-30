@@ -4,3 +4,6 @@
 
 - name: "Cloud setup"
   import_playbook: playbooks/cloud.yml
+
+- name: "Local ip"
+  import_playbook: playbooks/local_ip.yml

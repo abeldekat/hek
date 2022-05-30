@@ -1,14 +1,21 @@
 ---
 
+# - name: Change ip6
+#   ansible.builtin.lineinfile:
+#     dest: inventory/host_vars/www.drieberen.xyz/vars.yml
+#     regexp: 'wgvps_home_ipv6: '
+#     line: "wgvps_home_ipv6: {{ ipify_public_ip }}"
+#     state: present
+#   connection: local
+
 # https://docs.ansible.com/ansible/latest/user_guide/playbooks_vars_facts.html
 - name: Configure the server and install required software
   hosts: wgvps_servers
   gather_facts: true
-  # Do not become, otherwise SSH_CLIENT fails on undefined and SSH_CONNECTION.split results in undefined
+  # Do not use become, otherwise SSH_CLIENT fails on undefined and SSH_CONNECTION.split results in undefined
   become: false
 
   tasks:
-
     - name: Debug home ip 1
       ansible.builtin.debug:
         msg: "{{ ansible_env['SSH_CLIENT'].split() | first }}"
@@ -30,13 +37,3 @@
 
     - name: Debug ip6 adress default
       ansible.builtin.debug: var=hostvars[inventory_hostname]['ansible_default_ipv6']['address']
-
-    - name: get my public IP
-      community.general.ipify_facts: api_url=http://api.ipify.org
-      connection: local
-
-    - name: Debug public ipfy ip
-      ansible.builtin.debug: var=ipify_public_ip
-
-      # - firewalld: rich_rule='rule family=ipv4 source address={{ ipify_public_ip }} accept' permanent=no state=enabled timeout=300
-      #   become: true
