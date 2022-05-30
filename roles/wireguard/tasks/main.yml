@@ -88,7 +88,7 @@
   become: false
   delegate_to: localhost
   when:
-    - not wgvps_store_pki
+    - not store_pki
     - not pki_in_tmpfs
 
 - name: Force all notified handlers to run at this point, not waiting for normal sync points

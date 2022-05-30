@@ -393,7 +393,7 @@ cache_neg_max_ttl = 600
 
   ## Path to the file of blocking rules (absolute, or relative to the same directory as the executable file)
 
-  {{ "blacklist_file = 'blacklist.txt'" if wgvps_dns_adblocking else "" }}
+  {{ "blacklist_file = 'blacklist.txt'" if dns_adblocking else "" }}
 
 
   ## Optional path to a file logging blocked queries

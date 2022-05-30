@@ -15,7 +15,7 @@
       ansible.builtin.import_role:
         name: dns
       when:
-        - wgvps_dns_adblocking or
+        - dns_adblocking or
           dns_encryption
       tags: dns
 
