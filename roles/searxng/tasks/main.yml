@@ -62,7 +62,15 @@
   with_items:
     - {regexp: '\/usr\/local/bin/docker-compose', line: '/usr/bin/docker compose', file: '/usr/local/searxng-docker/searxng-docker.service'}
 
-
+- name: Ensure access to searxng is restricted
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: /usr/local/searxng-docker/Caddyfile
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    restart searxng
 
 - name: Searxng enabled
   ansible.builtin.systemd:

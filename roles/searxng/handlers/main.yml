@@ -1,0 +1,7 @@
+---
+
+- name: restart searxng
+  ansible.builtin.systemd:
+    name: searxng-docker
+    state: restarted
+    daemon_reload: true

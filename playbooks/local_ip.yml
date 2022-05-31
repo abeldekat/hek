@@ -12,7 +12,7 @@
     - name: Ensure controller ipv4 set in inventory
       ansible.builtin.replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
       with_items:
-        - {regexp: '^.*wgvps_home_ipv4:.*$', line: "wgvps_home_ipv4: {{ ipify_public_ip }}", file: "{{ target_file }}"}
+        - {regexp: '^.*wgvps_home_ipv4:.*$', line: "wgvps_home_ipv4: {{ ipify_public_ip }}/32", file: "{{ target_file }}"}
         # connection: local
 
     - name: Obtain controller public ipv6
@@ -22,5 +22,5 @@
     - name: Ensure controller ipv6 set in inventory
       ansible.builtin.replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
       with_items:
-        - {regexp: '^.*wgvps_home_ipv6:.*$', line: "wgvps_home_ipv6: {{ ipify_public_ip }}", file: "{{ target_file }}"}
+        - {regexp: '^.*wgvps_home_ipv6:.*$', line: "wgvps_home_ipv6: {{ ipify_public_ip }}/64", file: "{{ target_file }}"}
         # connection: local
