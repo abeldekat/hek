@@ -86,7 +86,7 @@
 # CA_password
 - name: Set ip_subject_alt_name as a fact
   ansible.builtin.set_fact:
-    ip_subject_alt_name: "{{ ansible_default_ipv4.address }}"
+    ip_subject_alt_name: "{{ ansible_default_ipv6.address }}"
 - name: Set IPv6 support as a fact
   ansible.builtin.set_fact:
     ipv6_support: "{% if ansible_default_ipv6['gateway'] is defined %}true{% else %}false{% endif %}"
