@@ -10,76 +10,51 @@
     - "{{ wireguard_pki_path }}/public"
   delegate_to: localhost
   become: false
+  when: wireguard_enabled
+  tags:
+    - setup-all
+    - wireguard
 
-- name: Include tasks for Debian
-  include_tasks: debian.yml
+- name: Ensure wireguard installed
+  ansible.builtin.apt:
+    name: wireguard
+    state: present
+    update_cache: true
+  when: wireguard_enabled
+  tags:
+    - setup-all
+    - wireguard
+
+- name: Set OS specific facts
+  ansible.builtin.set_fact:
+    service_name: "wg-quick@{{ wireguard_interface }}"
   tags: always
 
-- name: Generate keys
-  import_tasks: keys.yml
-  tags: update-users
+- name: Import keygeneration tasks
+  ansible.builtin.import_tasks: keys.yml
+  when: wireguard_enabled
+  tags:
+    - setup-all
+    - wireguard
+    - update-users
 
-# when update users
-- block:
-    # local tasks block
-    - block:
-        - name: WireGuard user list updated
-          ansible.builtin.lineinfile:
-            dest: "{{ wireguard_pki_path }}/index.txt"
-            create: true
-            mode: "0600"
-            insertafter: EOF
-            line: "{{ item }}"
-          register: lineinfile
-          with_items: "{{ users }}"
+- name: Import configuration tasks
+  ansible.builtin.import_tasks: config.yml
+  when: wireguard_enabled
+  tags:
+    - setup-all
+    - wireguard
+    - update-users
 
-        - name: Set wireguard users as fact
-          ansible.builtin.set_fact:
-            wireguard_users: "{{ (lookup('file', wireguard_pki_path + 'index.txt')).split('\n') }}"
-
-        - name: WireGuard users config generated
-          ansible.builtin.template:
-            src: client.conf.j2
-            dest: "{{ wireguard_config_path }}/{{ item.1 }}.conf"
-            mode: "0600"
-          with_indexed_items: "{{ wireguard_users }}"
-          when: item.1 in users
-          vars:
-            index: "{{ item.0 }}"
-
-        - name: Generate QR codes
-          ansible.builtin.shell: >
-            umask 077;
-            which segno &&
-            segno --scale=5 --output={{ item.1 }}.png \
-              "{{ lookup('template', 'client.conf.j2') }}" || true
-          changed_when: false
-          with_indexed_items: "{{ wireguard_users }}"
-          when: item.1 in users
-          vars:
-            index: "{{ item.0 }}"
-            ansible_python_interpreter: "{{ ansible_playbook_python }}"
-          args:
-            chdir: "{{ wireguard_config_path }}"
-            executable: bash
-
-      become: false
-      delegate_to: localhost
-
-    - name: WireGuard configured
-      ansible.builtin.template:
-        src: server.conf.j2
-        dest: "{{ config_prefix|default('/') }}etc/wireguard/{{ wireguard_interface }}.conf"
-        mode: "0600"
-      notify: restart wireguard
-  tags: update-users
-
-# service:
 - name: WireGuard enabled and started
   ansible.builtin.systemd:
     name: "{{ service_name }}"
     state: started
     enabled: true
+  when: wireguard_enabled
+  tags:
+    - setup-all
+    - wireguard
 
 - name: Delete the PKI directory
   ansible.builtin.file:
@@ -90,6 +65,13 @@
   when:
     - not store_pki
     - not pki_in_tmpfs
+    - wireguard_enabled
+  tags:
+    - setup-all
+    - wireguard
 
 - name: Force all notified handlers to run at this point, not waiting for normal sync points
   ansible.builtin.meta: flush_handlers
+  tags:
+    - setup-all
+    - wireguard

@@ -4,10 +4,6 @@
   gather_facts: true
   become: true
 
-  # - name: Import wireguard role
-  #   ansible.builtin.import_role:
-  #     name: wireguard
-  #   when: wireguard_enabled
 
   # - name: Import searxng role
   #   ansible.builtin.import_role:
@@ -26,3 +22,7 @@
     - name: Import dnscrypt-proxy role
       ansible.builtin.import_role:
         name: dnscrypt-proxy
+
+    - name: Import wireguard role
+      ansible.builtin.import_role:
+        name: wireguard

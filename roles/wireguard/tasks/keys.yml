@@ -35,7 +35,6 @@
       delegate_to: localhost
       become: false
 
-    # TODO The mode in algo is 644
     - name: Touch the lock file
       ansible.builtin.file:
         dest: "{{ config_prefix|default('/') }}etc/wireguard/private_{{ item }}.lock"

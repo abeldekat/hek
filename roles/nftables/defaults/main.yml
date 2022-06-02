@@ -2,4 +2,4 @@
 # starts using vars from wireguard role
 nftables_wireguard_enabled: false
 # starts using vars from dnscrypt-proxy role
-nftables_wireguard_and_dnscrypt_proxy_enabled: false
+nftables_dnscrypt_proxy_enabled: false

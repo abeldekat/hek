@@ -25,7 +25,7 @@ define wg_net_ipv4 = {{ wireguard_network_ipv4 }}
 define wg_net_ipv6 = {{ wireguard_network_ipv6 }}
 {% endif %}
 
-{% if nftables_wireguard_and_dnscrypt_proxy_enabled %}
+{% if nftables_dnscrypt_proxy_enabled %}
 define dns_ipv4 = {{ local_service_ip }}
 define dns_ipv6 = {{ local_service_ipv6 }}
 {% endif %}
@@ -99,7 +99,7 @@ table ip filter {
 
         # Accept DNS traffic to the local DNS resolver
         # -A INPUT -d 172.24.117.23 -p udp --dport 53 -j ACCEPT
-    {%if nftables_wireguard_and_dnscrypt_proxy_enabled %}
+    {%if nftables_dnscrypt_proxy_enabled %}
         iifname $wg_iface ip daddr $dns_ipv4 udp dport 53 accept comment "accept dns traffic to local dns resolver from wireguard"
     {% endif %}
 {% endif %}
@@ -174,7 +174,7 @@ table ip6 filter {
         tcp dport 22 counter name accept_ipsix_ssh accept comment "accept SSH"
 {%if nftables_wireguard_enabled %}
         udp dport $wg_port accept comment "accept wireguard"
-    {%if nftables_wireguard_and_dnscrypt_proxy_enabled %}
+    {%if nftables_dnscrypt_proxy_enabled %}
         iifname $wg_iface ip6 daddr $dns_ipv6 udp dport 53 accept comment "accept dns traffic to local dns resolver from wireguard"
     {% endif %}
 {% endif %}
