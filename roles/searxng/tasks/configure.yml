@@ -1,0 +1,45 @@
+---
+- name: Checkout searxng fork
+  ansible.builtin.git:
+    clone: true
+    dest: /usr/local/searxng-docker
+    repo: "{{ searxng_git }}"
+    version: master
+    update: true
+    force: true
+
+- name: Ensure the env file is set
+  ansible.builtin.template:
+    src: .env.j2
+    dest: /usr/local/searxng-docker/.env
+    mode: 0644
+
+- name: Ensure the settings are set
+  ansible.builtin.template:
+    src: settings.yml.j2
+    dest: /usr/local/searxng-docker/searxng/settings.yml
+    mode: 0644
+
+- name: Copy searxng-docker.service.template to actual service file
+  ansible.builtin.copy:
+    src: /usr/local/searxng-docker/searxng-docker.service.template
+    dest: /usr/local/searxng-docker/searxng-docker.service
+    remote_src: true
+    mode: preserve
+    owner: root
+    group: root
+
+- name: Ensure the docker compose command in service file is correct
+  ansible.builtin.replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
+  with_items:
+    - {regexp: '\/usr\/local/bin/docker-compose', line: '/usr/bin/docker compose', file: '/usr/local/searxng-docker/searxng-docker.service'}
+
+- name: Ensure custom caddyfile is installed
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: /usr/local/searxng-docker/Caddyfile
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    restart searxng

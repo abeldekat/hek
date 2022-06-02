@@ -25,11 +25,6 @@
     - setup-all
     - wireguard
 
-- name: Set OS specific facts
-  ansible.builtin.set_fact:
-    service_name: "wg-quick@{{ wireguard_interface }}"
-  tags: always
-
 - name: Import keygeneration tasks
   ansible.builtin.import_tasks: keys.yml
   when: wireguard_enabled
@@ -48,7 +43,7 @@
 
 - name: WireGuard enabled and started
   ansible.builtin.systemd:
-    name: "{{ service_name }}"
+    name: "{{ wireguard_service_name }}"
     state: started
     enabled: true
   when: wireguard_enabled

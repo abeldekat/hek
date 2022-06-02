@@ -9,7 +9,7 @@
 
   tls {$SEARXNG_TLS}
 
-{% if searx_restricted %}
+{% if searxng_restricted %}
   @blocked {
         not remote_ip {{ wgvps_home_ipv4 }} {{ wgvps_home_ipv6 }} {{ wireguard_network_ipv4 }} {{ wireguard_network_ipv6 }}
   }
@@ -95,7 +95,7 @@
   handle {
         encode zstd gzip
 
-{% if searx_restricted %}
+{% if searxng_restricted %}
         respond @blocked 403
 {% endif %}
         reverse_proxy localhost:8080 {

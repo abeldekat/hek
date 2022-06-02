@@ -4,7 +4,7 @@
   ansible.builtin.file:
     dest: "{{ config_prefix|default('/') }}etc/wireguard/private_{{ item }}.lock"
     state: absent
-  when: keys_clean_all|bool
+  when: wireguard_server_keys_clean_all|bool
   with_items:
     - "{{ users }}"
     - "{{ ip_subject_alt_name }}"
@@ -49,7 +49,7 @@
   ansible.builtin.file:
     dest: "{{ config_prefix|default('/') }}etc/wireguard/preshared_{{ item }}.lock"
     state: absent
-  when: keys_clean_all|bool
+  when: wireguard_server_keys_clean_all|bool
   with_items:
     - "{{ users }}"
     - "{{ ip_subject_alt_name }}"

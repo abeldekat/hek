@@ -3,9 +3,15 @@ wireguard_persistentkeepalive: 0
 wireguard_config_path: "configs/{{ ip_subject_alt_name }}/wireguard/"
 wireguard_pki_path: "{{ wireguard_config_path }}/.pki/"
 wireguard_interface: wg0
+wireguard_service_name: "wg-quick@{{ wireguard_interface }}"
 wireguard_port_avoid: 53
 wireguard_port_actual: 51820
-keys_clean_all: false
+wireguard_server_keys_clean_all: false
+#
+# WireGuard network configuration
+wireguard_network_ipv4: 10.49.0.0/16
+wireguard_network_ipv6: 2001:db8:a160::/48
+#
 wireguard_dns_servers: >-
   {% if dns_adblocking_enabled|default(false)|bool or dns_encryption_enabled|default(false)|bool %}
   {{ local_service_ip }}{{ ', ' + local_service_ipv6 if ipv6_support else '' }}

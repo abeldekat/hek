@@ -1,5 +1,6 @@
 ---
 
+# Maybe also restart docker and nftables
 - name: restart searxng
   ansible.builtin.systemd:
     name: searxng-docker

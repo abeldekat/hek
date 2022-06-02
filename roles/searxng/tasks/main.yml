@@ -1,83 +1,38 @@
 ---
-- name: Import docker tasks
-  import_tasks: setup_docker_debian.yml
 
 # https://github.com/searxng/searxng-docker
 #
-# TODO:
-
-# @notimageproxy {
-#       not path /image_proxy
-# }
-
-# @blocked {
-#       not remote_ip 83.84.153.250 10.49.0.0/16
-# }
-#
-# # SearXNG
-# handle {
-#       encode zstd gzip
-#       respond @blocked 403
-
-#       reverse_proxy localhost:8080 {
-#              header_up X-Forwarded-Port {http.request.port}
-#              header_up X-Forwarded-Proto {http.request.scheme}
-#       }
-# }
-# docker compose non root user:
+# TODO: docker compose non root user:
 # https://docs.docker.com/engine/install/linux-postinstall
 
-- name: Checkout searxng fork
-  ansible.builtin.git:
-    clone: true
-    dest: /usr/local/searxng-docker
-    repo: "{{ searxng_git }}"
-    version: master
-    update: true
-    force: true
+- name: Import install docker tasks
+  ansible.builtin.import_tasks: install-docker.yml
+  when: searxng_enabled
+  tags:
+    - setup-all
+    - docker
 
-- name: Ensure the settings are set
-  ansible.builtin.template:
-    src: .env.j2
-    dest: /usr/local/searxng-docker/.env
-    mode: 0644
-
-- name: Ensure the settings are set
-  ansible.builtin.template:
-    src: settings.yml.j2
-    dest: /usr/local/searxng-docker/searxng/settings.yml
-    mode: 0644
-
-- name: Copy searxng-docker.service.template to actual service file
-  ansible.builtin.copy:
-    src: /usr/local/searxng-docker/searxng-docker.service.template
-    dest: /usr/local/searxng-docker/searxng-docker.service
-    remote_src: true
-    mode: preserve
-    owner: root
-    group: root
-
-- name: Ensure the docker compose command in service file is correct
-  ansible.builtin.replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
-  with_items:
-    - {regexp: '\/usr\/local/bin/docker-compose', line: '/usr/bin/docker compose', file: '/usr/local/searxng-docker/searxng-docker.service'}
-
-- name: Ensure access to searxng is restricted
-  ansible.builtin.template:
-    src: Caddyfile.j2
-    dest: /usr/local/searxng-docker/Caddyfile
-    owner: root
-    group: root
-    mode: 0644
-  notify:
-    restart searxng
+- name: Import configure searxng tasks
+  ansible.builtin.import_tasks: configure.yml
+  when: searxng_enabled
+  tags:
+    - setup-all
+    - searxng
 
 - name: Searxng enabled
   ansible.builtin.systemd:
     name: /usr/local/searxng-docker/searxng-docker.service
     enabled: true
+  when: searxng_enabled
+  tags:
+    - setup-all
+    - searxng
 
 - name: Searxng started
   ansible.builtin.systemd:
     name: searxng-docker
     state: started
+  when: searxng_enabled
+  tags:
+    - setup-all
+    - searxng

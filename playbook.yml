@@ -3,26 +3,19 @@
   hosts: vps_servers
   gather_facts: true
   become: true
-
-
-  # - name: Import searxng role
-  #   ansible.builtin.import_role:
-  #     name: searxng
-  #   when: searxng_enabled
   tasks:
-
     - name: Import base role
       ansible.builtin.import_role:
         name: base
-
     - name: Import nftables role
       ansible.builtin.import_role:
         name: nftables
-
     - name: Import dnscrypt-proxy role
       ansible.builtin.import_role:
         name: dnscrypt-proxy
-
     - name: Import wireguard role
       ansible.builtin.import_role:
         name: wireguard
+    - name: Import searxng role
+      ansible.builtin.import_role:
+        name: searxng

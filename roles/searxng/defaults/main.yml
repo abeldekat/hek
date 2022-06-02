@@ -1,0 +1,4 @@
+---
+# Apply blocking in Caddyfile:
+# Exposes variables from the wireguard role
+searxng_restricted: false
