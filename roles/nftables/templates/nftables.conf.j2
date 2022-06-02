@@ -17,13 +17,18 @@
 flush ruleset
 
 define pub_iface = {{ ansible_default_ipv4.alias }}
+
+{%if nftables_wireguard_enabled %}
 define wg_iface = {{ wireguard_interface }}
 define wg_port = {{ wireguard_port }}
-
-define dns_ipv4 = {{ local_service_ip }}
-define dns_ipv6 = {{ local_service_ipv6 }}
 define wg_net_ipv4 = {{ wireguard_network_ipv4 }}
 define wg_net_ipv6 = {{ wireguard_network_ipv6 }}
+{% endif %}
+
+{% if nftables_wireguard_and_dnscrypt_proxy_enabled %}
+define dns_ipv4 = {{ local_service_ip }}
+define dns_ipv6 = {{ local_service_ipv6 }}
+{% endif %}
 
 # table netdev drop-bad-packets {
 #     chain ingress {
@@ -86,6 +91,7 @@ table ip filter {
         # accept ssh( todo maybe wireguard just for ssh? Fail2ban!) 
         tcp dport 22 counter name accept_ssh accept comment "accept SSH"
 
+{%if nftables_wireguard_enabled %}
         ### public wireguard ###
         #-A INPUT -p udp -m multiport --dports 51820 -j ACCEPT
         # udp dport $wg_port ct state { new, untracked } accept
@@ -93,7 +99,10 @@ table ip filter {
 
         # Accept DNS traffic to the local DNS resolver
         # -A INPUT -d 172.24.117.23 -p udp --dport 53 -j ACCEPT
+    {%if nftables_wireguard_and_dnscrypt_proxy_enabled %}
         iifname $wg_iface ip daddr $dns_ipv4 udp dport 53 accept comment "accept dns traffic to local dns resolver from wireguard"
+    {% endif %}
+{% endif %}
 
         ### http https ###
         tcp dport 80 counter name accept_http accept
@@ -116,7 +125,9 @@ table ip filter {
 
         # Forward any traffic from the WireGuard VPN network
         # -A FORWARD -m conntrack --ctstate NEW -s 10.49.0.0/16 -m policy --pol none --dir in -j ACCEPT
+{%if nftables_wireguard_enabled %}
         iifname $wg_iface oifname $pub_iface ct state new accept comment "forward wireguard traffic"
+{% endif %}
 
         counter name drop_forward comment "count dropped packets"
     }
@@ -127,11 +138,13 @@ table ip filter {
         counter name accept_output comment "count accepted packets"
     }
 
+{%if nftables_wireguard_enabled %}
     # -A POSTROUTING -s 10.49.0.0/16 -m policy --pol none --dir out -j MASQUERADE
     chain POSTROUTING {
         type nat hook postrouting priority srcnat;
         ip saddr $wg_net_ipv4 oifname $pub_iface masquerade;
     }
+{% endif %}
 }
 
 table ip6 filter {
@@ -159,8 +172,12 @@ table ip6 filter {
         ip6 nexthdr icmpv6 counter name accept_ipsix_icmp_v6 accept comment "accept all ICMP types"
 
         tcp dport 22 counter name accept_ipsix_ssh accept comment "accept SSH"
+{%if nftables_wireguard_enabled %}
         udp dport $wg_port accept comment "accept wireguard"
+    {%if nftables_wireguard_and_dnscrypt_proxy_enabled %}
         iifname $wg_iface ip6 daddr $dns_ipv6 udp dport 53 accept comment "accept dns traffic to local dns resolver from wireguard"
+    {% endif %}
+{% endif %}
         tcp dport 80 counter name accept_ipsix_http accept
         tcp dport 443 counter name accept_ipsix_https accept
 
@@ -171,7 +188,9 @@ table ip6 filter {
         type filter hook forward priority 0; policy drop;
         ct state { established, related } accept
         iif "lo" accept
+{%if nftables_wireguard_enabled %}
         iifname $wg_iface oifname $pub_iface ct state new accept comment "forward wireguard traffic"
+{% endif %}
         counter name drop_ipsix_forward comment "count dropped packets"
 	}
 
@@ -180,8 +199,10 @@ table ip6 filter {
         counter name accept_ipsix_output comment "count accepted packets"
     }
 
+{%if nftables_wireguard_enabled %}
     chain POSTROUTING {
         type nat hook postrouting priority srcnat;
         ip6 saddr $wg_net_ipv6 oifname $pub_iface masquerade;
     }
+{% endif %}
 }

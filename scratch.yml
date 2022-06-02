@@ -10,7 +10,7 @@
 
 # https://docs.ansible.com/ansible/latest/user_guide/playbooks_vars_facts.html
 - name: Configure the server and install required software
-  hosts: wgvps_servers
+  hosts: vps_servers
   gather_facts: true
   # Do not use become, otherwise SSH_CLIENT fails on undefined and SSH_CONNECTION.split results in undefined
   become: false

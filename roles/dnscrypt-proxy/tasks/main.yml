@@ -1,0 +1,36 @@
+---
+- name: Include install tasks
+  ansible.builtin.import_tasks: install-dnscrypt-proxy.yml
+  when:
+    - dns_adblocking_enabled or
+      dns_encryption_enabled
+  tags:
+    - setup-all
+    - dnscrypt-proxy
+
+- name: Include configurations tasks
+  ansible.builtin.import_tasks: configure-dnscrypt-proxy.yml
+  when:
+    - dns_adblocking_enabled or
+      dns_encryption_enabled
+  tags:
+    - setup-all
+    - dnscrypt-proxy
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  ansible.builtin.meta: flush_handlers
+  tags:
+    - setup-all
+    - dnscrypt-proxy
+
+- name: dnscrypt-proxy enabled and started
+  ansible.builtin.systemd:
+    name: dnscrypt-proxy
+    state: started
+    enabled: true
+  when:
+    - dns_adblocking_enabled or
+      dns_encryption_enabled
+  tags:
+    - setup-all
+    - dnscrypt-proxy

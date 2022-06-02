@@ -12,6 +12,7 @@
 # loaded: loaded (/lib/systemd/system/dnscrypt-proxy.service; enabled; vendor preset: enabled)
 # 3574 /usr/sbin/dnscrypt-proxy -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml
 # triggered by: dnscrypt-proxy.socket
+
 - name: Ensure dnscrypt-proxy is installed
   ansible.builtin.apt:
     name: dnscrypt-proxy
@@ -31,7 +32,6 @@
     - name: Enforce the dnscrypt-proxy AppArmor policy
       ansible.builtin.command: aa-enforce usr.bin.dnscrypt-proxy
       changed_when: false
-  tags: apparmor
   when: apparmor_enabled|default(false)|bool
 
 - name: Ensure that the dnscrypt-proxy service directory exist

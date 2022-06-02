@@ -1,32 +1,28 @@
 ---
 - name: Configure the server and install required software
-  hosts: wgvps_servers
+  hosts: vps_servers
   gather_facts: true
   become: true
 
+  # - name: Import wireguard role
+  #   ansible.builtin.import_role:
+  #     name: wireguard
+  #   when: wireguard_enabled
+
+  # - name: Import searxng role
+  #   ansible.builtin.import_role:
+  #     name: searxng
+  #   when: searxng_enabled
   tasks:
 
-    - name: Import common role
+    - name: Import base role
       ansible.builtin.import_role:
-        name: common
-      tags: common
+        name: base
 
-    - name: Import dns role
+    - name: Import nftables role
       ansible.builtin.import_role:
-        name: dns
-      when:
-        - dns_adblocking or
-          dns_encryption
-      tags: dns
+        name: nftables
 
-    - name: Import wireguard role
+    - name: Import dnscrypt-proxy role
       ansible.builtin.import_role:
-        name: wireguard
-      when: wireguard_enabled
-      tags: wireguard
-
-    - name: Import searxng role
-      ansible.builtin.import_role:
-        name: searxng
-      when: searxng_enabled
-      tags: searxng
+        name: dnscrypt-proxy

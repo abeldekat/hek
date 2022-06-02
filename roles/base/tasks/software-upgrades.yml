@@ -1,0 +1,29 @@
+---
+
+- name: Install software updates
+  ansible.builtin.apt:
+    update_cache: true
+    install_recommends: true
+    upgrade: dist
+  register: result
+  until: result is succeeded
+  retries: 5
+  delay: 10
+
+- name: Check if reboot is required
+  ansible.builtin.shell: >
+    if [[ -e /var/run/reboot-required ]]; then echo "required"; else echo "no"; fi
+  args:
+    executable: /bin/bash
+  register: reboot_required
+  changed_when: false
+
+- name: Ensure reboot if required. Using defaults
+  ansible.builtin.reboot:
+  when: reboot_required is defined and reboot_required.stdout == 'required'
+
+- name: Wait until the server becomes ready...
+  ansible.builtin.wait_for_connection:
+    delay: 20
+    timeout: 320
+  when: reboot_required is defined and reboot_required.stdout == 'required'

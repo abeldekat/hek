@@ -155,5 +155,3 @@
 #   include_tasks: aip/main.yml
 #   when: alternative_ingress_ip
 
-- include_tasks: nftables.yml
-  tags: nftables

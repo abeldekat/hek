@@ -1,7 +1,14 @@
 ---
 install_headers: false
+apparmor_enabled: true
 ipv6_default: "{{ ansible_default_ipv6.address + '/' + ansible_default_ipv6.prefix }}"
 ipv6_subnet_size: "{{ ipv6_default | ipaddr('size') }}"
+
 # This is also related to aip
 ipv6_egress_ip: >-
   {{ (ipv6_default | next_nth_usable(15 | random(seed=algo_server_name + ansible_fqdn))) + '/124' if ipv6_subnet_size|int > 1 else ipv6_default }}
+
+# facts collected in tasks:
+ip_subject_alt_name:
+ipv6_support:
+reduce_mtu:

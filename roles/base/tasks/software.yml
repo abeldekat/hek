@@ -1,0 +1,50 @@
+---
+
+# Apparmor is installed and active by default on debian 11, at least on digital ocean
+# Apparmor-utilities provides utilities that operate on AppArmor profiles.
+# Profiles can be created, updated, enforced, set to complain mode, and disabled with tools such as aa-genprof, aa-enforce, aa-complain and aa-disabled.
+# Installs apparmor-utils python3-apparmor python3-libapparmor
+#
+# The libuuid library generates and parses 128-bit Universally Unique IDs (UUIDs).
+# A UUID is an identifier that is unique within the space of all such identifiers across both space and time.
+# It can be used for multiple purposes, from tagging objects with an extremely short lifetime to reliably identifying very persistent objects across a network.
+# This package contains the uuidgen program and the uuidd daemon.
+# Already installed on debian 11
+#
+# Coreutils is already installed
+# This package contains the basic file, shell and text manipulation utilities which are expected to exist on every operating system
+#
+# GnuPG is GNU's tool for secure communication and data storage.
+# It can be used to encrypt data and to create digital signatures. It includes an advanced key management facility and is compliant with
+# the proposed OpenPGP Internet standard as described in RFC4880.
+# Already installled
+#
+# Openssl already installed
+# This package is part of the OpenSSL project's implementation of the SSL and TLS cryptographic protocols for secure communication over the Internet.
+#
+# Control Groups (cgroups) provide a mechanism for aggregating/partitioning sets of tasks, and all their future children,
+# into hierarchical groups with specialized behaviour.
+# libcgroup allows one to manipulate, control, administrate and monitor cgroups and the associated controllers.
+# This package contains the command-line tools.
+# Installs cgroup-tools libcgroup1
+#
+# Algo required screen instead of tmux and iptables-persistent instead of nftables
+#
+- name: Build software list
+  ansible.builtin.set_fact:
+    tools:
+      - git
+      - tmux
+      - apparmor-utils
+      - coreutils
+      - uuid-runtime
+      - cgroup-tools
+      - openssl
+      - gnupg2
+      - htop
+
+- name: Ensure software is installed
+  ansible.builtin.apt:
+    name: "{{ tools|default([]) }}"
+    state: present
+    update_cache: true

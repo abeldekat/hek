@@ -1,4 +1,13 @@
 ---
+- name: Ensure nftables installed
+  ansible.builtin.apt:
+    name: nftables
+    state: present
+    update_cache: true
+  tags:
+    - setup-all
+    - nftables
+
 - name: Ensure nftables configured
   ansible.builtin.template:
     src: "{{ item.src }}"
@@ -10,6 +19,9 @@
     - {src: nftables.conf.j2, dest: /etc/nftables.conf}
   notify:
     - restart nftables
+  tags:
+    - setup-all
+    - nftables
 
 - name: Ensure nftables systemd service runs
   ansible.builtin.systemd:
@@ -17,3 +29,6 @@
     daemon_reload: true
     enabled: true
     state: started
+  tags:
+    - setup-all
+    - nftables

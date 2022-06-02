@@ -1,0 +1,46 @@
+---
+# Sample starting situation: ip a in digital ocean
+# 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+#     link/ether c6:b7:75:f9:2c:53 brd ff:ff:ff:ff:ff:ff
+#     altname enp0s3
+#     altname ens3
+#     inet 165.22.87.10/20 brd 165.22.95.255 scope global eth0
+#        valid_lft forever preferred_lft forever
+#     inet 10.19.0.5/16 brd 10.19.255.255 scope global eth0:1
+#        valid_lft forever preferred_lft forever
+#     inet6 2a03:b0c0:3:d0::1857:5001/64 scope global
+#        valid_lft forever preferred_lft forever
+#     inet6 fe80::c4b7:75ff:fef9:2c53/64 scope link
+#        valid_lft forever preferred_lft forever
+# 3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+#     link/ether 6e:d7:d9:9d:8d:20 brd ff:ff:ff:ff:ff:ff
+#     altname enp0s4
+#     altname ens4
+#     inet 10.114.0.2/20 brd 10.114.15.255 scope global eth1
+#        valid_lft forever preferred_lft forever
+#     inet6 fe80::6cd7:d9ff:fe9d:8d20/64 scope link
+#        valid_lft forever preferred_lft forever
+
+- name: Disable MOTD on login and SSHD
+  ansible.builtin.replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
+  with_items:
+    - {regexp: '^session.*optional.*pam_motd.so.*', line: '# MOTD DISABLED', file: '/etc/pam.d/login'}
+    - {regexp: '^session.*optional.*pam_motd.so.*', line: '# MOTD DISABLED', file: '/etc/pam.d/sshd'}
+
+- name: Ensure fallback resolvers are set
+  ansible.builtin.ini_file:
+    path: /etc/systemd/resolved.conf
+    mode: 0644
+    section: Resolve
+    option: FallbackDNS
+    value: "{{ dns_servers.ipv4 | join(' ') }}"
+  notify:
+    - restart systemd-resolved
+
+- name: Loopback for services configured
+  ansible.builtin.template:
+    src: 10-vps-lo100.network.j2
+    dest: /etc/systemd/network/10-vps-lo100.network
+    mode: 0644
+  notify:
+    - restart systemd-networkd

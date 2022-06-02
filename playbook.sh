@@ -13,6 +13,6 @@
 #   jinja version = 3.0.3
 #   libyaml = True
 
-# ansible-playbook -K playbook.yml --tags="searxng"
+# ansible-playbook -K playbook.yml --tags="setup-all"
 # ansible-playbook -K playbook.yml --skip-tags="common,dns,wireguard,searxng"
-ansible-playbook -K playbook.yml
+# ansible-playbook -K playbook.yml

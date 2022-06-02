@@ -1,0 +1,42 @@
+---
+
+# This variables file wires together the various components (roles) used by the playbook.
+#
+# Roles used by playbook are pretty minimal and kept independent of one another as much as possible.
+# To deliver a turnkey fully-featured  server, this playbook needs
+# to connect them all together. It does so by overriding role variables.
+#
+# You can also override ANY variable (seen here or in any given role),
+# by re-defining it in your own configuration file (`inventory/host_vars/matrix.<your-domain>`).
+
+######################################################################
+#
+#  base
+#
+######################################################################
+
+######################################################################
+#
+#  dnscrypt-proxy
+#
+######################################################################
+
+######################################################################
+#
+#  wireguard
+#
+######################################################################
+
+######################################################################
+#
+#  searxng
+#
+######################################################################
+
+######################################################################
+#
+#  nftables
+#
+######################################################################
+#
+# TODO: enable wireguard and dnscrypt-proxy
