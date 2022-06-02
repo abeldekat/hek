@@ -1,4 +1,5 @@
 ---
+# TODO: tag setup-all is redundant. Same as performing without any tags
 - name: Configure the server and install required software
   hosts: vps_servers
   gather_facts: true
