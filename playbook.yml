@@ -1,22 +1,57 @@
 ---
-# TODO: tag setup-all is redundant. Same as performing without any tags
+# - name: Import scratch2 role
+#   ansible.builtin.import_role:
+#     name: scratch2
+#   tags: [scratch, scratch2]
+
+# - name: Import scratch1 role
+#   ansible.builtin.import_role:
+#     name: scratch1
+#   tags: [scratch, scratch1]
+#
+# Selecting which tags are considered to run:
+# Using tag inheritance with import_role: All tags in the role will be tagged with the tag
+# assigned to the import_role task
+# Selecting which tags should run but be skipped:
+# Using when on import_role task: All tasks in the role will be executed and skipped
+#
 - name: Configure the server and install required software
   hosts: vps_servers
   gather_facts: true
   become: true
   tasks:
+
+    # contains tag upgrade-all
     - name: Import base role
       ansible.builtin.import_role:
         name: base
+      tags: [base]
+
     - name: Import nftables role
       ansible.builtin.import_role:
         name: nftables
+      tags: [nftables]
+
     - name: Import dnscrypt-proxy role
       ansible.builtin.import_role:
         name: dnscrypt-proxy
+      tags: [dnscrypt-proxy]
+
+    # contains tag update-users
     - name: Import wireguard role
       ansible.builtin.import_role:
         name: wireguard
+      tags: [wireguard]
+
+    # if searx_ng disbaled than:
+    # All tasks in docker role run, but skipped
+    - name: Import docker role
+      ansible.builtin.import_role:
+        name: docker
+      when: searxng_enabled
+      tags: [docker]
+
     - name: Import searxng role
       ansible.builtin.import_role:
         name: searxng
+      tags: [searxng]

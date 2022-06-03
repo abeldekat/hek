@@ -21,6 +21,6 @@
 - name: Set IPv6 support as a fact
   ansible.builtin.set_fact:
     ipv6_support: "{% if ansible_default_ipv6['gateway'] is defined %}true{% else %}false{% endif %}"
-- name: Check size of MTU
+- name: Calculate reduce_mtu as a fact
   ansible.builtin.set_fact:
     reduce_mtu: "{{ 1500 - ansible_default_ipv4['mtu']|int if reduce_mtu|int == 0 and ansible_default_ipv4['mtu']|int < 1500 else reduce_mtu|int }}"

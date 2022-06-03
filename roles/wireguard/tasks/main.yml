@@ -11,9 +11,6 @@
   delegate_to: localhost
   become: false
   when: wireguard_enabled
-  tags:
-    - setup-all
-    - wireguard
 
 - name: Ensure wireguard installed
   ansible.builtin.apt:
@@ -21,24 +18,17 @@
     state: present
     update_cache: true
   when: wireguard_enabled
-  tags:
-    - setup-all
-    - wireguard
 
 - name: Import keygeneration tasks
   ansible.builtin.import_tasks: keys.yml
   when: wireguard_enabled
   tags:
-    - setup-all
-    - wireguard
     - update-users
 
 - name: Import configuration tasks
   ansible.builtin.import_tasks: config.yml
   when: wireguard_enabled
   tags:
-    - setup-all
-    - wireguard
     - update-users
 
 - name: WireGuard enabled and started
@@ -47,9 +37,6 @@
     state: started
     enabled: true
   when: wireguard_enabled
-  tags:
-    - setup-all
-    - wireguard
 
 - name: Delete the PKI directory
   ansible.builtin.file:
@@ -61,12 +48,6 @@
     - not store_pki
     - not pki_in_tmpfs
     - wireguard_enabled
-  tags:
-    - setup-all
-    - wireguard
 
 - name: Force all notified handlers to run at this point, not waiting for normal sync points
   ansible.builtin.meta: flush_handlers
-  tags:
-    - setup-all
-    - wireguard

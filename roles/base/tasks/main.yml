@@ -3,18 +3,13 @@
 - name: Import software upgrades tasks
   ansible.builtin.import_tasks: software-upgrades.yml
   tags:
-    - setup-all
     - upgrade-all
 
 - name: Import unattended upgrades tasks
   ansible.builtin.import_tasks: unattended-upgrades.yml
-  tags:
-    - setup-all
 
 - name: Import infrastructure tasks
   ansible.builtin.import_tasks: infra.yml
-  tags:
-    - setup-all
 
 - name: Ensure systemd services enabled and started
   ansible.builtin.systemd:
@@ -26,8 +21,6 @@
     - systemd-networkd
     - systemd-resolved
     - unattended-upgrades
-  tags:
-    - setup-all
 
 - name: Force all notified handlers to run at this point, not waiting for normal sync points
   ansible.builtin.meta: flush_handlers
@@ -41,8 +34,6 @@
 
 - name: Import software tasks
   ansible.builtin.import_tasks: software.yml
-  tags:
-    - setup-all
 
 - name: Ensure sysctl is tuned
   ansible.posix.sysctl:
@@ -56,8 +47,6 @@
       value: 1
     - item: "{{ 'net.ipv6.conf.all.forwarding' if ipv6_support else none }}"
       value: 1
-  tags:
-    - setup-all
 
 - name: Force all notified handlers to run at this point, not waiting for normal sync points
   ansible.builtin.meta: flush_handlers

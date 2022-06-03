@@ -5,34 +5,18 @@
 # TODO: docker compose non root user:
 # https://docs.docker.com/engine/install/linux-postinstall
 
-- name: Import install docker tasks
-  ansible.builtin.import_tasks: install-docker.yml
-  when: searxng_enabled
-  tags:
-    - setup-all
-    - docker
-
 - name: Import configure searxng tasks
   ansible.builtin.import_tasks: configure.yml
   when: searxng_enabled
-  tags:
-    - setup-all
-    - searxng
 
 - name: Searxng enabled
   ansible.builtin.systemd:
     name: /usr/local/searxng-docker/searxng-docker.service
     enabled: true
   when: searxng_enabled
-  tags:
-    - setup-all
-    - searxng
 
 - name: Searxng started
   ansible.builtin.systemd:
     name: searxng-docker
     state: started
   when: searxng_enabled
-  tags:
-    - setup-all
-    - searxng
