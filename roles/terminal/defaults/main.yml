@@ -1,3 +1,10 @@
 ---
 # install software like zsh and neovim
 terminal_enabled: false
+
+terminal_zsh_repo: "~/git/debian/zsh"
+terminal_tmux_repo: "~/.config/tmux"
+
+terminal_zsh_completions_repo: "https://github.com/zsh-users/zsh-completions.git"
+terminal_z_lua_repo: "https://github.com/skywind3000/z.lua.git"
+terminal_zsh_spaceship_prompt_repo: "https://github.com/spaceship-prompt/spaceship-prompt.git"

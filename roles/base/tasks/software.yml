@@ -34,14 +34,12 @@
   ansible.builtin.set_fact:
     tools:
       - git
-      - tmux
       - apparmor-utils
       - coreutils
       - uuid-runtime
       - cgroup-tools
       - openssl
       - gnupg2
-      - htop
 
 - name: Ensure software is installed
   ansible.builtin.apt:
