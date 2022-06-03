@@ -7,16 +7,13 @@
 
 - name: Import configure searxng tasks
   ansible.builtin.import_tasks: configure.yml
-  when: searxng_enabled
 
 - name: Searxng enabled
   ansible.builtin.systemd:
     name: /usr/local/searxng-docker/searxng-docker.service
     enabled: true
-  when: searxng_enabled
 
 - name: Searxng started
   ansible.builtin.systemd:
     name: searxng-docker
     state: started
-  when: searxng_enabled

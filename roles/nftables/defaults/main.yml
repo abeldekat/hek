@@ -1,4 +1,6 @@
 ---
+# Use nftables by default
+nftables_enabled: true
 # starts using vars from wireguard role
 nftables_wireguard_enabled: false
 # starts using vars from dnscrypt-proxy role

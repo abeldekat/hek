@@ -1,0 +1,4 @@
+---
+- name: Var scratch1
+  ansible.builtin.debug:
+    msg: "Starting terminal tasks"

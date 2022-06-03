@@ -9,11 +9,14 @@
 #     name: scratch1
 #   tags: [scratch, scratch1]
 #
-# Selecting which tags are considered to run:
+# 1. Selecting which tasks are considered to run:
+# Invoke without tags: Everything runs
 # Using tag inheritance with import_role: All tags in the role will be tagged with the tag
 # assigned to the import_role task
-# Selecting which tags should run but be skipped:
+# 2 Once tasks are selected to run:
 # Using when on import_role task: All tasks in the role will be executed and skipped
+# TODO: Also inheritance? The role always imported
+# Especially useful when playbook is invoked without tags
 #
 - name: Configure the server and install required software
   hosts: vps_servers
@@ -30,17 +33,22 @@
     - name: Import nftables role
       ansible.builtin.import_role:
         name: nftables
+      when: nftables_enabled
       tags: [nftables]
 
     - name: Import dnscrypt-proxy role
       ansible.builtin.import_role:
         name: dnscrypt-proxy
+      when:
+        - dns_adblocking_enabled or
+          dns_encryption_enabled
       tags: [dnscrypt-proxy]
 
     # contains tag update-users
     - name: Import wireguard role
       ansible.builtin.import_role:
         name: wireguard
+      when: wireguard_enabled
       tags: [wireguard]
 
     # if searx_ng disbaled than:
@@ -54,4 +62,11 @@
     - name: Import searxng role
       ansible.builtin.import_role:
         name: searxng
+      when: searxng_enabled
       tags: [searxng]
+
+    - name: Import terminal role
+      ansible.builtin.import_role:
+        name: terminal
+      when: terminal_enabled
+      tags: [terminal]
