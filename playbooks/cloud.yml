@@ -35,8 +35,10 @@
     - name: add SSH Key to authorized
       ansible.posix.authorized_key:
         user: "{{ wgvps_user }}"
-        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/laptop2drieberen.pub') }}"
+        key: "{{ lookup('file', lookup('env','HOME') + item) }}"
         state: present
+      with_items:
+        - "{{ vps_provision_ssh_keys }}"
 
     # For state=present, the pattern to replace if found. Only the last line found will be replaced.
     # If the regular expression is not matched, the line will be added to the file in keeping with insertbefore or insertafter settings.
