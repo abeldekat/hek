@@ -3,8 +3,8 @@
 # - name: Change ip6
 #   ansible.builtin.lineinfile:
 #     dest: inventory/host_vars/www.drieberen.xyz/vars.yml
-#     regexp: 'wgvps_home_ipv6: '
-#     line: "wgvps_home_ipv6: {{ ipify_public_ip }}"
+#     regexp: 'vps_home_ipv6: '
+#     line: "vps_home_ipv6: {{ ipify_public_ip }}"
 #     state: present
 #   connection: local
 

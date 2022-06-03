@@ -53,6 +53,6 @@
 
 - name: Ensure user is added to the docker group
   ansible.builtin.user:
-    name: "{{ wgvps_user }}"
+    name: "{{ vps_user }}"
     append: true
     groups: docker

@@ -114,5 +114,5 @@
 
 - name: Ensure users shell is zsh
   ansible.builtin.user:
-    name: "{{ wgvps_user }}"
+    name: "{{ vps_user }}"
     shell: /usr/bin/zsh

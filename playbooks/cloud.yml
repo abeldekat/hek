@@ -24,8 +24,8 @@
 
     - name: Add a new user
       ansible.builtin.user:
-        name: "{{ wgvps_user }}"
-        password: "{{ wgvps_password }}"
+        name: "{{ vps_user }}"
+        password: "{{ vps_password }}"
         append: true
         # groups: adm, netdev
         groups: sudo
@@ -34,7 +34,7 @@
 
     - name: add SSH Key to authorized
       ansible.posix.authorized_key:
-        user: "{{ wgvps_user }}"
+        user: "{{ vps_user }}"
         key: "{{ lookup('file', lookup('env','HOME') + item) }}"
         state: present
       with_items:
