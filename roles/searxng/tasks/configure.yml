@@ -5,8 +5,8 @@
     dest: /usr/local/searxng-docker
     repo: "{{ searxng_git }}"
     version: master
-    update: true
-    force: true
+    update: false
+    force: false
 
 - name: Ensure the env file is set
   ansible.builtin.template:
@@ -20,19 +20,28 @@
     dest: /usr/local/searxng-docker/searxng/settings.yml
     mode: 0644
 
-- name: Copy searxng-docker.service.template to actual service file
-  ansible.builtin.copy:
-    src: /usr/local/searxng-docker/searxng-docker.service.template
-    dest: /usr/local/searxng-docker/searxng-docker.service
-    remote_src: true
-    mode: preserve
-    owner: root
-    group: root
+# - name: Copy searxng-docker.service.template to actual service file
+#   ansible.builtin.copy:
+#     src: /usr/local/searxng-docker/searxng-docker.service.template
+#     dest: /usr/local/searxng-docker/searxng-docker.service
+#     remote_src: true
+#     mode: preserve
+#     owner: root
+#     group: root
 
-- name: Ensure the docker compose command in service file is correct
-  ansible.builtin.replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
-  with_items:
-    - {regexp: '\/usr\/local/bin/docker-compose', line: '/usr/bin/docker compose', file: '/usr/local/searxng-docker/searxng-docker.service'}
+# - name: Ensure the docker compose command in service file is correct
+#   ansible.builtin.replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
+#   with_items:
+#     - {regexp: '\/usr\/local/bin/docker-compose', line: '/usr/bin/docker compose', file: '/usr/local/searxng-docker/searxng-docker.service'}
+
+# The service in the repo uses docker-compose
+# Should be docker compose
+# Corrected based on searxng-docker.service.template
+- name: Ensure searxng-docker.service file exists
+  ansible.builtin.copy:
+    src: searxng-docker.service
+    dest: /usr/local/searxng-docker/searxng-docker.service
+    mode: 0644
 
 - name: Ensure custom caddyfile is installed
   ansible.builtin.template:

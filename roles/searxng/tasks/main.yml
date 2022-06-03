@@ -8,10 +8,14 @@
 - name: Import configure searxng tasks
   ansible.builtin.import_tasks: configure.yml
 
+# Task always returns changed. Overridden
+# Task warning: [WARNING]: The service (/usr/local/searxng-docker/searxng-docker.service) is actually an init script but the system is managed by systemd
 - name: Searxng enabled
   ansible.builtin.systemd:
     name: /usr/local/searxng-docker/searxng-docker.service
     enabled: true
+  changed_when: false
+  no_log: true
 
 - name: Searxng started
   ansible.builtin.systemd:
