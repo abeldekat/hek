@@ -1,6 +1,8 @@
 ---
 # Use nftables by default
 nftables_enabled: true
+# ports 80 and 443 to the world:
+nftables_webserver_enabled: false
 # starts using vars from wireguard role
 nftables_wireguard_enabled: false
 # starts using vars from dnscrypt-proxy role

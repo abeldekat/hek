@@ -99,14 +99,16 @@ table ip filter {
 
         # Accept DNS traffic to the local DNS resolver
         # -A INPUT -d 172.24.117.23 -p udp --dport 53 -j ACCEPT
-    {%if nftables_dnscrypt_proxy_enabled %}
+{%if nftables_dnscrypt_proxy_enabled %}
         iifname $wg_iface ip daddr $dns_ipv4 udp dport 53 accept comment "accept dns traffic to local dns resolver from wireguard"
-    {% endif %}
+{% endif %}
 {% endif %}
 
+{%if nftables_webserver_enabled %}
         ### http https ###
         tcp dport 80 counter name accept_http accept
         tcp dport 443 counter name accept_https accept
+{% endif %}
 
         # count/log remaining (disabled because of log spam)
         # counter name drop_input log prefix "DROP " comment "drop input"
@@ -172,14 +174,18 @@ table ip6 filter {
         ip6 nexthdr icmpv6 counter name accept_ipsix_icmp_v6 accept comment "accept all ICMP types"
 
         tcp dport 22 counter name accept_ipsix_ssh accept comment "accept SSH"
+
 {%if nftables_wireguard_enabled %}
         udp dport $wg_port accept comment "accept wireguard"
-    {%if nftables_dnscrypt_proxy_enabled %}
+{%if nftables_dnscrypt_proxy_enabled %}
         iifname $wg_iface ip6 daddr $dns_ipv6 udp dport 53 accept comment "accept dns traffic to local dns resolver from wireguard"
-    {% endif %}
 {% endif %}
+{% endif %}
+
+{%if nftables_webserver_enabled %}
         tcp dport 80 counter name accept_ipsix_http accept
         tcp dport 443 counter name accept_ipsix_https accept
+{% endif %}
 
         counter name drop_ipsix_input comment "count dropped packets"
     }
@@ -188,9 +194,11 @@ table ip6 filter {
         type filter hook forward priority 0; policy drop;
         ct state { established, related } accept
         iif "lo" accept
+
 {%if nftables_wireguard_enabled %}
         iifname $wg_iface oifname $pub_iface ct state new accept comment "forward wireguard traffic"
 {% endif %}
+
         counter name drop_ipsix_forward comment "count dropped packets"
 	}
 

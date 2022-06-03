@@ -35,10 +35,11 @@
 
 ######################################################################
 #
-#  nftables
+#  nftables: default enabled
 #
 ######################################################################
 #
+nftables_webserver_enabled: "{{ true if searxng_enabled else false }}"
 # starts using vars from wireguard role
 nftables_wireguard_enabled: "{{ true if wireguard_enabled else false }}"
 # starts using vars from dnscrypt-proxy role
