@@ -72,8 +72,7 @@
     rsync_opts:
       - "--exclude=.git"
   with_items:
-    - "{{ terminal_zsh_repo }}"
-    - "{{ terminal_tmux_repo }}"
+    - "{{ terminal_dot_config_repos }}"
   become: false
 
 - name: Ensure zsh .env in home folder
@@ -83,7 +82,7 @@
     mode: "0644"
   become: false
 
-- name: Ensure zsh-completions and z.lua are cloned
+- name: Ensure repos are cloned to builds directory
   ansible.builtin.git:
     clone: true
     dest: "~/builds"
@@ -92,21 +91,22 @@
     update: false
     force: false
   with_items:
-    - "{{ terminal_zsh_completions_repo }}"
-    - "{{ terminal_z_lua_repo }}"
+    - "{{ terminal_build_repos }}"
   become: false
 
-- name: Ensure zsh spaceship prompt is cloned
+- name: Ensure opt repos are cloned ( spaceship at least )
   ansible.builtin.git:
     clone: true
     dest: "/opt/spaceship-prompt"
-    repo: "{{ terminal_zsh_spaceship_prompt_repo }}"
+    repo: "{{ item }}"
     version: master
     update: false
     force: false
     depth: 1
+  with_items:
+    - "{{ terminal_opt_repos }}"
 
-- name: Ensure zsh spaceship prompt is linked into zsh
+- name: Ensure zsh spaceship prompt is linked to zsh
   ansible.builtin.file:
     src: "/opt/spaceship-prompt/spaceship.zsh"
     dest: "/usr/local/share/zsh/site-functions/prompt_spaceship_setup"
