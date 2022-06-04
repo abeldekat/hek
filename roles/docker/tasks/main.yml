@@ -1,10 +1,13 @@
 ---
 
 # https://docs.docker.com/engine/install/debian/#prerequisites
+# https://docs.docker.com/engine/security/rootless/
 #
 # ntp: on debian chrony is installed
 # lsb-release: The Linux Standard Base (http://www.linuxbase.org/) is a standard core system
 # that third-party applications written for Linux can depend upon.
+# on debian docker is managed by systemd and the following is not necessary:
+# sudo systemctl enable docker.service sudo systemctl enable containerd.service
 - name: Ensure APT usage dependencies are installed
   ansible.builtin.apt:
     name:
@@ -26,6 +29,7 @@
     warn: false
     creates: "/usr/share/keyrings/docker-archive-keyring.gpg"
     executable: /bin/bash
+
 - name: Retrieve deb architecture
   ansible.builtin.command: dpkg --print-architecture
   changed_when: false
@@ -37,6 +41,22 @@
     repo: "deb [arch={{ deb_architecture.stdout }} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release }} stable"
     state: present
     update_cache: true
+
+# Add directory before installing docker so no restart is required
+- name: Ensure /etc/docker is present
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    mode: 0755
+
+# Mode: 0644 or more restrictive
+# Not present by default after docker installed
+# Configure default logging driver https://docs.docker.com/engine/install/linux-postinstall/
+- name: Ensure daemon.json is present
+  ansible.builtin.copy:
+    src: daemon.json
+    dest: /etc/docker
+    mode: 0600
 
 # after: usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
 # Docker Compose version v2.5.0
@@ -56,3 +76,8 @@
     name: "{{ vps_user }}"
     append: true
     groups: docker
+
+# When in terminal one would use: newgrp docker
+- name: reset ssh connection to allow user changes to affect ansible user
+  ansible.builtin.meta:
+    reset_connection
