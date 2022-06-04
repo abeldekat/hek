@@ -17,13 +17,9 @@
   ansible.builtin.import_tasks: rootless.yml
   when: rootless_docker_enabled
 
+# notify: reset connection
 - name: Ensure user is added to the docker group
   ansible.builtin.user:
     name: "{{ vps_user }}"
     append: true
     groups: docker
-
-# When in terminal one would use: newgrp docker
-- name: reset ssh connection to allow user changes to affect ansible user
-  ansible.builtin.meta:
-    reset_connection

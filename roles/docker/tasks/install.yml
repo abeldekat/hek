@@ -2,6 +2,7 @@
 # after: usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
 # Docker Compose version v2.5.0
 # Note: use docker compose, not docker-compose
+# apt-cache policy docker-ce
 - name: Ensure docker is installed
   ansible.builtin.apt:
     name:
