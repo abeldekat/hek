@@ -1,75 +1,21 @@
 ---
 
-# https://docs.docker.com/engine/install/debian/#prerequisites
-# https://docs.docker.com/engine/security/rootless/
-#
-# ntp: on debian chrony is installed
-# lsb-release: The Linux Standard Base (http://www.linuxbase.org/) is a standard core system
-# that third-party applications written for Linux can depend upon.
-# on debian docker is managed by systemd and the following is not necessary:
-# sudo systemctl enable docker.service sudo systemctl enable containerd.service
-- name: Ensure APT usage dependencies are installed
-  ansible.builtin.apt:
-    name:
-      - apt-transport-https
-      - ca-certificates
-      - gnupg
-      - curl
-      - lsb-release
-    state: present
-    update_cache: true
+- name: Import software tasks
+  ansible.builtin.import_tasks: software.yml
 
-# https://www.linuxuprising.com/2021/01/apt-key-is-deprecated-how-to-add.html
-- name: Ensure docker key is trusted
-  ansible.builtin.shell:
-    set -o pipefail && \
-    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor \
-    -o /usr/share/keyrings/docker-archive-keyring.gpg
-  args:
-    warn: false
-    creates: "/usr/share/keyrings/docker-archive-keyring.gpg"
-    executable: /bin/bash
+- name: Import rootless software tasks
+  ansible.builtin.import_tasks: rootless-software.yml
+  when: rootless_docker_enabled
 
-- name: Retrieve deb architecture
-  ansible.builtin.command: dpkg --print-architecture
-  changed_when: false
-  register: deb_architecture
+- name: Import repo tasks
+  ansible.builtin.import_tasks: repo.yml
 
-- name: Ensure docker repository is enabled
-  ansible.builtin.apt_repository:
-    filename: docker
-    repo: "deb [arch={{ deb_architecture.stdout }} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release }} stable"
-    state: present
-    update_cache: true
+- name: Import install tasks
+  ansible.builtin.import_tasks: install.yml
 
-# Add directory before installing docker so no restart is required
-- name: Ensure /etc/docker is present
-  ansible.builtin.file:
-    path: /etc/docker
-    state: directory
-    mode: 0755
-
-# Mode: 0644 or more restrictive
-# Not present by default after docker installed
-# Configure default logging driver https://docs.docker.com/engine/install/linux-postinstall/
-- name: Ensure daemon.json is present
-  ansible.builtin.copy:
-    src: daemon.json
-    dest: /etc/docker
-    mode: 0600
-
-# after: usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
-# Docker Compose version v2.5.0
-# Note: use docker compose, not docker-compose
-- name: Ensure docker is installed
-  ansible.builtin.apt:
-    name:
-      - docker-ce
-      - docker-ce-cli
-      - containerd.io
-      - docker-compose-plugin
-      - "python{{'3' if ansible_python.version.major == 3 else ''}}-docker"
-    state: present
+- name: Import rootless additional tasks
+  ansible.builtin.import_tasks: rootless.yml
+  when: rootless_docker_enabled
 
 - name: Ensure user is added to the docker group
   ansible.builtin.user:

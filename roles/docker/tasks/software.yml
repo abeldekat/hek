@@ -1,0 +1,19 @@
+---
+
+# https://docs.docker.com/engine/install/debian/#prerequisites
+#
+# ntp: on debian chrony is installed
+# lsb-release: The Linux Standard Base (http://www.linuxbase.org/) is a standard core system
+# that third-party applications written for Linux can depend upon.
+# on debian docker is managed by systemd and the following is not necessary:
+# sudo systemctl enable docker.service sudo systemctl enable containerd.service
+- name: Ensure APT usage dependencies are installed
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
+      - curl
+      - lsb-release
+    state: present
+    update_cache: true

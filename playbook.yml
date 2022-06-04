@@ -51,12 +51,10 @@
       when: wireguard_enabled
       tags: [wireguard]
 
-    # if searx_ng disbaled than:
-    # All tasks in docker role run, but skipped
     - name: Import docker role
       ansible.builtin.import_role:
         name: docker
-      when: searxng_enabled
+      when: docker_enabled
       tags: [docker]
 
     - name: Import searxng role

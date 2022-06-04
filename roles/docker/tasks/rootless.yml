@@ -1,0 +1,44 @@
+---
+
+# /etc/subuid and /etc/subgid should contain at least 65,536 subordinate UIDs/GIDs for the user.
+# grep ^$(whoami): /etc/subuid
+# grep ^$(whoami): /etc/subgid
+# slirp4netns --version: 1.0.1
+#  sudo setcap cap_net_bind_service=ep $(which rootlesskit)
+#  systemctl --user restart docker
+#
+# cat /proc/sys/user/max_user_namespaces
+# --> 3775, might be too small
+# To fix this issue, add user.max_user_namespaces=28633 to /etc/sysctl.conf (or /etc/sysctl.d) and run sudo sysctl --system.
+# sudo loginctl enable-linger $(whoami)
+#
+#  systemctl --user is-active dbus
+# inactive
+# Without sudo:
+# systemctl --user enable --now dbus
+
+
+# after: usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+# Docker Compose version v2.5.0
+# Note: use docker compose, not docker-compose
+- name: Ensure docker is installed
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+      - "python{{'3' if ansible_python.version.major == 3 else ''}}-docker"
+    state: present
+
+- name: Ensure system-wide docker-daemon is disabled
+  ansible.builtin.systemd:
+    service: docker.service
+    state: stopped
+    enabled: false
+
+- name: Ensure system-wide docker socket is disabled
+  ansible.builtin.systemd:
+    service: docker.socket
+    state: stopped
+    enabled: false
