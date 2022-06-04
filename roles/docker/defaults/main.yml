@@ -1,3 +1,5 @@
 ---
 docker_enabled: false
 rootless_docker_enabled: true
+# modifies zshrc:
+rootless_docker_terminal_enabled: false

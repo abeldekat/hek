@@ -74,6 +74,11 @@
   register: run_dockerd_rootless_setuptool_required
   become: false
 
+- name: Set fact dockerd-rootless-setuptool needs running
+  ansible.builtin.set_fact:
+    run_setuptool: "{{ not run_dockerd_rootless_setuptool_required.stat.exists }}"
+  become: false
+
 # Run the rootless script:
 # If you installed Docker 20.10 or later with RPM/DEB packages, you should have dockerd-rootless-setuptool.sh in /usr/bin.
 # result:
@@ -104,7 +109,32 @@
 - name: Ensure script dockerd-rootless-setuptool runs
   ansible.builtin.command: dockerd-rootless-setuptool.sh install --force
   become: false
-  when: not run_dockerd_rootless_setuptool_required.stat.exists
+  when: run_setuptool
+
+# - name: Ensure DOCKER_HOST is exported
+#   ansible.builtin.shell:
+#     export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock;
+#   become: false
+#   args:
+#     executable: /bin/bash
+#   when: run_setuptool
+
+- name: Ensure bashrc contains DOCKER_HOST export
+  ansible.builtin.lineinfile:
+    dest: "~/.bashrc"
+    line: "export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock"
+    state: present
+    backup: true
+  become: false
+
+- name: Ensure zshrc contains DOCKER_HOST export
+  ansible.builtin.lineinfile:
+    dest: "~/.config/zsh/.zshrc"
+    line: "export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock"
+    state: present
+    backup: true
+  when: rootless_docker_terminal_enabled
+  become: false
 
 
 # The socket path is set to $XDG_RUNTIME_DIR/docker.sock by default. $XDG_RUNTIME_DIR is typically set to /run/user/$UID.

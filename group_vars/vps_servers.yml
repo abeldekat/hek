@@ -39,6 +39,7 @@
 #
 ######################################################################
 docker_enabled: "{{ true if searxng_enabled else false }}"
+rootless_docker_terminal_enabled: "{{ true if terminal_enabled else false }}"
 
 ######################################################################
 #
