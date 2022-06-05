@@ -7,15 +7,15 @@
   ansible.builtin.import_tasks: repo.yml
 
 - name: Additional rootless software tasks
-  ansible.builtin.import_tasks: rootless-additional-software.yml
+  ansible.builtin.import_tasks: software-rootless-additional.yml
   when: rootless_docker_enabled
 
 - name: Systemwide tasks before installation
-  ansible.builtin.import_tasks: systemwide-before-installation.yml
+  ansible.builtin.import_tasks: install-systemwide-pre.yml
   when: not rootless_docker_enabled
 
 - name: Rootless tasks before installation
-  ansible.builtin.import_tasks: rootless-before-installation.yml
+  ansible.builtin.import_tasks: install-rootless-pre.yml
   when: rootless_docker_enabled
   become: false
 
@@ -23,7 +23,7 @@
   ansible.builtin.import_tasks: install.yml
 
 - name: Rootless tasks after installation
-  ansible.builtin.import_tasks: rootless-after-installation.yml
+  ansible.builtin.import_tasks: install-rootless-post.yml
   when: rootless_docker_enabled
 
 # notify: reset connection
