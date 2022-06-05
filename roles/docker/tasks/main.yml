@@ -1,21 +1,30 @@
 ---
 
-- name: Import software tasks
+- name: Software tasks
   ansible.builtin.import_tasks: software.yml
 
-- name: Import rootless software tasks
-  ansible.builtin.import_tasks: rootless-software.yml
-  when: rootless_docker_enabled
-
-- name: Import repo tasks
+- name: Repo tasks
   ansible.builtin.import_tasks: repo.yml
 
-- name: Import install tasks
+- name: Additional rootless software tasks
+  ansible.builtin.import_tasks: rootless-additional-software.yml
+  when: rootless_docker_enabled
+
+- name: Systemwide tasks before installation
+  ansible.builtin.import_tasks: systemwide-before-installation.yml
+  when: not rootless_docker_enabled
+
+- name: Rootless tasks before installation
+  ansible.builtin.import_tasks: rootless-before-installation.yml
+  when: rootless_docker_enabled
+
+- name: Install tasks
   ansible.builtin.import_tasks: install.yml
 
-- name: Import rootless additional tasks
-  ansible.builtin.import_tasks: rootless.yml
+- name: Rootless tasks after installation
+  ansible.builtin.import_tasks: rootless-after-installtion.yml
   when: rootless_docker_enabled
+  become: false
 
 # notify: reset connection
 - name: Ensure user is added to the docker group

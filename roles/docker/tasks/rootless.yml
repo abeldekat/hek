@@ -1,6 +1,8 @@
 ---
 
 # https://docs.docker.com/engine/security/rootless/
+# Current linux kernel: 5.10.0-14-amd64
+# --> overlay2 only runs on kernel 5.11 or later, user fuse-overlay
 
 # /etc/subuid and /etc/subgid should contain at least 65,536 subordinate UIDs/GIDs for the user.
 # grep ^$(whoami): /etc/subuid
@@ -140,13 +142,13 @@
 # The socket path is set to $XDG_RUNTIME_DIR/docker.sock by default. $XDG_RUNTIME_DIR is typically set to /run/user/$UID.
 # The data dir is set to ~/.local/share/docker by default. The data dir should not be on NFS.
 # The daemon config dir is set to ~/.config/docker by default. This directory is different from ~/.docker that is used by the client.
-# - name: Ensure rootless docker is enabled and started
-#   ansible.builtin.systemd:
-#     service: docker
-#     scope: user
-#     state: started
-#     enabled: true
-#   become: false
+- name: Ensure rootless docker is enabled and started
+  ansible.builtin.systemd:
+    service: docker
+    scope: user
+    state: started
+    enabled: true
+  become: false
 
 # Client:
 # docker run -d -p 8080:80 nginx
