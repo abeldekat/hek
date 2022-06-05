@@ -30,6 +30,12 @@
         name: base
       tags: [base]
 
+    - name: Import terminal role
+      ansible.builtin.import_role:
+        name: terminal
+      when: terminal_enabled
+      tags: [terminal]
+
     - name: Import nftables role
       ansible.builtin.import_role:
         name: nftables
@@ -61,10 +67,5 @@
       ansible.builtin.import_role:
         name: searxng
       when: searxng_enabled
+      become: "{{ not searxng_rootless }}"
       tags: [searxng]
-
-    - name: Import terminal role
-      ansible.builtin.import_role:
-        name: terminal
-      when: terminal_enabled
-      tags: [terminal]

@@ -5,6 +5,7 @@
     state: present
     update_cache: true
 
+# TODO: This taks sometimes also returns changed unexpectedly
 - name: Ensure nftables configured
   ansible.builtin.template:
     src: "{{ item.src }}"

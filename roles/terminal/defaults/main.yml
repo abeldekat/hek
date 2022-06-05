@@ -2,13 +2,13 @@
 # install software like zsh and neovim
 terminal_enabled: false
 
+# Rsync from controller to host, excluding git folder
 terminal_dot_config_repos:
   - "~/git/debian/zsh"
   - "~/.config/tmux"
 
-terminal_build_repos:
-  - "https://github.com/zsh-users/zsh-completions.git"
-  - "https://github.com/skywind3000/z.lua.git"
+terminal_repos:
+  - {repo: 'https://github.com/zsh-users/zsh-completions.git', folder: '~/builds/zsh-completions'}
+  - {repo: 'https://github.com/skywind3000/z.lua.git', folder: '~/builds/z.lua'}
 
-terminal_opt_repos:
-  - "https://github.com/spaceship-prompt/spaceship-prompt.git"
+terminal_spaceship_repo: "https://github.com/spaceship-prompt/spaceship-prompt.git"

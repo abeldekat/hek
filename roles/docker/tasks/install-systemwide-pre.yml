@@ -15,4 +15,4 @@
     src: daemon.json
     dest: /etc/docker
     mode: 0600
-  when: not rootless_docker_enabled
+  when: not docker_rootless_enabled

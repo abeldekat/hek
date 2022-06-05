@@ -135,7 +135,7 @@
     line: "export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock"
     state: present
     backup: true
-  when: rootless_docker_terminal_enabled
+  when: docker_rootless_and_terminal_enabled
   become: false
 
 

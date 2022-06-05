@@ -1,23 +1,59 @@
 ---
-
 # https://github.com/searxng/searxng-docker
-#
-# TODO: docker compose non root user:
-# https://docs.docker.com/engine/install/linux-postinstall
+# 'become' is determined at playbook level
 
-- name: Import configure searxng tasks
-  ansible.builtin.import_tasks: configure.yml
+- name: Checkout searxng fork
+  ansible.builtin.git:
+    clone: true
+    dest: "{{ searxng_install_dir }}"
+    repo: "{{ searxng_git }}"
+    version: master
+    update: false
+    force: false
 
-# Task always returns changed. Overridden
+- name: Ensure the env file is set
+  ansible.builtin.template:
+    src: .env.j2
+    dest: "{{ searxng_install_dir + '/.env' }}"
+    mode: 0644
+
+- name: Ensure the settings are set
+  ansible.builtin.template:
+    src: settings.yml.j2
+    dest: "{{ searxng_install_dir + '/searxng/settings.yml' }}"
+    mode: 0644
+
+# The service in the repo uses docker-compose,Should be docker compose
+# Corrected based on searxng-docker.service.template
+# The service file is directly put in systemd dir and does not exist in install dir
+# Reason: Systemd Task always returned changed and a warning:
 # Task warning: [WARNING]: The service (/usr/local/searxng-docker/searxng-docker.service) is actually an init script but the system is managed by systemd
-- name: Searxng enabled
-  ansible.builtin.systemd:
-    name: /usr/local/searxng-docker/searxng-docker.service
-    enabled: true
-  changed_when: false
-  no_log: true
+#
+# WorkingDirectory= path is not absolute: "~/builds/searxng-docker"
+# TODO: There should be no surrounding quotes!
+- name: Ensure service file is in systemd folder
+  ansible.builtin.template:
+    src: searxng-docker.service.j2
+    dest: "{{ searxng_systemd_dir + '/searxng-docker.service' }}"
+    mode: 0644
 
-- name: Searxng started
+- name: Ensure custom caddyfile is installed
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: "{{ searxng_install_dir + '/Caddyfile' }}"
+    mode: 0644
+
+# TODO: docker[4742]: failed to create network searxng-docker_searxng:
+# Error response from daemon: Failed to Setup IP tables: Unable to enable SKIP DNAT rule:
+# (iptables failed: iptables -t nat -I DOCKER -i br-834a225dfd7d -j RETURN: iptables: No chain/target/match by that name.
+#
+# fatal: [test1.drieberen.xyz]: FAILED! => changed=false
+#   msg: 'Error loading unit file ''searxng-docker'': org.freedesktop.systemd1.BadUnitSetting "Unit searxng-docker.service has a bad unit file setting."'
+#
+# Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+- name: Searxng enabled and started
   ansible.builtin.systemd:
     name: searxng-docker
+    enabled: true
     state: started
+    scope: "{{ 'user' if searxng_rootless else 'system' }}"

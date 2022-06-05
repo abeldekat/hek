@@ -1,0 +1,6 @@
+---
+- name: link spaceship
+  ansible.builtin.file:
+    src: "/opt/spaceship-prompt/spaceship.zsh"
+    dest: "/usr/local/share/zsh/site-functions/prompt_spaceship_setup"
+    state: link

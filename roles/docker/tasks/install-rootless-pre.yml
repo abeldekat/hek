@@ -1,7 +1,7 @@
 ---
 
 # Add directory before installing docker so no restart is required
-- name: Ensure config docker is present
+- name: Ensure rootless config docker directory is present
   ansible.builtin.file:
     path: ~/.config/docker
     state: directory
@@ -10,7 +10,7 @@
 # Mode: 0644 or more restrictive
 # Not present by default after docker installed
 # Configure default logging driver https://docs.docker.com/engine/install/linux-postinstall/
-- name: Ensure daemon.json is present
+- name: Ensure rootless daemon.json is present
   ansible.builtin.copy:
     src: daemon.json
     dest: ~/.config/docker

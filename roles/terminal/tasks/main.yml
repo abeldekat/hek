@@ -82,35 +82,28 @@
     mode: "0644"
   become: false
 
-- name: Ensure repos are cloned to builds directory
+- name: Ensure git repos are cloned
   ansible.builtin.git:
     clone: true
-    dest: "~/builds"
-    repo: "{{ item }}"
+    dest: "{{ item.folder }}"
+    repo: "{{ item.repo }}"
     version: master
     update: false
     force: false
   with_items:
-    - "{{ terminal_build_repos }}"
+    - "{{ terminal_repos }}"
   become: false
 
-- name: Ensure opt repos are cloned ( spaceship at least )
+- name: Ensure spaceship repo is cloned
   ansible.builtin.git:
     clone: true
     dest: "/opt/spaceship-prompt"
-    repo: "{{ item }}"
+    repo: "{{ terminal_spaceship_repo }}"
     version: master
     update: false
     force: false
     depth: 1
-  with_items:
-    - "{{ terminal_opt_repos }}"
-
-- name: Ensure zsh spaceship prompt is linked to zsh
-  ansible.builtin.file:
-    src: "/opt/spaceship-prompt/spaceship.zsh"
-    dest: "/usr/local/share/zsh/site-functions/prompt_spaceship_setup"
-    state: link
+  notify: link spaceship
 
 - name: Ensure users shell is zsh
   ansible.builtin.user:

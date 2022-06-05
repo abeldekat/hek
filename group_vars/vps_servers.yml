@@ -32,14 +32,20 @@
 #  searxng
 #
 ######################################################################
+docker_enabled: true
+searxng_rootless: "{{ true if docker_rootless_enabled else false }}"
+searxng_install_dir: "{{ searxng_install_dir_rootless if docker_rootless_enabled else searxng_install_dir_systemwide }}"
+searxng_systemd_dir: "{{ searxng_systemd_dir_rootless if docker_rootless_enabled else searxng_systemd_dir_systemwide }}"
+
 
 ######################################################################
 #
-#  docker
+#  docker: must be enabled by its services
 #
 ######################################################################
-docker_enabled: "{{ true if searxng_enabled else false }}"
-rootless_docker_terminal_enabled: "{{ true if terminal_enabled else false }}"
+docker_rootless_enabled: false
+# modifies .zshrc
+docker_rootless_and_terminal_enabled: "{{ true if docker_rootless_enabled and terminal_enabled else false }}"
 
 ######################################################################
 #
@@ -48,7 +54,7 @@ rootless_docker_terminal_enabled: "{{ true if terminal_enabled else false }}"
 ######################################################################
 #
 nftables_webserver_enabled: "{{ true if searxng_enabled else false }}"
-# starts using vars from wireguard role
+# exposes vars from wireguard role
 nftables_wireguard_enabled: "{{ true if wireguard_enabled else false }}"
-# starts using vars from dnscrypt-proxy role
+# exposes vars from dnscrypt-proxy role
 nftables_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled else false }}"
