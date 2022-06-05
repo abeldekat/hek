@@ -17,14 +17,14 @@
 - name: Rootless tasks before installation
   ansible.builtin.import_tasks: rootless-before-installation.yml
   when: rootless_docker_enabled
+  become: false
 
 - name: Install tasks
   ansible.builtin.import_tasks: install.yml
 
 - name: Rootless tasks after installation
-  ansible.builtin.import_tasks: rootless-after-installtion.yml
+  ansible.builtin.import_tasks: rootless-after-installation.yml
   when: rootless_docker_enabled
-  become: false
 
 # notify: reset connection
 - name: Ensure user is added to the docker group
