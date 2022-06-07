@@ -45,7 +45,7 @@
 
 - name: Ensure custom docker-compose file is installed
   ansible.builtin.template:
-    src: docker-compose-rootless.yaml
+    src: docker-compose.yaml.j2
     dest: "{{ searxng_install_dir + '/docker-compose.yaml' }}"
     mode: 0644
 
