@@ -12,7 +12,12 @@ searxng_install_dir_rootless: "{{ '/home/' + vps_user + '/builds/searxng-docker'
 # Service dir
 searxng_systemd_dir_systemwide: "/etc/systemd/system"
 searxng_systemd_dir_rootless: "{{ '/home/' + vps_user + '/.config/systemd/user' }}"
-#
+
+# Rootless: path containing docker sock
+# TODO: make a task
+# /run/user/1000/
+searxng_systemd_rootless_xdg_runtime_dir: "/run/user/1000"
+
 # Note: This assignment defaulting to self triggers an ansible exception:
 # searxng_install_dir: "{{ searxng_install_dir_rootless if docker_rootless_enabled else searxng_install_dir }}"
 #

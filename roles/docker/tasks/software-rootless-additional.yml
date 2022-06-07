@@ -4,11 +4,13 @@
 
 # rootless mode:
 # dbus-user-session, already present
+# rootlesskit is already installed if docker-ce is installed, software.yml
 - name: Ensure APT usage dependencies for rootless are installed
   ansible.builtin.apt:
     name:
       - uidmap
       - dbus-user-session
       - fuse-overlayfs
+      # - rootlesskit
     state: present
     update_cache: true

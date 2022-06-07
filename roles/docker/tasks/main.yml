@@ -22,13 +22,13 @@
 - name: Install tasks
   ansible.builtin.import_tasks: install.yml
 
-- name: Rootless tasks after installation
-  ansible.builtin.import_tasks: install-rootless-post.yml
-  when: docker_rootless_enabled
-
 # notify: reset connection
 - name: Ensure user is added to the docker group
   ansible.builtin.user:
     name: "{{ vps_user }}"
     append: true
     groups: docker
+
+- name: Rootless tasks after installation
+  ansible.builtin.import_tasks: install-rootless-post.yml
+  when: docker_rootless_enabled

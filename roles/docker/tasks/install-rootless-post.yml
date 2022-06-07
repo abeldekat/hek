@@ -45,7 +45,7 @@
   when:
     - not user_lingering.stat.exists
 
-# /usr/bin/rootlesskit
+# /usr/bin/rootlesskit: TODO: Does this come with docker-ce installation?
 - name: Capture rootlesskit binary path
   ansible.builtin.command: "which rootlesskit"
   changed_when: false
@@ -81,6 +81,16 @@
     run_setuptool: "{{ not run_dockerd_rootless_setuptool_required.stat.exists }}"
   become: false
 
+- name: Ensure reboot if required. Using defaults
+  ansible.builtin.reboot:
+  when: run_setuptool
+
+- name: Wait until the server becomes ready...
+  ansible.builtin.wait_for_connection:
+    delay: 20
+    timeout: 320
+  when: run_setuptool
+
 # Run the rootless script:
 # If you installed Docker 20.10 or later with RPM/DEB packages, you should have dockerd-rootless-setuptool.sh in /usr/bin.
 # result:
@@ -108,6 +118,12 @@
 # export PATH=/usr/bin:$PATH
 # export DOCKER_HOST=unix:///run/user/1000/docker.sock
 #
+#
+# Rebooting before running this script solves a lot of problems:
+# Jun 06 13:21:31 testwoef dockerd-rootless.sh[1009]: time="2022-06-06T13:21:31.986556393Z" level=warning msg="Running modprobe bridge br_netfilter failed with message: modprobe: ERROR: could
+#  not insert 'bridge': Operation not permitted\nmodprobe: ERROR: could not insert 'br_netfilter': Operation not permitted\ninsmod /lib/modules/5.10.0-14-amd64/kernel/net/llc/llc.ko \ninsmod
+# /lib/modules/5.10.0-14-amd64/kernel/net/llc/llc.ko \n, error: exit status 1"
+# Jun 06 13:21:32 testwoef dockerd-rootless.sh[1009]: time="2022-06-06T13:21:32.366459062Z" level=info msg="Docker daemon" commit=f756502 graphdriver(s)=fuse-overlayfs version=20.10.16
 - name: Ensure script dockerd-rootless-setuptool runs
   ansible.builtin.command: dockerd-rootless-setuptool.sh install --force
   become: false
@@ -149,6 +165,8 @@
     state: started
     enabled: true
   become: false
+  # testing
+  when: false
 
 # Client:
 # docker run -d -p 8080:80 nginx
@@ -162,3 +180,50 @@
 #     msg: "{{ ports_result }}"
 
 # It seems that only at this point systemctl --user is-active dbus returns true
+
+##############################################################################
+# Other approach
+# curl -fsSL https://get.docker.com/rootless | sh
+# export PATH=/home/ajbtest/bin:$PATH
+# export DOCKER_HOST=unix:///run/user/1000/docker.sock
+#
+# Server: Docker Engine - Community                                                                                                                                                      [0/72]
+#  Engine:
+#   Version:          20.10.16
+#   API version:      1.41 (minimum version 1.12)
+#   Go version:       go1.17.10
+#   Git commit:       f756502
+#   Built:            Thu May 12 09:19:16 2022
+#   OS/Arch:          linux/amd64
+#   Experimental:     false
+#  containerd:
+#   Version:          v1.6.4
+#   GitCommit:        212e8b6fa2f44b9c21b2798135fc6fb7c53efc16
+#  runc:
+#   Version:          1.1.1
+#   GitCommit:        v1.1.1-0-g52de29d7
+#  docker-init:
+#   Version:          0.19.0
+#   GitCommit:        de40ad0
+#
+# ajbtest in ~ took 24s ❯ which docker
+# /home/ajbtest/bin/docker
+# https://registry.hub.docker.com/_/caddy
+# mkdir caddy
+# Example needs caddyfile or no run....
+# docker run -it caddy sh
+# copy default
+# :80 {
+#         # Set this path to your site's directory.
+#         root * /usr/share/caddy
+
+#         # Enable the static file server.
+#         file_server
+
+#         # Another common task is to set up a reverse proxy:
+#         # reverse_proxy localhost:8080
+
+#         # Or serve a PHP site through php-fpm:
+#         # php_fastcgi localhost:9000
+# }
+# docker run --interactive --tty --publish 80:80 nginx bash

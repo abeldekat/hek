@@ -1,4 +1,14 @@
 ---
+# Systemwide caddy uses volumes:
+# "Name": "searxng-docker_caddy-data",
+#                 "Source": "/var/lib/docker/volumes/searxng-docker_caddy-data/_data",
+# "Name": "searxng-docker_caddy-config",
+#                "Source": "/var/lib/docker/volumes/searxng-docker_caddy-config/_data",
+# docker volume create bla, rootless:
+# Mountpoint": "/home/user/.local/share/docker/volumes/bla/_data
+#
+# This folder contains the certificates, owned by root:
+# /var/lib/docker/volumes/searxng-docker_caddy-data/_data/caddy
 
 # Add directory before installing docker so no restart is required
 - name: Ensure rootless config docker directory is present
