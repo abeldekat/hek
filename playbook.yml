@@ -30,12 +30,6 @@
         name: base
       tags: [base]
 
-    - name: Import terminal role
-      ansible.builtin.import_role:
-        name: terminal
-      when: terminal_enabled
-      tags: [terminal]
-
     - name: Import nftables role
       ansible.builtin.import_role:
         name: nftables
@@ -56,6 +50,12 @@
         name: wireguard
       when: wireguard_enabled
       tags: [wireguard]
+
+    - name: Import terminal role
+      ansible.builtin.import_role:
+        name: terminal
+      when: terminal_enabled
+      tags: [terminal]
 
     - name: Import docker role
       ansible.builtin.import_role:

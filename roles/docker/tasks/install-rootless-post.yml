@@ -10,16 +10,16 @@
 #
 # slirp4netns --version: 1.0.1
 #
-#
 # cat /proc/sys/user/max_user_namespaces
 # --> 3775, might be too small
 # To fix this issue, add user.max_user_namespaces=28633 to /etc/sysctl.conf (or /etc/sysctl.d) and run sudo sysctl --system.
 
-- name: Ensure system-wide docker is disabled
+- name: Ensure system-wide docker is disabled and masked
   ansible.builtin.systemd:
     service: "{{ item }}"
     state: stopped
     enabled: false
+    masked: true
   with_items:
     - "docker.service"
     - "docker.socket"
@@ -45,7 +45,6 @@
   when:
     - not user_lingering.stat.exists
 
-# /usr/bin/rootlesskit: TODO: Does this come with docker-ce installation?
 - name: Capture rootlesskit binary path
   ansible.builtin.command: "which rootlesskit"
   changed_when: false
@@ -57,7 +56,6 @@
   register: rootlesskit_cap
 
 # sudo setcap cap_net_bind_service=ep $(which rootlesskit)
-# TODO: #  systemctl --user restart docker
 - name: Ensure privileged ports are available in rootless mode, setcap
   ansible.builtin.command: "setcap cap_net_bind_service=ep {{ rootlesskit_bin.stdout }}"
   when: rootlesskit_cap.stdout == ''
@@ -81,7 +79,7 @@
     run_setuptool: "{{ not run_dockerd_rootless_setuptool_required.stat.exists }}"
   become: false
 
-- name: Ensure reboot if required. Using defaults
+- name: Ensure reboot if about to run rootless setup script.
   ansible.builtin.reboot:
   when: run_setuptool
 
@@ -91,51 +89,10 @@
     timeout: 320
   when: run_setuptool
 
-# Run the rootless script:
-# If you installed Docker 20.10 or later with RPM/DEB packages, you should have dockerd-rootless-setuptool.sh in /usr/bin.
-# result:
-#
-# [INFO] Creating /home/user/.config/systemd/user/docker.service
-# service started, is disabled
-#
-# ...
-#
-# Jun 04 19:44:29 test1 dockerd-rootless.sh[8061]: time="2022-06-04T19:44:29.585466326Z" level=error msg="failed to mount overlay: operation not permitted" storage-driver=overlay2
-# Jun 04 19:44:29 test1 dockerd-rootless.sh[8061]: time="2022-06-04T19:44:29.605165014Z" level=warning msg="Unable to find cpu controller"
-# Jun 04 19:44:29 test1 dockerd-rootless.sh[8061]: time="2022-06-04T19:44:29.605638361Z" level=warning msg="Unable to find io controller"
-# Jun 04 19:44:29 test1 dockerd-rootless.sh[8061]: time="2022-06-04T19:44:29.605931054Z" level=warning msg="Unable to find cpuset controller"
-#
-# ...
-#
-#  Created symlink /home/user/.config/systemd/user/default.target.wants/docker.service → /home/user/.config/systemd/user/docker.service.
-# [INFO] Installed docker.service successfully.
-# [INFO] To control docker.service, run: `systemctl --user (start|stop|restart) docker.service`
-# [INFO] To run docker.service on system startup, run: `sudo loginctl enable-linger ajb`
-# [INFO] Creating CLI context "rootless"
-# Successfully created context "rootless"
-#
-# [INFO] Make sure the following environment variables are set (or add them to ~/.bashrc):
-# export PATH=/usr/bin:$PATH
-# export DOCKER_HOST=unix:///run/user/1000/docker.sock
-#
-#
-# Rebooting before running this script solves a lot of problems:
-# Jun 06 13:21:31 testwoef dockerd-rootless.sh[1009]: time="2022-06-06T13:21:31.986556393Z" level=warning msg="Running modprobe bridge br_netfilter failed with message: modprobe: ERROR: could
-#  not insert 'bridge': Operation not permitted\nmodprobe: ERROR: could not insert 'br_netfilter': Operation not permitted\ninsmod /lib/modules/5.10.0-14-amd64/kernel/net/llc/llc.ko \ninsmod
-# /lib/modules/5.10.0-14-amd64/kernel/net/llc/llc.ko \n, error: exit status 1"
-# Jun 06 13:21:32 testwoef dockerd-rootless.sh[1009]: time="2022-06-06T13:21:32.366459062Z" level=info msg="Docker daemon" commit=f756502 graphdriver(s)=fuse-overlayfs version=20.10.16
 - name: Ensure script dockerd-rootless-setuptool runs
   ansible.builtin.command: dockerd-rootless-setuptool.sh install --force
   become: false
   when: run_setuptool
-
-# - name: Ensure DOCKER_HOST is exported
-#   ansible.builtin.shell:
-#     export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock;
-#   become: false
-#   args:
-#     executable: /bin/bash
-#   when: run_setuptool
 
 - name: Ensure bashrc contains DOCKER_HOST export
   ansible.builtin.lineinfile:
@@ -154,6 +111,15 @@
   when: docker_rootless_and_terminal_enabled
   become: false
 
+- name: Ensure reboot after rootless setup script has ran.
+  ansible.builtin.reboot:
+  when: run_setuptool
+
+- name: Wait until the server becomes ready...
+  ansible.builtin.wait_for_connection:
+    delay: 20
+    timeout: 320
+  when: run_setuptool
 
 # The socket path is set to $XDG_RUNTIME_DIR/docker.sock by default. $XDG_RUNTIME_DIR is typically set to /run/user/$UID.
 # The data dir is set to ~/.local/share/docker by default. The data dir should not be on NFS.
@@ -165,65 +131,3 @@
     state: started
     enabled: true
   become: false
-  # testing
-  when: false
-
-# Client:
-# docker run -d -p 8080:80 nginx
-# export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock
-
-# - name: Force all notified handlers to run at this point, not waiting for normal sync points
-#   ansible.builtin.meta: flush_handlers
-
-# - name: Debug ports
-#   ansible.builtin.debug:
-#     msg: "{{ ports_result }}"
-
-# It seems that only at this point systemctl --user is-active dbus returns true
-
-##############################################################################
-# Other approach
-# curl -fsSL https://get.docker.com/rootless | sh
-# export PATH=/home/ajbtest/bin:$PATH
-# export DOCKER_HOST=unix:///run/user/1000/docker.sock
-#
-# Server: Docker Engine - Community                                                                                                                                                      [0/72]
-#  Engine:
-#   Version:          20.10.16
-#   API version:      1.41 (minimum version 1.12)
-#   Go version:       go1.17.10
-#   Git commit:       f756502
-#   Built:            Thu May 12 09:19:16 2022
-#   OS/Arch:          linux/amd64
-#   Experimental:     false
-#  containerd:
-#   Version:          v1.6.4
-#   GitCommit:        212e8b6fa2f44b9c21b2798135fc6fb7c53efc16
-#  runc:
-#   Version:          1.1.1
-#   GitCommit:        v1.1.1-0-g52de29d7
-#  docker-init:
-#   Version:          0.19.0
-#   GitCommit:        de40ad0
-#
-# ajbtest in ~ took 24s ❯ which docker
-# /home/ajbtest/bin/docker
-# https://registry.hub.docker.com/_/caddy
-# mkdir caddy
-# Example needs caddyfile or no run....
-# docker run -it caddy sh
-# copy default
-# :80 {
-#         # Set this path to your site's directory.
-#         root * /usr/share/caddy
-
-#         # Enable the static file server.
-#         file_server
-
-#         # Another common task is to set up a reverse proxy:
-#         # reverse_proxy localhost:8080
-
-#         # Or serve a PHP site through php-fpm:
-#         # php_fastcgi localhost:9000
-# }
-# docker run --interactive --tty --publish 80:80 nginx bash

@@ -2,12 +2,12 @@
   admin off
 }
 
-{$SEARXNG_HOSTNAME} {
+{{ searxng_hostname }} {
   log {
         output discard
   }
 
-  tls {$SEARXNG_TLS}
+  tls {{ searxng_email }}
 
 {% if not searxng_public %}
   @blocked {

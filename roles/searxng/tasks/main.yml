@@ -14,26 +14,22 @@
     update: false
     force: false
 
-- name: Ensure the env file is set
-  ansible.builtin.template:
-    src: .env.j2
-    dest: "{{ searxng_install_dir + '/.env' }}"
-    mode: 0644
+# /run/user/1000/
+- name: Retrieve the value of XDG_RUNTIME_DIR needed for templating
+  ansible.builtin.shell: echo "$XDG_RUNTIME_DIR"
+  changed_when: false
+  args:
+    executable: bash
+  register: xdg_runtime_dir_result
+  become: false
 
-- name: Ensure the settings are set
-  ansible.builtin.template:
-    src: settings.yml.j2
-    dest: "{{ searxng_install_dir + '/searxng/settings.yml' }}"
-    mode: 0644
+- name: Set fact XDG_RUNTIME_DIR
+  ansible.builtin.set_fact:
+    searxng_systemd_rootless_xdg_runtime_dir: "{{ xdg_runtime_dir_result.stdout }}"
 
 # The service in the repo uses docker-compose,Should be docker compose
 # Corrected based on searxng-docker.service.template
 # The service file is directly put in systemd dir and does not exist in install dir
-# Reason: Systemd Task always returned changed and a warning:
-# Task warning: [WARNING]: The service (/usr/local/searxng-docker/searxng-docker.service) is actually an init script but the system is managed by systemd
-#
-# WorkingDirectory= path is not absolute: "~/builds/searxng-docker"
-# TODO: There should be no surrounding quotes!
 - name: Ensure service file is in systemd folder
   ansible.builtin.template:
     src: searxng-docker.service.j2
@@ -49,52 +45,22 @@
 - name: Ensure custom docker-compose file is installed
   ansible.builtin.copy:
     src: docker-compose-rootless.yaml
-    dest: "{{ searxng_install_dir + '/docker-compose.yml' }}"
+    dest: "{{ searxng_install_dir + '/docker-compose.yaml' }}"
     mode: 0644
   when: searxng_rootless
 
-- name: Ensure external caddy_data volume is present
-  ansible.builtin.shell: >
-    docker context use rootless;
-    docker volume create caddy_data;
-  args:
-    executable: /bin/bash
-  register: volume_result
-  when: searxng_rootless
+- name: Ensure the env file is set
+  ansible.builtin.template:
+    src: .env.j2
+    dest: "{{ searxng_install_dir + '/.env' }}"
+    mode: 0644
 
-# ok: [test.drieberen.xyz] =>
-#   msg:
-#     changed: true
-#     cmd: |-
-#       docker context use rootless; docker volume create caddy_data;
-#     delta: '0:00:00.105751'
-#     end: '2022-06-06 20:14:03.841610'
-#     failed: false
-#     msg: ''
-#     rc: 0
-#     start: '2022-06-06 20:14:03.735859'
-#     stderr: Current context is now "rootless"
-#     stderr_lines:
-#     - Current context is now "rootless"
-#     stdout: |-
-#       rootless
-#       caddy_data
-#     stdout_lines:
-#     - rootless
-#     - caddy_data
-- name: Debug volume_result
-  ansible.builtin.debug:
-    msg: "{{ volume_result }}"
-  when: searxng_rootless
+- name: Ensure the settings are set
+  ansible.builtin.template:
+    src: settings.yml.j2
+    dest: "{{ searxng_install_dir + '/searxng/settings.yml' }}"
+    mode: 0644
 
-# TODO: docker[4742]: failed to create network searxng-docker_searxng:
-# Error response from daemon: Failed to Setup IP tables: Unable to enable SKIP DNAT rule:
-# (iptables failed: iptables -t nat -I DOCKER -i br-834a225dfd7d -j RETURN: iptables: No chain/target/match by that name.
-#
-# fatal: [test1.drieberen.xyz]: FAILED! => changed=false
-#   msg: 'Error loading unit file ''searxng-docker'': org.freedesktop.systemd1.BadUnitSetting "Unit searxng-docker.service has a bad unit file setting."'
-#
-# Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
 - name: Searxng enabled and started
   ansible.builtin.systemd:
     name: searxng-docker

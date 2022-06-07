@@ -1,9 +1,20 @@
 ---
-# Apply blocking in Caddyfile:
-# --> Exposes variables from the wireguard role
-searxng_public: false
+
+searxng_enabled: false
 #
 searxng_rootless: false
+#
+# Restrict access to home ip and wireguard:
+searxng_public: false
+#
+searxng_hostname: ''
+searxng_email: ''
+#
+# The url to the git repository:
+searxng_git: https://github.com/searxng/searxng-docker.git
+
+# openssl rand -hex 32
+searxng_secret_key: VERYSECRET
 #
 # Install dir, working dir in service file
 searxng_install_dir_systemwide: "/usr/local/searxng-docker"
@@ -14,9 +25,7 @@ searxng_systemd_dir_systemwide: "/etc/systemd/system"
 searxng_systemd_dir_rootless: "{{ '/home/' + vps_user + '/.config/systemd/user' }}"
 
 # Rootless: path containing docker sock
-# TODO: make a task
-# /run/user/1000/
-searxng_systemd_rootless_xdg_runtime_dir: "/run/user/1000"
+searxng_systemd_rootless_xdg_runtime_dir: ''
 
 # Note: This assignment defaulting to self triggers an ansible exception:
 # searxng_install_dir: "{{ searxng_install_dir_rootless if docker_rootless_enabled else searxng_install_dir }}"
