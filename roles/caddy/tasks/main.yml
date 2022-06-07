@@ -1,0 +1,14 @@
+---
+# https://codepre.com/en/como-instalar-caddy-en-debian-11.html
+#
+# setcap is not necessary:
+# https://www.howtoforge.com/how-to-install-caddy-web-server-on-debian-11/:
+#   setcap 'cap_net_bind_service=+ep' /usr/bin/caddy
+- name: Software tasks
+  ansible.builtin.import_tasks: software.yml
+
+- name: Repo tasks
+  ansible.builtin.import_tasks: repo.yml
+
+- name: Install tasks
+  ansible.builtin.import_tasks: install.yml

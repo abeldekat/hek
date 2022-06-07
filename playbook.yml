@@ -24,7 +24,6 @@
   become: true
   tasks:
 
-    # contains tag upgrade-all
     - name: Import base role
       ansible.builtin.import_role:
         name: base
@@ -44,7 +43,6 @@
           dns_encryption_enabled
       tags: [dnscrypt-proxy]
 
-    # contains tag update-users
     - name: Import wireguard role
       ansible.builtin.import_role:
         name: wireguard
@@ -62,6 +60,12 @@
         name: docker
       when: docker_enabled
       tags: [docker]
+
+    - name: Import caddy role
+      ansible.builtin.import_role:
+        name: caddy
+      when: caddy_enabled
+      tags: [caddy]
 
     - name: Import searxng role
       ansible.builtin.import_role:

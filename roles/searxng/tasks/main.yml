@@ -1,9 +1,13 @@
 ---
 # https://github.com/searxng/searxng-docker
-# 'become' is determined at playbook level
-# reload caddy:
-# $ caddy_container_id=$(docker ps | grep caddy | awk '{print $1;}')
-# $ docker exec -w /etc/caddy $caddy_container_id caddy reload
+# --> 'become' is determined at playbook level <--
+#
+# Deviations from the install method described on searxng-docker website:
+# no .env file necessary, custom docker compose without caddy, custom Caddyfile
+# searxng-docker.service is put directly into the systemd dir
+# searxng-docker.service is modified: docker compose instead of docker-compose
+# searxng-docker.service is modified: DOCKER_HOST when rootless
+# Caddyfile can block ips
 
 - name: Checkout searxng fork
   ansible.builtin.git:
@@ -15,7 +19,7 @@
     force: false
 
 # /run/user/1000/
-- name: Retrieve the value of XDG_RUNTIME_DIR needed for templating
+- name: Retrieve the value of XDG_RUNTIME_DIR needed for templating systemd service
   ansible.builtin.shell: echo "$XDG_RUNTIME_DIR"
   changed_when: false
   args:
@@ -27,21 +31,20 @@
   ansible.builtin.set_fact:
     searxng_systemd_rootless_xdg_runtime_dir: "{{ xdg_runtime_dir_result.stdout }}"
 
-# The service in the repo uses docker-compose,Should be docker compose
-# Corrected based on searxng-docker.service.template
-# The service file is directly put in systemd dir and does not exist in install dir
 - name: Ensure service file is in systemd folder
   ansible.builtin.template:
     src: searxng-docker.service.j2
     dest: "{{ searxng_systemd_dir + '/searxng-docker.service' }}"
     mode: 0644
 
-# TODO: This will be in /etc/caddy
-- name: Ensure custom caddyfile is installed
+- name: Ensure custom caddyfile is installed in /etc/caddy
   ansible.builtin.template:
     src: Caddyfile.j2
-    dest: "{{ searxng_install_dir + '/Caddyfile' }}"
+    dest: /etc/caddy/Caddyfile
+    backup: true
     mode: 0644
+  become: true
+  notify: restart caddy
 
 - name: Ensure custom docker-compose file is installed
   ansible.builtin.template:
@@ -54,6 +57,8 @@
     src: settings.yml.j2
     dest: "{{ searxng_install_dir + '/searxng/settings.yml' }}"
     mode: 0644
+  notify:
+    - restart searxng
 
 - name: Searxng enabled and started
   ansible.builtin.systemd:

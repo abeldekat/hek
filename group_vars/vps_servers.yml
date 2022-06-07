@@ -32,7 +32,9 @@
 #  searxng
 #
 ######################################################################
-docker_enabled: true
+searxng_enabled: false
+caddy_enabled: "{{ true if searxng_enabled else false }}"
+docker_enabled: "{{ true if searxng_enabled else false }}"
 searxng_rootless: "{{ true if docker_rootless_enabled else false }}"
 searxng_install_dir: "{{ searxng_install_dir_rootless if docker_rootless_enabled else searxng_install_dir_systemwide }}"
 searxng_systemd_dir: "{{ searxng_systemd_dir_rootless if docker_rootless_enabled else searxng_systemd_dir_systemwide }}"
@@ -46,6 +48,12 @@ searxng_systemd_dir: "{{ searxng_systemd_dir_rootless if docker_rootless_enabled
 docker_rootless_enabled: false
 # modifies .zshrc
 docker_rootless_and_terminal_enabled: "{{ true if docker_rootless_enabled and terminal_enabled else false }}"
+
+######################################################################
+#
+#  caddy: must be enabled by its services
+#
+######################################################################
 
 ######################################################################
 #

@@ -1,0 +1,13 @@
+---
+# apt-transport-https: transitional package for https support, default installed
+# debian-keyring: GnuPG keys of Debian Developers and Maintainers, not default installed
+# debian-archive-keyring, GnuPG archive keys of the Debian archive, default installed
+- name: Ensure APT usage dependencies are installed for Caddy
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - curl
+      - debian-keyring
+      - debian-archive-keyring
+    state: present
+    update_cache: true

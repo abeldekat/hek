@@ -1,0 +1,15 @@
+---
+- name: Ensure caddy is installed
+  ansible.builtin.apt:
+    name:
+      - caddy
+    state: present
+
+# on debian caddy is managed by systemd and the following is not strictly necessary:
+# sudo systemctl enable caddy.service
+# At first, Caddy will run a default site on port 80
+- name: Ensure caddy is enabled and started
+  ansible.builtin.systemd:
+    service: caddy
+    state: started
+    enabled: true

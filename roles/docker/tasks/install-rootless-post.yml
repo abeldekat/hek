@@ -62,7 +62,7 @@
 
 # https://www.debian.org/releases/stable/amd64/release-notes/ch-information.html
 # 5.1.14. Linux enables user namespaces by default
-# many user. values are set to 3775
+# values are set to 3775
 - name: Ensure user.max_user_namespaces is 28633
   ansible.posix.sysctl:
     name: user.max_user_namespaces
@@ -79,7 +79,7 @@
     run_setuptool: "{{ not run_dockerd_rootless_setuptool_required.stat.exists }}"
   become: false
 
-- name: Ensure reboot if about to run rootless setup script.
+- name: Ensure reboot before rootless setup script runs
   ansible.builtin.reboot:
   when: run_setuptool
 

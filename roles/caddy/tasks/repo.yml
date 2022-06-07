@@ -1,0 +1,34 @@
+---
+
+# https://www.linuxuprising.com/2021/01/apt-key-is-deprecated-how-to-add.html
+# curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | apt-key add -
+- name: Ensure caddy key is trusted
+  ansible.builtin.shell:
+    set -o pipefail && \
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor \
+    -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+  args:
+    warn: false
+    creates: "/usr/share/keyrings/caddy-stable-archive-keyring.gpg"
+    executable: /bin/bash
+
+# curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list
+# -->Result:
+# Source: Caddy
+# Site: https://github.com/caddyserver/caddy
+# Repository: Caddy / stable
+# Description: Fast, multi-platform web server with automatic HTTPS
+# deb [signed-by=/usr/share/keyrings/caddy-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main
+# deb-src [signed-by=/usr/share/keyrings/caddy-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main
+- name: Ensure caddy repository is enabled
+  ansible.builtin.shell:
+    set -o pipefail && \
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list
+  args:
+    warn: false
+    creates: "/etc/apt/sources.list.d/caddy-stable.list"
+    executable: /bin/bash
+
+- name: Ensure apt cache is updated
+  ansible.builtin.apt:
+    update_cache: true
