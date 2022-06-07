@@ -2,11 +2,14 @@
 #   keep_only:
 #     - google
 #     - duckduckgo
+#  engines:
+#    remove:
+#      - google
 # use_default_settings: true
 use_default_settings:
   engines:
-    remove:
-      - google
+    keep_only:
+      - duckduckgo
 server:
   # base_url is defined in the SEARXNG_BASE_URL environment variable, see .env and docker-compose.yml
   secret_key: "{{ searxng_secret_key }}"

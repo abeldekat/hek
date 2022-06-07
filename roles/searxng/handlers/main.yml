@@ -4,6 +4,7 @@
   ansible.builtin.systemd:
     name: caddy
     state: restarted
+  become: true
 
 - name: restart searxng
   ansible.builtin.systemd:

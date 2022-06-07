@@ -25,7 +25,6 @@
   args:
     executable: bash
   register: xdg_runtime_dir_result
-  become: false
 
 - name: Set fact XDG_RUNTIME_DIR
   ansible.builtin.set_fact:
