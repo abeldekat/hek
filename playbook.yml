@@ -1,23 +1,24 @@
 ---
-# - name: Import scratch2 role
-#   ansible.builtin.import_role:
-#     name: scratch2
-#   tags: [scratch, scratch2]
-
-# - name: Import scratch1 role
-#   ansible.builtin.import_role:
-#     name: scratch1
-#   tags: [scratch, scratch1]
-#
-# 1. Selecting which tasks are considered to run:
+# 1. Tags: -> Selecting which tasks are considered to run:
 # Invoke without tags: Everything runs
 # Using tag inheritance with import_role: All tags in the role will be tagged with the tag
 # assigned to the import_role task
-# 2 Once tasks are selected to run:
+# 2 When: -> Decides if tasks actually runs
 # Using when on import_role task: All tasks in the role will be executed and skipped
-# TODO: Also inheritance? The role always imported
-# Especially useful when playbook is invoked without tags
 #
+# TODO:
+# Check if roles contain all variables
+# Reorganize vars.yml, add must change vars to the top
+# Cleanup unused algo vars
+# Add example config
+# Firewalld for better defaults and docker integration
+# Searx: filter engines in use
+# Test python env
+# fail2ban instead of custom ssh port
+# ssh: unknown terminal alacritty
+# Think of a name for the repo
+# Readme and repo on github
+
 - name: Configure the server and install required software
   hosts: vps_servers
   gather_facts: true
