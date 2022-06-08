@@ -14,7 +14,7 @@ searxng_email: ''
 searxng_git: https://github.com/searxng/searxng-docker.git
 
 # openssl rand -hex 32
-searxng_secret_key: VERYSECRET
+searxng_secret_key: "ultrasecretkey"  # change this!
 #
 # Install dir, working dir in service file
 searxng_install_dir_systemwide: "/usr/local/searxng-docker"
@@ -33,3 +33,12 @@ searxng_systemd_rootless_xdg_runtime_dir: ''
 # Defaults to systemwide:
 searxng_install_dir: "{{ searxng_install_dir_systemwide }}"
 searxng_systemd_dir: "{{ searxng_systemd_dir_systemwide }}"
+
+#### Further config
+searxng_instance_name: 'SearXNG'
+searxng_default_lang: 'en-US'
+
+# Limit the number of engines.
+searxng_engines_to_keep_enabled: false
+searxng_engines_to_keep: []
+searxng_engines_to_keep_override_into_remove: false

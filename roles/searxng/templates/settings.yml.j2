@@ -5,16 +5,29 @@
 #  engines:
 #    remove:
 #      - google
-# use_default_settings: true
+{% if not searxng_engines_to_keep_enabled %}
+use_default_settings: true
+{% else %}
 use_default_settings:
   engines:
+{% if searxng_engines_to_keep_override_into_remove %}
+    remove:
+{% else %}
     keep_only:
-      - duckduckgo
+{% endif %}
+{% for engine in searxng_engines_to_keep %}
+      - {{ engine }}
+{% endfor %}
+{% endif %}
+general:
+  instance_name: "{{ searxng_instance_name }}"
+  # enable_metrics: true      # record stats
 server:
   # base_url is defined in the SEARXNG_BASE_URL environment variable, see .env and docker-compose.yml
   secret_key: "{{ searxng_secret_key }}"
   limiter: true  # can be disabled for a private instance
   image_proxy: true
+  default-lang: "{{ searxng_default_lang }}"
 ui:
   static_use_hash: true
   results_on_new_tab: true
