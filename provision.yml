@@ -1,9 +1,20 @@
 ---
 - name: "Sanity check"
   import_playbook: playbooks/sanity_check.yml
+  tags:
+    - sanity
 
 - name: "Cloud setup"
   import_playbook: playbooks/cloud.yml
+  tags:
+    - cloud
 
 - name: "Local ip"
   import_playbook: playbooks/local_ip.yml
+  tags:
+    - local_ip
+
+- name: "Local ip"
+  import_playbook: playbooks/add_local_ip.yml
+  tags:
+    - local_ip

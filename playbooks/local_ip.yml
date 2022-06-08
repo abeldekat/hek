@@ -10,18 +10,18 @@
       community.general.ipify_facts: api_url=http://api.ipify.org
       # connection: local
 
-    - name: Ensure controller ipv4 set in inventory
-      ansible.builtin.replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
-      with_items:
-        - {regexp: '^.*vps_home_ipv4:.*$', line: "vps_home_ipv4: {{ ipify_public_ip }}/32", file: "{{ target_file }}"}
-        # connection: local
+    # - name: Ensure controller ipv4 set in inventory
+    #   ansible.builtin.replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
+    #   with_items:
+    #     - {regexp: '^.*vps_home_ipv4:.*$', line: "vps_home_ipv4: {{ ipify_public_ip }}/32", file: "{{ target_file }}"}
+    #     # connection: local
 
     - name: Obtain controller public ipv6
       community.general.ipify_facts: api_url=http://api64.ipify.org
       # connection: local
 
-    - name: Ensure controller ipv6 set in inventory
-      ansible.builtin.replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
-      with_items:
-        - {regexp: '^.*vps_home_ipv6:.*$', line: "vps_home_ipv6: {{ ipify_public_ip }}/64", file: "{{ target_file }}"}
-        # connection: local
+    # - name: Ensure controller ipv6 set in inventory
+    #   ansible.builtin.replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
+    #   with_items:
+    #     - {regexp: '^.*vps_home_ipv6:.*$', line: "vps_home_ipv6: {{ ipify_public_ip }}/64", file: "{{ target_file }}"}
+    #     # connection: local
