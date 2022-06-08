@@ -1,0 +1,33 @@
+---
+- hosts: localhost
+  become: false
+  gather_facts: false
+  vars:
+    - ipify_controller_ipv4: ''
+    - ipify_controller_ipv6: ''
+
+  tasks:
+    - name: Obtain controller public ipv4
+      community.general.ipify_facts: api_url=http://api.ipify.org
+
+    - name: Set controller ipv4 fact
+      ansible.builtin.set_fact:
+        ipify_controller_ipv4: "{{ ipify_public_ip }}/32"
+
+    - name: Obtain controller public ipv6
+      community.general.ipify_facts: api_url=http://api64.ipify.org
+
+    - name: Set controller ipv6 fact
+      ansible.builtin.set_fact:
+        ipify_controller_ipv6: "{{ ipify_public_ip }}/64"
+
+    # - name: Debug ipify results
+    #   ansible.builtin.debug:
+    #     msg: "{{ 'ipv4:' + ipify_controller_ipv4 + ' , ipv6:' + ipify_controller_ipv6 }}"
+
+    - name: Transfer by registering dummy host with variables
+      ansible.builtin.add_host:
+        name: "DUMMY_HOST"
+        IPIFY_CONTROLLER_IPV4: "{{ ipify_controller_ipv4 }}"
+        IPIFY_CONTROLLER_IPV6: "{{ ipify_controller_ipv6 }}"
+      changed_when: false

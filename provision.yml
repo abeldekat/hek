@@ -9,12 +9,12 @@
   tags:
     - cloud
 
-- name: "Local ip"
-  import_playbook: playbooks/local_ip.yml
+- name: "Obtain ansible controller ip"
+  import_playbook: playbooks/obtain_ip.yml
   tags:
-    - local_ip
+    - obtain_ip
 
-- name: "Local ip"
-  import_playbook: playbooks/add_local_ip.yml
+- name: "Add ansible controller ip to all hosts in group"
+  import_playbook: playbooks/process_ip.yml
   tags:
-    - local_ip
+    - process_ip

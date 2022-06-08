@@ -1,0 +1,33 @@
+---
+- hosts: vps_servers
+  gather_facts: false
+  become: false
+  # Default to empty ansible string
+  vars:
+    - ipify_controller_ipv4: "''"
+    - ipify_controller_ipv6: "''"
+    - ipify_target_file: "{{ inventory_dir + '/host_vars/' + inventory_hostname + '/vars.yml' }}"
+
+  tasks:
+    - name: Set ipify ipv4 result as fact
+      ansible.builtin.set_fact:
+        ipify_controller_ipv4: "{{ hostvars['DUMMY_HOST']['IPIFY_CONTROLLER_IPV4'] }}"
+        ipify_controller_ipv6: "{{ hostvars['DUMMY_HOST']['IPIFY_CONTROLLER_IPV6'] }}"
+
+    # - name: Debug ipv4 and ipv6 task in vps_servers hosts group
+    #   ansible.builtin.debug:
+    #     msg: "{{ 'ipv4:' + ipify_controller_ipv4 + ' , ipv6:' + ipify_controller_ipv6 }}"
+
+    - name: Ensure controller ipv4 set in inventory
+      ansible.builtin.replace:
+        dest: "{{ ipify_target_file }}"
+        regexp: '^.*vps_home_ipv4:.*$'
+        replace: "vps_home_ipv4: {{ ipify_controller_ipv4 }}"
+      connection: local
+
+    - name: Ensure controller ipv6 set in inventory
+      ansible.builtin.replace:
+        dest: "{{ ipify_target_file }}"
+        regexp: '^.*vps_home_ipv6:.*$'
+        replace: "vps_home_ipv6: {{ ipify_controller_ipv6 }}"
+      connection: local
