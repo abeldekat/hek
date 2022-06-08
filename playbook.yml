@@ -11,8 +11,15 @@
 # Reorganize vars.yml, add must change vars to the top
 # Cleanup unused algo vars
 # Add example config
+# Evaluate:
+#   wireguard_port_avoid redirects to port_actual
+#   between_clients?
+#   hash_limit
+# - not store_pki
+# - not pki_in_tmpfs
 # Firewalld for better defaults and docker integration
 # Searx: filter engines in use
+# .zshenv should be content, not copy
 # Test python env
 # fail2ban instead of custom ssh port
 # ssh: unknown terminal alacritty

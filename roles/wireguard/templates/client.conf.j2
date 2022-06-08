@@ -9,5 +9,5 @@ DNS = {{ wireguard_dns_servers }}
 PublicKey = {{ lookup('file', wireguard_pki_path + '/public/' + ip_subject_alt_name) }}
 PresharedKey = {{ lookup('file', wireguard_pki_path + '/preshared/' + item.1) }}
 AllowedIPs = 0.0.0.0/0,::/0
-Endpoint = [{{ ip_subject_alt_name }}]:{{ wireguard_port }}
+Endpoint = {{ ip_subject_alt_name }}:{{ wireguard_port }}
 {{ 'PersistentKeepalive = ' + wireguard_persistentkeepalive|string if wireguard_persistentkeepalive > 0 else '' }}

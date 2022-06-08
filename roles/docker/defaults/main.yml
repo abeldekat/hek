@@ -1,5 +1,11 @@
 ---
-docker_enabled: false
+
+###############################################################################
+# Modifiable:
 docker_rootless_enabled: false
+
+###############################################################################
+# Not modifiable:
+docker_enabled: false
 # modifies zshrc:
 docker_rootless_and_terminal_enabled: false

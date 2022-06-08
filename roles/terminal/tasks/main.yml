@@ -2,9 +2,9 @@
 
 # nvim 0.4.4
 # build-essential: amongst others: make
-- name: Build additional software list
-  ansible.builtin.set_fact:
-    tools:
+- name: Ensure additional software is installed
+  ansible.builtin.apt:
+    name:
       - tmux
       - rsync
       - zsh
@@ -31,10 +31,6 @@
       - apt-file
       - python3-pip
       - python-is-python3
-
-- name: Ensure additional software is installed
-  ansible.builtin.apt:
-    name: "{{ tools|default([]) }}"
     state: present
     update_cache: true
 

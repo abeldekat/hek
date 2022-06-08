@@ -30,9 +30,9 @@
 #
 # Algo required screen instead of tmux and iptables-persistent instead of nftables
 #
-- name: Build software list
-  ansible.builtin.set_fact:
-    tools:
+- name: Ensure software is installed
+  ansible.builtin.apt:
+    name:
       - git
       - apparmor-utils
       - coreutils
@@ -40,9 +40,5 @@
       - cgroup-tools
       - openssl
       - gnupg2
-
-- name: Ensure software is installed
-  ansible.builtin.apt:
-    name: "{{ tools|default([]) }}"
     state: present
     update_cache: true

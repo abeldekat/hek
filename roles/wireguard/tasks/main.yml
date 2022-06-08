@@ -11,6 +11,10 @@
   delegate_to: localhost
   become: false
 
+- name: Calculate reduce_mtu as a fact
+  ansible.builtin.set_fact:
+    reduce_mtu: "{{ 1500 - ansible_default_ipv4['mtu']|int if reduce_mtu|int == 0 and ansible_default_ipv4['mtu']|int < 1500 else reduce_mtu|int }}"
+
 - name: Ensure wireguard installed
   ansible.builtin.apt:
     name: wireguard

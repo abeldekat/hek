@@ -1,20 +1,44 @@
 ---
-dns_encryption_enabled: false
+###############################################################################
+# Modifiable:
+#
+# DNS encryption itself can not be disabled if DNS adblocking is enabled
+dns_encryption_enabled: true
 dns_adblocking_enabled: false
-adblock_lists: []
-
-# DNS servers which will be used if 'dns_encryption_enabled' is 'true'. Multiple
-# providers may be specified, but avoid mixing providers that filter results
+#
+# You can add new block lists after deployment by modifying the line starting "BLOCKLIST_URLS=" at:
+# /usr/local/sbin/adblock.sh
+# If you load very large blocklists, you may also have to modify resource limits:
+# /etc/systemd/system/dnsmasq.service.d/100-CustomLimitations.conf
+adblock_lists:
+  - "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
+#
+# Multiple providers may be specified, but avoid mixing providers that filter results
 # (like Cisco) with those that don't (like Cloudflare) or you could get
-# inconsistent results. The list of available public providers can be found
-# here:
+# inconsistent results. The list of available public providers can be found here:
 # https://github.com/DNSCrypt/dnscrypt-resolvers/blob/master/v2/public-resolvers.md
-dnscrypt_servers: []
-
-custom_server_stamps: ''
-
+dnscrypt_servers:
+  ipv4:
+    - cloudflare
+    #   - google
+    # E.g., if using NextDNS, this will be something like NextDNS-abc12
+    # You must also fill in custom_server_stamps below. You may specify
+    # multiple custom servers.
+    #   - <YourCustomServer>
+  ipv6:
+    - cloudflare-ipv6
+#
+custom_server_stamps:
+# YourCustomServer: 'sdns://...'
+#
+# Override in group_vars:
+local_service_ip_seed: "{{ 'vps' + ansible_fqdn }}"
+#
 # Randomly generated IP address for the local dns resolver
 # As of Ansible version 2.3, it’s also possible to initialize the random number
 # generator from a seed. This way, you can create random-but-idempotent numbers:
-local_service_ip: ''
-local_service_ipv6: ''
+local_service_ip: "{{ '172.16.0.1' | ansible.utils.ipmath(1048573 | random(seed=local_service_ip_seed)) }}"
+local_service_ipv6: "{{ 'fd00::1' | ansible.utils.ipmath(1048573 | random(seed=local_service_ip_seed)) }}"
+
+###############################################################################
+# Not modifiable:

@@ -1,5 +1,7 @@
 ---
-# Use nftables by default
+
+###############################################################################
+# Not modifiable:
 nftables_enabled: true
 # ports 80 and 443 to the world:
 nftables_webserver_enabled: false

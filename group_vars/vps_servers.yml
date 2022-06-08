@@ -2,56 +2,13 @@
 
 # This variables file wires together the various components (roles) used by the playbook.
 #
-# Roles used by playbook are pretty minimal and kept independent of one another as much as possible.
-# To deliver a turnkey fully-featured  server, this playbook needs
+# Roles used by playbook are kept independent of one another as much as possible.
+# To deliver a turnkey fully-featured server, this playbook needs
 # to connect them all together. It does so by overriding role variables.
-#
-# You can also override ANY variable (seen here or in any given role),
-# by re-defining it in your own configuration file (`inventory/host_vars/matrix.<your-domain>`).
 
 ######################################################################
 #
 #  base
-#
-######################################################################
-
-######################################################################
-#
-#  dnscrypt-proxy
-#
-######################################################################
-
-######################################################################
-#
-#  wireguard
-#
-######################################################################
-
-######################################################################
-#
-#  searxng
-#
-######################################################################
-searxng_enabled: false
-caddy_enabled: "{{ true if searxng_enabled else false }}"
-docker_enabled: "{{ true if searxng_enabled else false }}"
-searxng_rootless: "{{ true if docker_rootless_enabled else false }}"
-searxng_install_dir: "{{ searxng_install_dir_rootless if docker_rootless_enabled else searxng_install_dir_systemwide }}"
-searxng_systemd_dir: "{{ searxng_systemd_dir_rootless if docker_rootless_enabled else searxng_systemd_dir_systemwide }}"
-
-
-######################################################################
-#
-#  docker: must be enabled by its services
-#
-######################################################################
-docker_rootless_enabled: false
-# modifies .zshrc
-docker_rootless_and_terminal_enabled: "{{ true if docker_rootless_enabled and terminal_enabled else false }}"
-
-######################################################################
-#
-#  caddy: must be enabled by its services
 #
 ######################################################################
 
@@ -66,3 +23,41 @@ nftables_webserver_enabled: "{{ true if searxng_enabled else false }}"
 nftables_wireguard_enabled: "{{ true if wireguard_enabled else false }}"
 # exposes vars from dnscrypt-proxy role
 nftables_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled else false }}"
+
+######################################################################
+#
+#  dnscrypt-proxy
+#
+######################################################################
+local_service_ip_seed: "{{ vps_server_name + ansible_fqdn }}"
+
+######################################################################
+#
+#  wireguard
+#
+######################################################################
+
+######################################################################
+#
+#  docker: must be enabled by its services
+#
+######################################################################
+docker_rootless_and_terminal_enabled: "{{ true if docker_rootless_enabled and terminal_enabled else false }}"
+
+######################################################################
+#
+#  caddy: must be enabled by its services
+#
+######################################################################
+
+######################################################################
+#
+#  searxng
+#
+######################################################################
+searxng_enabled: false
+caddy_enabled: "{{ true if searxng_enabled else false }}"
+docker_enabled: "{{ true if searxng_enabled else false }}"
+searxng_rootless: "{{ true if docker_rootless_enabled else false }}"
+searxng_install_dir: "{{ searxng_install_dir_rootless if docker_rootless_enabled else searxng_install_dir_systemwide }}"
+searxng_systemd_dir: "{{ searxng_systemd_dir_rootless if docker_rootless_enabled else searxng_systemd_dir_systemwide }}"

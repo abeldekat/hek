@@ -2,7 +2,6 @@
 
 - name: Check apparmor support
   ansible.builtin.command: apparmor_status
-  # ignore_errors: yes
   changed_when: false
   register: apparmor_status
 
@@ -10,17 +9,9 @@
   ansible.builtin.set_fact:
     apparmor_enabled: true
   when: '"profiles are in enforce mode" in apparmor_status.stdout'
-
-# - name: Gather additional facts
-#   import_tasks: facts.yml
-# p12_export_password
-# CA_password
 - name: Set ip_subject_alt_name as a fact
   ansible.builtin.set_fact:
-    ip_subject_alt_name: "{{ ansible_default_ipv6.address }}"
+    ip_subject_alt_name: "{{ ansible_default_ipv4.address }}"
 - name: Set IPv6 support as a fact
   ansible.builtin.set_fact:
     ipv6_support: "{% if ansible_default_ipv6['gateway'] is defined %}true{% else %}false{% endif %}"
-- name: Calculate reduce_mtu as a fact
-  ansible.builtin.set_fact:
-    reduce_mtu: "{{ 1500 - ansible_default_ipv4['mtu']|int if reduce_mtu|int == 0 and ansible_default_ipv4['mtu']|int < 1500 else reduce_mtu|int }}"
