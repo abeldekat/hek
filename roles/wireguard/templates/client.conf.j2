@@ -2,7 +2,7 @@
 PrivateKey = {{ lookup('file', wireguard_pki_path + '/private/' + item.1) }}
 Address = {{ wireguard_client_ip }}
 DNS = {{ wireguard_dns_servers }}
-{% if reduce_mtu|int > 0 %}MTU = {{ 1420 - reduce_mtu|int }}
+{% if wireguard_reduce_mtu|int > 0 %}MTU = {{ 1420 - reduce_mtu|int }}
 {% endif %}
 
 [Peer]

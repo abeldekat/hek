@@ -1,29 +1,29 @@
 ---
 
-- name: Delete the lock files
+# the lock files on the server are "done" markers, never containing content
+- name: Delete the lock files when always generating new keys
   ansible.builtin.file:
     dest: "{{ config_prefix|default('/') }}etc/wireguard/private_{{ item }}.lock"
     state: absent
-  when: wireguard_server_keys_clean_all|bool
+  when: not wireguard_pki_keep_future_user_add_ability|bool
   with_items:
-    - "{{ users }}"
+    - "{{ wireguard_users }}"
     - "{{ ip_subject_alt_name }}"
 
-# msg: Did not run command since '/etc/wireguard/private_phone.lock' exists
+# only generates a new key when there is no corresponding lock file on the server
 - name: Generate private keys
   ansible.builtin.command: wg genkey
   register: wg_genkey
   args:
     creates: "{{ config_prefix|default('/') }}etc/wireguard/private_{{ item }}.lock"
   with_items:
-    - "{{ users }}"
+    - "{{ wireguard_users }}"
     - "{{ ip_subject_alt_name }}"
 
-# - name: Debug wg_genkey
-#   ansible.builtin.debug:
-#     msg: "{{ wg_genkey }}"
-
+# on change, copy changed server stdout result to a file on the ansible controller
+# then, on server, create a new lock file
 - block:
+    # notice the content being "stdout"...
     - name: Save private keys
       ansible.builtin.copy:
         dest: "{{ wireguard_pki_path }}/private/{{ item['item'] }}"
@@ -41,7 +41,7 @@
         state: touch
         mode: "0644"
       with_items:
-        - "{{ users }}"
+        - "{{ wireguard_users }}"
         - "{{ ip_subject_alt_name }}"
   when: wg_genkey.changed
 
@@ -49,9 +49,9 @@
   ansible.builtin.file:
     dest: "{{ config_prefix|default('/') }}etc/wireguard/preshared_{{ item }}.lock"
     state: absent
-  when: wireguard_server_keys_clean_all|bool
+  when: not wireguard_pki_keep_future_user_add_ability|bool
   with_items:
-    - "{{ users }}"
+    - "{{ wireguard_users }}"
     - "{{ ip_subject_alt_name }}"
 
 - name: Generate preshared keys
@@ -60,7 +60,7 @@
   args:
     creates: "{{ config_prefix|default('/') }}etc/wireguard/preshared_{{ item }}.lock"
   with_items:
-    - "{{ users }}"
+    - "{{ wireguard_users }}"
     - "{{ ip_subject_alt_name }}"
 
 - block:
@@ -81,10 +81,11 @@
         state: touch
         mode: 0644
       with_items:
-        - "{{ users }}"
+        - "{{ wireguard_users }}"
         - "{{ ip_subject_alt_name }}"
   when: wg_genpsk.changed
 
+# public keys are derived from private keys
 - name: Generate public keys
   ansible.builtin.shell: |
     set -o pipefail
@@ -95,7 +96,7 @@
   args:
     executable: bash
   with_items:
-    - "{{ users }}"
+    - "{{ wireguard_users }}"
     - "{{ ip_subject_alt_name }}"
 
 - name: Save public keys

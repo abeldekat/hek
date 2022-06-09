@@ -1,0 +1,9 @@
+---
+- name: Ensure consistent wireguard_pki_keep_future_user_add_ability
+  ansible.builtin.file:
+    path: "{{ wireguard_pki_path }}"
+    state: absent
+  become: false
+  delegate_to: localhost
+  when:
+    - not wireguard_pki_keep_future_user_add_ability

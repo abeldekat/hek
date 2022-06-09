@@ -4,8 +4,8 @@ ListenPort = {{ wireguard_port_actual if wireguard_port|int == wireguard_port_av
 PrivateKey = {{ lookup('file', wireguard_pki_path + '/private/' + ip_subject_alt_name) }}
 SaveConfig = false
 
-{% for u in wireguard_users %}
-{% if u in users %}
+{% for u in wireguard_users_indexed %}
+{% if u in wireguard_users %}
 {% set index = loop.index %}
 
 [Peer]

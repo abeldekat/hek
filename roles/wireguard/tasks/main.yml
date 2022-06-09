@@ -1,4 +1,7 @@
 ---
+- name: Ensure setting wireguard_pki_keep_future_user_add_ability, no old local keys on start
+  ansible.builtin.import_tasks: pki_on_disk.yml
+
 - name: Ensure the required directories exist
   ansible.builtin.file:
     dest: "{{ item }}"
@@ -13,7 +16,12 @@
 
 - name: Calculate reduce_mtu as a fact
   ansible.builtin.set_fact:
-    reduce_mtu: "{{ 1500 - ansible_default_ipv4['mtu']|int if reduce_mtu|int == 0 and ansible_default_ipv4['mtu']|int < 1500 else reduce_mtu|int }}"
+    wireguard_reduce_mtu: >
+      "{{
+      1500 - ansible_default_ipv4['mtu']|int
+      if wireguard_reduce_mtu|int == 0 and ansible_default_ipv4['mtu']|int < 1500
+      else wireguard_reduce_mtu|int
+      }}"
 
 - name: Ensure wireguard installed
   ansible.builtin.apt:
@@ -23,29 +31,18 @@
 
 - name: Import keygeneration tasks
   ansible.builtin.import_tasks: keys.yml
-  tags:
-    - update-users
 
-- name: Import configuration tasks
+- name: Import config generation tasks
   ansible.builtin.import_tasks: config.yml
-  tags:
-    - update-users
 
-- name: WireGuard enabled and started
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  ansible.builtin.meta: flush_handlers
+
+- name: Ensure WireGuard enabled and started
   ansible.builtin.systemd:
     name: "{{ wireguard_service_name }}"
     state: started
     enabled: true
 
-- name: Delete the PKI directory
-  ansible.builtin.file:
-    path: "{{ wireguard_pki_path }}"
-    state: absent
-  become: false
-  delegate_to: localhost
-  when:
-    - not store_pki
-    - not pki_in_tmpfs
-
-- name: Force all notified handlers to run at this point, not waiting for normal sync points
-  ansible.builtin.meta: flush_handlers
+- name: Ensure setting wireguard_pki_keep_future_user_add_ability, no old local keys on finish
+  ansible.builtin.import_tasks: pki_on_disk.yml

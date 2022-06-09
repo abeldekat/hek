@@ -26,14 +26,14 @@ nftables_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled else false }
 
 ######################################################################
 #
-#  dnscrypt-proxy
+#  dnscrypt-proxy: default enabled, without adblocking
 #
 ######################################################################
 local_service_ip_seed: "{{ vps_server_name + ansible_fqdn }}"
 
 ######################################################################
 #
-#  wireguard
+#  wireguard: default enabled
 #
 ######################################################################
 

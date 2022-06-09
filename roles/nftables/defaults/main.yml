@@ -9,3 +9,18 @@ nftables_webserver_enabled: false
 nftables_wireguard_enabled: false
 # starts using vars from dnscrypt-proxy role
 nftables_dnscrypt_proxy_enabled: false
+#
+# TODO: Not implemented: Traffic between wireguard clients, something to have?
+# Block traffic between connected clients. Change this to false to enable
+# connected clients to reach each other, as well as other computers on the
+# same LAN as your Algo server (i.e. the "road warrior" setup). In this
+# case, you may also want to enable SMB/CIFS and NETBIOS traffic below.
+nftables_between_clients_drop:
+#
+# TODO: Not implemented: Traffic between wireguard clients, something to have?
+# Block SMB/CIFS traffic
+nftables_block_smb:
+#
+# TODO: Not implemented: Traffic between wireguard clients, something to have?
+# Block NETBIOS traffic
+nftables_block_netbios:

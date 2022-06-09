@@ -5,6 +5,8 @@
 # assigned to the import_role task
 # 2 When: -> Decides if tasks actually runs
 # Using when on import_role task: All tasks in the role will be executed and skipped
+# Also relevant:
+# https://yaml-multiline.info/
 #
 # TODO:
 # Check if roles contain all variables
@@ -15,8 +17,6 @@
 #   wireguard_port_avoid redirects to port_actual
 #   between_clients?
 #   hash_limit
-# - not store_pki
-# - not pki_in_tmpfs
 # Firewalld for better defaults and docker integration
 # Searx: filter engines in use
 # .zshenv should be content, not copy

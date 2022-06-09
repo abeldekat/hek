@@ -1,7 +1,5 @@
 ---
-# on debian: mkpasswd --method=SHA-512
 # override ansible_ssh_user in invoking shellscript
-# Note: algo does ipv6: true
 - hosts: vps_servers
   gather_facts: false
 
@@ -11,10 +9,7 @@
   # add drb user as sudo
   tasks:
 
-    # [WARNING]: Module remote_tmp /root/.ansible/tmp did not exist and was created with a mode of 0700,
-    # this may cause issues when running as another user. To avoid this, create the remote_tmp
-    # dir with the correct permissions manually
-    - name: Ensure remote tmp exists, prevent warning
+    - name: Ensure remote tmp exists, prevents ansible warning
       ansible.builtin.file:
         path: /root/.ansible/tmp
         state: directory
@@ -22,10 +17,11 @@
         owner: root
         group: root
 
+    # TODO: lock_passwd: true ?
     - name: Add a new user
       ansible.builtin.user:
         name: "{{ vps_user }}"
-        password: "{{ vps_password }}"
+        password: "{{ vps_sha_password }}"
         append: true
         # groups: adm, netdev
         groups: sudo

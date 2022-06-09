@@ -4,6 +4,7 @@
   delegate_to: localhost
   become: false
   block:
+    # New users will be added to the end of the file
     - name: WireGuard user list updated
       ansible.builtin.lineinfile:
         dest: "{{ wireguard_pki_path }}/index.txt"
@@ -12,19 +13,19 @@
         insertafter: EOF
         line: "{{ item }}"
       register: lineinfile
-      with_items: "{{ users }}"
+      with_items: "{{ wireguard_users }}"
 
     - name: Set wireguard users as fact
       ansible.builtin.set_fact:
-        wireguard_users: "{{ (lookup('file', wireguard_pki_path + 'index.txt')).split('\n') }}"
+        wireguard_users_indexed: "{{ (lookup('file', wireguard_pki_path + 'index.txt')).split('\n') }}"
 
     - name: WireGuard users config generated
       ansible.builtin.template:
         src: client.conf.j2
         dest: "{{ wireguard_config_path }}/{{ item.1 }}.conf"
         mode: "0600"
-      with_indexed_items: "{{ wireguard_users }}"
-      when: item.1 in users
+      with_indexed_items: "{{ wireguard_users_indexed }}"
+      when: item.1 in wireguard_users
       vars:
         index: "{{ item.0 }}"
 
@@ -35,8 +36,8 @@
         segno --scale=5 --output={{ item.1 }}.png \
           "{{ lookup('template', 'client.conf.j2') }}" || true
       changed_when: false
-      with_indexed_items: "{{ wireguard_users }}"
-      when: item.1 in users
+      with_indexed_items: "{{ wireguard_users_indexed }}"
+      when: item.1 in wireguard_users
       vars:
         index: "{{ item.0 }}"
         ansible_python_interpreter: "{{ ansible_playbook_python }}"
