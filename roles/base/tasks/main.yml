@@ -1,5 +1,7 @@
 ---
 
+# sudo systemctl status unattended-upgrades
+# usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
 - name: Import unattended upgrades tasks
   ansible.builtin.import_tasks: unattended-upgrades.yml
 
