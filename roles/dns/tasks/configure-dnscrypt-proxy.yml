@@ -7,14 +7,17 @@
     group: "{{ root_group|default('root') }}"
     mode: 0755
 
-# TODO: This always reports a change!
+# Range causes the playbook to always report a change:
 - name: Adblock script added to cron
   ansible.builtin.cron:
     name: Adblock hosts update
-    minute: "{{ range(0, 60) | random }}"
-    hour: "{{ range(0, 24) | random }}"
+    # minute: "{{ range(0, 60) | random }}"
+    # hour: "{{ range(0, 24) | random }}"
+    minute: "10"
+    hour: "23"
     job: /usr/local/sbin/adblock.sh
     user: root
+    state: present
 
 - name: Update adblock hosts
   ansible.builtin.command: /usr/local/sbin/adblock.sh

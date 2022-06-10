@@ -12,6 +12,10 @@
     - "{{ wireguard_users }}"
     - "{{ ip_subject_alt_name }}"
 
+# - name: Debug
+#   ansible.builtin.debug:
+#     msg: "{{ wg_genkey }}"
+
 # on change, copy changed server stdout result to a file on the ansible controller
 # then, on server, create a new lock file
 - block:
