@@ -6,6 +6,7 @@
     owner: root
     group: "{{ root_group|default('root') }}"
     mode: 0755
+  when: dns_adblocking_enabled
 
 # Range causes the playbook to always report a change:
 - name: Adblock script added to cron
@@ -18,10 +19,12 @@
     job: /usr/local/sbin/adblock.sh
     user: root
     state: present
+  when: dns_adblocking_enabled
 
 - name: Update adblock hosts
   ansible.builtin.command: /usr/local/sbin/adblock.sh
   changed_when: false
+  when: dns_adblocking_enabled
 
 - name: dnscrypt-proxy ip-blacklist configured
   ansible.builtin.template:
