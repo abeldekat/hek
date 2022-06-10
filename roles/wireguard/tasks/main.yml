@@ -1,7 +1,4 @@
 ---
-- name: Ensure setting wireguard_pki_keep_future_user_add_ability, no old local keys on start
-  ansible.builtin.import_tasks: pki_on_disk.yml
-
 - name: Ensure the required directories exist
   ansible.builtin.file:
     dest: "{{ item }}"
@@ -29,8 +26,8 @@
     state: present
     update_cache: true
 
-- name: Import keygeneration tasks
-  ansible.builtin.import_tasks: keys.yml
+- name: Import key generation tasks
+  ansible.builtin.import_tasks: key_generation.yml
 
 - name: Import config generation tasks
   ansible.builtin.import_tasks: config.yml
@@ -43,6 +40,3 @@
     name: "{{ wireguard_service_name }}"
     state: started
     enabled: true
-
-- name: Ensure setting wireguard_pki_keep_future_user_add_ability, no old local keys on finish
-  ansible.builtin.import_tasks: pki_on_disk.yml

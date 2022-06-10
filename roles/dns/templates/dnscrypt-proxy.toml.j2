@@ -29,8 +29,8 @@
 
 {# Allow either list to be empty. Output nothing if both are empty. #}
 {% set servers = [] %}
-{% if dnscrypt_servers.ipv4 %}{% set servers = dnscrypt_servers.ipv4 %}{% endif %}
-{% if ipv6_support and dnscrypt_servers.ipv6 %}{% set servers = servers + dnscrypt_servers.ipv6 %}{% endif %}
+{% if dns_dnscrypt_servers.ipv4 %}{% set servers = dns_dnscrypt_servers.ipv4 %}{% endif %}
+{% if ipv6_support and dns_dnscrypt_servers.ipv6 %}{% set servers = servers + dns_dnscrypt_servers.ipv6 %}{% endif %}
 {% if servers %}server_names = ['{{ servers | join("', '") }}']{% endif %}
 
 
@@ -38,8 +38,8 @@
 ## Note: When using systemd socket activation, choose an empty set (i.e. [] ).
 
 listen_addresses  = [
-  '{{ local_service_ip }}:53'{% if ipv6_support %},
-  '[{{ local_service_ipv6 }}]:53'{% endif %}
+  '{{ dns_local_service_ip }}:53'{% if ipv6_support %},
+  '[{{ dns_local_service_ipv6 }}]:53'{% endif %}
   ]
 
 
@@ -65,7 +65,7 @@ ipv4_servers = true
 ipv6_servers = {{ ipv6_support | bool | lower }}
 
 # Use servers implementing the DNSCrypt protocol
-dnscrypt_servers = true
+dns_dnscrypt_servers = true
 
 # Use servers implementing the DNS-over-HTTPS protocol
 doh_servers = true
@@ -551,7 +551,7 @@ cache_neg_max_ttl = 600
 
 [static]
 
-{% if custom_server_stamps %}{% for name, stamp in custom_server_stamps.items() %}
+{% if dns_custom_server_stamps %}{% for name, stamp in dns_custom_server_stamps.items() %}
   [static.'{{ name }}']
   stamp = '{{ stamp }}'
 {%- endfor %}{% endif %}

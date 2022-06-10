@@ -14,6 +14,13 @@
 
 ######################################################################
 #
+#  dns: dnscrypt-proxy default enabled, without adblocking
+#
+######################################################################
+dns_local_service_ip_seed: "{{ vps_server_name + ansible_fqdn }}"
+
+######################################################################
+#
 #  nftables: default enabled
 #
 ######################################################################
@@ -21,21 +28,21 @@
 nftables_webserver_enabled: "{{ true if searxng_enabled else false }}"
 # exposes vars from wireguard role
 nftables_wireguard_enabled: "{{ true if wireguard_enabled else false }}"
-# exposes vars from dnscrypt-proxy role
+# exposes vars from dns role
 nftables_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled else false }}"
 
-######################################################################
-#
-#  dnscrypt-proxy: default enabled, without adblocking
-#
-######################################################################
-local_service_ip_seed: "{{ vps_server_name + ansible_fqdn }}"
 
 ######################################################################
 #
 #  wireguard: default enabled
 #
 ######################################################################
+wireguard_dns_servers: >-
+  {% if dns_adblocking_enabled|default(false)|bool or dns_encryption_enabled|default(false)|bool %}
+  {{ dns_local_service_ip }}{{ ', ' + dns_local_service_ipv6 if ipv6_support else '' }}
+  {% else %}
+  {% for host in dns_servers.ipv4 %}{{ host }}{% if not loop.last %},{% endif %}{% endfor %}{% if ipv6_support %},{% for host in dns_servers.ipv6 %}{{ host }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}
+  {% endif %}
 
 ######################################################################
 #

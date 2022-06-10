@@ -1,4 +1,14 @@
 ---
+
+# only needed for dnscrypt-proxy
+- name: Loopback for services configured
+  ansible.builtin.template:
+    src: 10-vps-lo100.network.j2
+    dest: /etc/systemd/network/10-vps-lo100.network
+    mode: 0644
+  notify:
+    - restart systemd-networkd
+
 - name: Include install tasks
   ansible.builtin.import_tasks: install-dnscrypt-proxy.yml
 

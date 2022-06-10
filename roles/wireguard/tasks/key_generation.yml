@@ -1,14 +1,6 @@
 ---
 
 # the lock files on the server are "done" markers, never containing content
-- name: Delete the lock files when always generating new keys
-  ansible.builtin.file:
-    dest: "{{ config_prefix|default('/') }}etc/wireguard/private_{{ item }}.lock"
-    state: absent
-  when: not wireguard_pki_keep_future_user_add_ability|bool
-  with_items:
-    - "{{ wireguard_users }}"
-    - "{{ ip_subject_alt_name }}"
 
 # only generates a new key when there is no corresponding lock file on the server
 - name: Generate private keys
@@ -44,15 +36,6 @@
         - "{{ wireguard_users }}"
         - "{{ ip_subject_alt_name }}"
   when: wg_genkey.changed
-
-- name: Delete the preshared lock files
-  ansible.builtin.file:
-    dest: "{{ config_prefix|default('/') }}etc/wireguard/preshared_{{ item }}.lock"
-    state: absent
-  when: not wireguard_pki_keep_future_user_add_ability|bool
-  with_items:
-    - "{{ wireguard_users }}"
-    - "{{ ip_subject_alt_name }}"
 
 - name: Generate preshared keys
   ansible.builtin.command: wg genpsk

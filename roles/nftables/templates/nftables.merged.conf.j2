@@ -20,8 +20,8 @@ define pub_iface = {{ ansible_default_ipv4.alias }}
 define wg_iface = {{ wireguard_interface }}
 define wg_port = {{ wireguard_port }}
 
-define dns_ipv4 = {{ local_service_ip }}
-define dns_ipv6 = {{ local_service_ipv6 }}
+define dns_ipv4 = {{ dns_local_service_ip }}
+define dns_ipv6 = {{ dns_local_service_ipv6 }}
 define wg_net_ipv4 = {{ wireguard_network_ipv4 }}
 define wg_net_ipv6 = {{ wireguard_network_ipv6 }}
 

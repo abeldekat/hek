@@ -1,39 +1,20 @@
 ---
 
+- name: Import unattended upgrades tasks
+  ansible.builtin.import_tasks: unattended-upgrades.yml
+
+# First configure unattended upgrades because sometimes the following occurs:
+# '/usr/bin/apt-get dist-upgrade ' failed: E: Could not get lock /var/lib/dpkg/lock-frontend. It is held by process 853 (unattended-upgr)
 - name: Import software upgrades tasks
   ansible.builtin.import_tasks: software-upgrades.yml
   tags:
     - upgrade-all
 
-- name: Import unattended upgrades tasks
-  ansible.builtin.import_tasks: unattended-upgrades.yml
-
-- name: Import infrastructure tasks
-  ansible.builtin.import_tasks: infra.yml
-
-- name: Ensure systemd services enabled and started
-  ansible.builtin.systemd:
-    name: "{{ item }}"
-    state: started
-    enabled: true
-    daemon_reload: true
+- name: Disable MOTD on login and SSHD
+  ansible.builtin.replace: dest="{{ item.file }}" regexp="{{ item.regexp }}" replace="{{ item.line }}"
   with_items:
-    - systemd-networkd
-    - systemd-resolved
-    - unattended-upgrades
-
-- name: Force all notified handlers to run at this point, not waiting for normal sync points
-  ansible.builtin.meta: flush_handlers
-  tags:
-    - always
-
-- name: Import facts tasks
-  ansible.builtin.import_tasks: facts.yml
-  tags:
-    - always
-
-- name: Import software tasks
-  ansible.builtin.import_tasks: software.yml
+    - {regexp: '^session.*optional.*pam_motd.so.*', line: '# MOTD DISABLED', file: '/etc/pam.d/login'}
+    - {regexp: '^session.*optional.*pam_motd.so.*', line: '# MOTD DISABLED', file: '/etc/pam.d/sshd'}
 
 - name: Ensure sysctl is tuned
   ansible.posix.sysctl:
@@ -48,7 +29,16 @@
     - item: "{{ 'net.ipv6.conf.all.forwarding' if ipv6_support else none }}"
       value: 1
 
-- name: Force all notified handlers to run at this point, not waiting for normal sync points
-  ansible.builtin.meta: flush_handlers
-  tags:
-    - always
+- name: Ensure systemd services enabled and started
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+    daemon_reload: true
+  with_items:
+    - systemd-networkd
+    - systemd-resolved
+    - unattended-upgrades
+
+- name: Import software tasks
+  ansible.builtin.import_tasks: software.yml

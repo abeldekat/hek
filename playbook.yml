@@ -8,6 +8,20 @@
 # Also relevant:
 # https://yaml-multiline.info/
 #
+# fatal: [localhost]: FAILED! => {"msg": "The ipaddr filter requires python's netaddr be installed on the ansible controller"}
+# --> pip install netaddr
+
+# just a note:
+# ansible [core 2.12.5]
+#   config file = /home/user/git/github/algo/ansible.cfg
+#   configured module search path = ['/home/user/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+#   ansible python module location = /usr/lib/python3.10/site-packages/ansible
+#   ansible collection location = /home/user/.ansible/collections:/usr/share/ansible/collections
+#   executable location = /usr/bin/ansible
+#   python version = 3.10.4 (main, Mar 23 2022, 23:05:40) [GCC 11.2.0]
+#   jinja version = 3.0.3
+#   libyaml = True
+
 # TODO:
 # Check if roles contain all variables
 # Reorganize vars.yml, add must change vars to the top
@@ -18,6 +32,7 @@
 #   between_clients?
 #   hash_limit
 # Firewalld for better defaults and docker integration
+# Test firewall with port_avoid
 # Searx: filter engines in use
 # .zshenv should be content, not copy
 # Test python env
@@ -32,10 +47,20 @@
   become: true
   tasks:
 
+    - name: Import facts role
+      ansible.builtin.import_role:
+        name: facts
+      tags: [always]
+
     - name: Import base role
       ansible.builtin.import_role:
         name: base
       tags: [base]
+
+    - name: Import dns role
+      ansible.builtin.import_role:
+        name: dns
+      tags: [dns]
 
     - name: Import nftables role
       ansible.builtin.import_role:
@@ -43,18 +68,27 @@
       when: nftables_enabled
       tags: [nftables]
 
-    - name: Import dnscrypt-proxy role
-      ansible.builtin.import_role:
-        name: dnscrypt-proxy
-      when:
-        - dns_adblocking_enabled or
-          dns_encryption_enabled
-      tags: [dnscrypt-proxy]
-
-    - name: Import wireguard role
-      ansible.builtin.import_role:
-        name: wireguard
+    - name: Test if wireguard is already configured
+      ansible.builtin.stat:
+        path: "{{ '/etc/wireguard/' + wireguard_interface + '.conf' }}"
+      register: _wireguard_exists
       when: wireguard_enabled
+      tags: [wireguard]
+
+    - block:
+        - name: Ensure no local wireguard config present on new wg creation
+          ansible.builtin.file:
+            dest: "{{ wireguard_config_path }}"
+            state: absent
+          delegate_to: localhost
+          become: false
+
+        - name: Import wireguard role
+          ansible.builtin.import_role:
+            name: wireguard
+      when:
+        - wireguard_enabled
+        - not _wireguard_exists.stat.exists
       tags: [wireguard]
 
     - name: Import terminal role

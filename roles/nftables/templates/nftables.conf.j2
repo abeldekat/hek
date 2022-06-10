@@ -26,8 +26,8 @@ define wg_net_ipv6 = {{ wireguard_network_ipv6 }}
 {% endif %}
 
 {% if nftables_dnscrypt_proxy_enabled %}
-define dns_ipv4 = {{ local_service_ip }}
-define dns_ipv6 = {{ local_service_ipv6 }}
+define dns_ipv4 = {{ dns_local_service_ip }}
+define dns_ipv6 = {{ dns_local_service_ipv6 }}
 {% endif %}
 
 # table netdev drop-bad-packets {

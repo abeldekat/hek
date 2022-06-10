@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# The playbook can also be ran directly when knowing the code:
+# Example:
+# ansible-playbook -K playbook.yml --skip-tags="common,dns,wireguard,searxng"
+
+set -e
+
+# if [ -z ${VIRTUAL_ENV+x} ]
+# then
+#   ACTIVATE_SCRIPT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.env/bin/activate"
+#   if [ -f "$ACTIVATE_SCRIPT" ]
+#   then
+#     # shellcheck source=/dev/null
+#     source "$ACTIVATE_SCRIPT"
+#   else
+#     echo "$ACTIVATE_SCRIPT not found.  Did you follow documentation to install dependencies?"
+#     exit 1
+#   fi
+# fi
+
+case "$1" in
+  # p) PLAYBOOK=provision.yml; ARGS=( "${@:2}"  -t update-users ) ;;
+  # *) PLAYBOOK=playbook.yml; ARGS=( "${@}" ) ;;
+  # ansible-playbook -K playbook.yml --skip-tags="common,dns,wireguard,searxng"
+  p) ansible-playbook -e "ansible_ssh_user=root" provision.yml ;;
+  r) ansible-playbook -K wireguard_rotate.yml ;;
+  m) ansible-playbook -K wireguard_modify_user_list.yml ;;
+  *) ansible-playbook -K playbook.yml ;;
+esac
+
+# ansible-playbook ${PLAYBOOK} "${ARGS[@]}"

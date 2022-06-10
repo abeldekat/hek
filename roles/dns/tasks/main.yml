@@ -1,0 +1,24 @@
+---
+
+# https://wiki.archlinux.org/title/Systemd-resolved
+# If systemd-resolved does not receive DNS server addresses from the network manager and no DNS servers
+# are configured manually then systemd-resolved falls back to the fallback DNS addresses
+# to ensure that DNS resolution always works.
+# The fallback DNS are in this order: Cloudflare, Quad9 (without filtering and without DNSSEC) and Google;
+# see the systemd PKGBUILD where the servers are defined.
+# check: resolvectl status
+- name: Ensure fallback resolvers are set
+  ansible.builtin.ini_file:
+    path: /etc/systemd/resolved.conf
+    mode: 0644
+    section: Resolve
+    option: FallbackDNS
+    value: "{{ dns_servers.ipv4 | join(' ') }}"
+  notify:
+    - restart systemd-resolved
+
+- name: Import dnscrypt-proxy tasks
+  ansible.builtin.import_tasks: proxy.yml
+  when:
+    - dns_adblocking_enabled or
+      dns_encryption_enabled
