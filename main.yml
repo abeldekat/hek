@@ -60,6 +60,7 @@
     - name: Import dns role
       ansible.builtin.import_role:
         name: dns
+      when: dns_enabled
       tags: [dns]
 
     - name: Import nftables role

@@ -1,6 +1,6 @@
 ---
 
-# This variables file wires together the various components (roles) used by the playbook.
+# This file wires together the variables of the various components (roles) used by the playbook.
 #
 # Roles used by playbook are kept independent of one another as much as possible.
 # To deliver a turnkey fully-featured server, this playbook needs
@@ -31,12 +31,12 @@ nftables_wireguard_enabled: "{{ true if wireguard_enabled else false }}"
 # exposes vars from dns role
 nftables_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled else false }}"
 
-
 ######################################################################
 #
 #  wireguard: default enabled
 #
 ######################################################################
+dns_enabled: "{{ true if wireguard_enabled else false }}"
 wireguard_dns_servers: >-
   {% if dns_adblocking_enabled|default(false)|bool or dns_encryption_enabled|default(false)|bool %}
   {{ dns_local_service_ip }}{{ ', ' + dns_local_service_ipv6 if ipv6_support else '' }}

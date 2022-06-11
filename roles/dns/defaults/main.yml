@@ -49,6 +49,8 @@ dns_local_service_ip_seed: "{{ 'vps' + ansible_fqdn }}"
 ###############################################################################
 # Not modifiable:
 #
+# see groupvars:
+dns_enabled: false
 # When dnscrypt proxy in use:
 # Randomly generated IP address for the local dns resolver
 # As of Ansible version 2.3, it’s also possible to initialize the random number
