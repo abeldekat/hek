@@ -2,7 +2,7 @@
 
 # The playbook can also be ran directly when knowing the code:
 # Example:
-# ansible-playbook -K playbook.yml --skip-tags="common,dns,wireguard,searxng"
+# ansible-playbook -K main.yml --skip-tags="common,dns,wireguard,searxng"
 
 set -e
 
@@ -19,14 +19,45 @@ set -e
 #   fi
 # fi
 
-case "$1" in
-  # p) PLAYBOOK=provision.yml; ARGS=( "${@:2}"  -t update-users ) ;;
-  # *) PLAYBOOK=playbook.yml; ARGS=( "${@}" ) ;;
-  # ansible-playbook -K playbook.yml --skip-tags="common,dns,wireguard,searxng"
-  p) ansible-playbook -e "ansible_ssh_user=root" provision.yml ;;
-  r) ansible-playbook -K wireguard_rotate.yml ;;
-  m) ansible-playbook -K wireguard_modify_user_list.yml ;;
-  *) ansible-playbook -K playbook.yml ;;
+_provision(){
+  ansible-playbook -e "ansible_ssh_user=root" provision.yml;
+}
+
+_main(){
+  ansible-playbook -K main.yml;
+}
+
+_all(){
+  _provision;
+  _main;
+}
+
+_wireguard_rotate(){
+  ansible-playbook -K wireguard_rotate.yml
+}
+
+_wireguard_update_users(){
+  ansible-playbook -K main.yml --tags="wireguard";
+}
+
+_searxng_update(){
+  ansible-playbook -K main.yml --tags="searxng";
+}
+
+
+# p) PLAYBOOK=provision.yml; ARGS=( "${@:2}"  -t update-users ) ;;
+# *) PLAYBOOK=main.yml; ARGS=( "${@}" ) ;;
+# ansible-playbook -K main.yml --skip-tags="common,dns,wireguard,searxng"
+action=$1
+shift
+case "$action" in
+  1) _all ;;
+  2) _main ;;
+  3) _provision ;;
+  10) _wireguard_update_users ;;
+  11) _wireguard_rotate ;;
+  20) _searxng_update ;;
+  *) echo -e "Unknown subcommand. " && exit 1 ;;
 esac
 
 # ansible-playbook ${PLAYBOOK} "${ARGS[@]}"
