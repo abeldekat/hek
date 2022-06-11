@@ -1,26 +1,21 @@
 # see https://docs.searxng.org/admin/engines/settings.html#use-default-settings
-#   keep_only:
-#     - google
-#     - duckduckgo
-#  engines:
-#    remove:
-#      - google
-{% if not searxng_engines_to_keep_enabled %}
-use_default_settings: true
+{% if searxng_engines_restrict|length %}
+{% if searxng_engines_restrict_keep %}
+use_default_settings:
+  engines:
+    keep_only:
 {% else %}
 use_default_settings:
   engines:
-{% if searxng_engines_to_keep_override_into_remove %}
     remove:
-{% else %}
-    keep_only:
 {% endif %}
-{% for engine in searxng_engines_to_keep %}
+{% for engine in searxng_engines_restrict %}
       - {{ engine }}
 {% endfor %}
+{% else %}
+use_default_settings: true
 {% endif %}
-general:
-  instance_name: "{{ searxng_instance_name }}"
+# general:
   # enable_metrics: true      # record stats
 server:
   # base_url is defined in the SEARXNG_BASE_URL environment variable, see .env and docker-compose.yml

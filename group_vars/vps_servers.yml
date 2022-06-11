@@ -62,7 +62,6 @@ docker_rootless_and_terminal_enabled: "{{ true if docker_rootless_enabled and te
 #  searxng
 #
 ######################################################################
-searxng_enabled: false
 caddy_enabled: "{{ true if searxng_enabled else false }}"
 docker_enabled: "{{ true if searxng_enabled else false }}"
 searxng_rootless: "{{ true if docker_rootless_enabled else false }}"

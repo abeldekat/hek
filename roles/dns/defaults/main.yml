@@ -2,7 +2,7 @@
 ###############################################################################
 # Modifiable:
 #
-# DNS adblocking enabled implies DNS encryption enabled
+# dns_adblocking_enabled implies dns_encryption_enabled
 dns_encryption_enabled: true
 dns_adblocking_enabled: true
 #

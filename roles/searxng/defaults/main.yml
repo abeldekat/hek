@@ -1,21 +1,31 @@
 ---
-
-searxng_enabled: false
-#
-searxng_rootless: false
-#
-# Restrict access to home ip and wireguard:
-searxng_public: false
+###############################################################################
+# Modifiable:
+searxng_enabled: true
 #
 searxng_hostname: ''
 searxng_email: ''
 #
-# The url to the git repository:
-searxng_git: https://github.com/searxng/searxng-docker.git
-
 # openssl rand -hex 32
 searxng_secret_key: "ultrasecretkey"  # change this!
 #
+# Restrict access to home ip and wireguard:
+searxng_public: false
+# The url to the git repository:
+searxng_git: https://github.com/searxng/searxng-docker.git
+
+###############################################################################
+# Tweaking:
+searxng_default_lang: 'en-US'
+
+# Limit the number of engines by adding engines to this restrict list
+# Default behaviour: remove the specified engines if list has items
+# The keep option keeps the specified engines and remove all others
+searxng_engines_restrict: []
+searxng_engines_restrict_keep: false
+
+###############################################################################
+# Path configuration, modify with care, should not be needed
 # Install dir, working dir in service file
 searxng_install_dir_systemwide: "/usr/local/searxng-docker"
 searxng_install_dir_rootless: "{{ '/home/' + vps_user + '/builds/searxng-docker' }}"
@@ -24,21 +34,14 @@ searxng_install_dir_rootless: "{{ '/home/' + vps_user + '/builds/searxng-docker'
 searxng_systemd_dir_systemwide: "/etc/systemd/system"
 searxng_systemd_dir_rootless: "{{ '/home/' + vps_user + '/.config/systemd/user' }}"
 
-# Rootless: path containing docker sock
-searxng_systemd_rootless_xdg_runtime_dir: ''
-
-# Note: This assignment defaulting to self triggers an ansible exception:
-# searxng_install_dir: "{{ searxng_install_dir_rootless if docker_rootless_enabled else searxng_install_dir }}"
-#
 # Defaults to systemwide:
 searxng_install_dir: "{{ searxng_install_dir_systemwide }}"
 searxng_systemd_dir: "{{ searxng_systemd_dir_systemwide }}"
 
-#### Further config
-searxng_instance_name: 'SearXNG'
-searxng_default_lang: 'en-US'
-
-# Limit the number of engines.
-searxng_engines_to_keep_enabled: false
-searxng_engines_to_keep: []
-searxng_engines_to_keep_override_into_remove: false
+###############################################################################
+# Not modifiable:
+#
+# see groupvars:
+searxng_rootless: false
+# Rootless: path containing docker sock
+searxng_systemd_rootless_xdg_runtime_dir: ''

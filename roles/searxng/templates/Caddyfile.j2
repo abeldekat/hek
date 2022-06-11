@@ -7,12 +7,12 @@
 		output discard
 	}
 
-  tls {{ searxng_email }}
+	tls {{ searxng_email }}
 
 {% if not searxng_public %}
-  @blocked {
-    not remote_ip {{ vps_home_ipv4 }} {{ vps_home_ipv6 }} {{ wireguard_network_ipv4 }} {{ wireguard_network_ipv6 }}
-  }
+	@blocked {
+		not remote_ip {{ vps_home_ipv4 }} {{ vps_home_ipv6 }} {{ wireguard_network_ipv4 }} {{ wireguard_network_ipv6 }}
+	}
 {% endif %}
 
 	@api {
