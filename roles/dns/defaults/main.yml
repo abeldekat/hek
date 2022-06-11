@@ -2,9 +2,9 @@
 ###############################################################################
 # Modifiable:
 #
-# DNS encryption itself can not be disabled if DNS adblocking is enabled
+# DNS adblocking enabled implies DNS encryption enabled
 dns_encryption_enabled: true
-dns_adblocking_enabled: false
+dns_adblocking_enabled: true
 #
 # In use when 'dns_encryption_enabled' is 'false'.
 # In use as fallback resolvers for systemd-resolved
@@ -44,7 +44,7 @@ dns_custom_server_stamps:
 # YourCustomServer: 'sdns://...'
 #
 # Overriden in group_vars:
-dns_local_service_ip_seed: "{{ 'vps' + ansible_fqdn }}"
+dns_local_service_ip_seed: "{{ 'vpsserver' + ansible_fqdn }}"
 
 ###############################################################################
 # Not modifiable:

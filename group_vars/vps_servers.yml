@@ -17,7 +17,7 @@
 #  dns: dnscrypt-proxy default enabled, without adblocking
 #
 ######################################################################
-dns_local_service_ip_seed: "{{ vps_server_name + ansible_fqdn }}"
+dns_local_service_ip_seed: "{{ vps_seed + ansible_fqdn }}"
 
 ######################################################################
 #
