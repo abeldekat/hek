@@ -23,17 +23,13 @@
 #   libyaml = True
 
 # TODO:
-# Check if roles contain all variables
-# Reorganize vars.yml, add must change vars to the top
-# Cleanup unused algo vars
 # Add example config
 # Evaluate:
+#   Test firewall with port_avoid
 #   wireguard_port_avoid redirects to port_actual
 #   between_clients?
 #   hash_limit
 # Firewalld for better defaults and docker integration
-# Test firewall with port_avoid
-# Searx: filter engines in use
 # .zshenv should be content, not copy
 # Test python env
 # fail2ban instead of custom ssh port
