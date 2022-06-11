@@ -1,11 +1,8 @@
 ---
-
 ###############################################################################
 # Deploy WireGuard. WireGuard will listen on 51820/UDP.
 # You might need to change to another port if your network blocks this one.
 # Be aware that 53/UDP (DNS) is blocked on some mobile data networks.
-#
-# TODO: prefer ipv6? Needs brackets in endpoint client.conf
 
 ###############################################################################
 # Modifiable:
@@ -29,6 +26,9 @@ wireguard_persistentkeepalive: 0
 # but if connections hang you might need to adjust this yourself.
 # See: https://github.com/trailofbits/algo/blob/master/docs/troubleshooting.md#various-websites-appear-to-be-offline-through-the-vpn
 wireguard_reduce_mtu: 0
+#
+# Disable logging when generating keys:
+wireguard_no_log: true
 
 ###############################################################################
 # Network configuration, modify with care, should not be needed
