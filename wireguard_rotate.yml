@@ -20,6 +20,10 @@
           Are you sure(y/N)?
       register: _answer
 
+    - name: Debug answer
+      ansible.builtin.debug:
+        msg: a"{{ _answer }}"b
+
     - name: Translate answer into fact
       ansible.builtin.set_fact:
         wireguard_rotate_confirmed: >-
@@ -27,43 +31,43 @@
             {{ booleans_map[_answer.user_input] | default(false) }}
           {%- else %}false{% endif %}
 
-    - block:
+    # - block:
 
-        - name: Import facts role
-          ansible.builtin.import_role:
-            name: facts
+    #     - name: Import facts role
+    #       ansible.builtin.import_role:
+    #         name: facts
 
-        - name: Find files to delete on server
-          ansible.builtin.find:
-            paths: '/etc/wireguard'
-            patterns:
-              - '*.lock'
-              - '*.conf'
-          register: files_to_delete
+    #     - name: Find files to delete on server
+    #       ansible.builtin.find:
+    #         paths: '/etc/wireguard'
+    #         patterns:
+    #           - '*.lock'
+    #           - '*.conf'
+    #       register: files_to_delete
 
-        - name: Ensure server files are deleted
-          ansible.builtin.file:
-            dest: "{{ item.path }}"
-            state: absent
-          with_items:
-            - "{{ files_to_delete.files }}"
+    #     - name: Ensure server files are deleted
+    #       ansible.builtin.file:
+    #         dest: "{{ item.path }}"
+    #         state: absent
+    #       with_items:
+    #         - "{{ files_to_delete.files }}"
 
-        - name: Ensure all local wireguard configuration is removed
-          ansible.builtin.file:
-            dest: "{{ wireguard_config_path }}"
-            state: absent
-          delegate_to: localhost
-          become: false
+    #     - name: Ensure all local wireguard configuration is removed
+    #       ansible.builtin.file:
+    #         dest: "{{ wireguard_config_path }}"
+    #         state: absent
+    #       delegate_to: localhost
+    #       become: false
 
-        # wireguard references dns variables
-        - name: Import dns role
-          ansible.builtin.import_role:
-            name: dns
-          when: false
+    #     # wireguard references dns variables
+    #     - name: Import dns role
+    #       ansible.builtin.import_role:
+    #         name: dns
+    #       when: false
 
-        - name: Import wireguard role
-          ansible.builtin.import_role:
-            name: wireguard
-      when:
-        - wireguard_rotate_confirmed
-        - wireguard_enabled
+    #     - name: Import wireguard role
+    #       ansible.builtin.import_role:
+    #         name: wireguard
+    #   when:
+    #     - wireguard_rotate_confirmed
+    #     - wireguard_enabled
