@@ -89,11 +89,11 @@
         - not _wireguard_exists.stat.exists
       tags: [wireguard]
 
-    - name: Import terminal role
+    - name: Import terminal software role
       ansible.builtin.import_role:
-        name: terminal
-      when: terminal_enabled
-      tags: [terminal]
+        name: terminal_software
+      when: terminal_software_enabled
+      tags: [terminal_software]
 
     - name: Import docker role
       ansible.builtin.import_role:

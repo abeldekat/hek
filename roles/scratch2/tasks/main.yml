@@ -1,9 +1,0 @@
----
-
-- name: Var scratch1
-  ansible.builtin.debug:
-    msg: "{{ scratch1_hello }}"
-
-- name: Var scratch2
-  ansible.builtin.debug:
-    msg: "{{ scratch2_hello }}"

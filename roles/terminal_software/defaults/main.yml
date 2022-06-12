@@ -1,0 +1,25 @@
+---
+
+###############################################################################
+# Modifiable:
+# install software like zsh and neovim
+terminal_software_enabled: false
+#
+# Personal repos, rsync from controller to host .config, excluding git folder
+# For example, personal zsh repo, tmux etc
+terminal_software_personal_config_repos: []
+# - "~/git/debian/zsh"
+#
+terminal_software_repos: []
+# - {repo: 'https://github.com/zsh-users/zsh-completions.git', folder: '~/builds/zsh-completions'}
+# - {repo: 'https://github.com/skywind3000/z.lua.git', folder: '~/builds/z.lua'}
+#
+# set zsh as shell
+terminal_software_zsh_enabled: false
+
+# enable zsh spaceship repo:
+terminal_software_spaceship_enabled: false
+terminal_software_spaceship_repo: "https://github.com/spaceship-prompt/spaceship-prompt.git"
+
+###############################################################################
+# Not modifiable:

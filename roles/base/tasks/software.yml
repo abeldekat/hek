@@ -40,5 +40,6 @@
       - cgroup-tools
       - openssl
       - gnupg2
+      - htop
     state: present
     update_cache: true

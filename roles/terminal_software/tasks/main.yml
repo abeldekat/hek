@@ -15,7 +15,6 @@
       # - neovim
       - lua5.4
       - luarocks
-      - htop
       - build-essential
       - curl
       - wget
@@ -40,15 +39,15 @@
     state: directory
     recurse: true
   with_items:
+    - "~/builds"
+    - "~/bin"
     - "~/.config/zsh"
     - "~/.config/tmux"
-    - "~/builds"
     - "~/.cache/zsh"
     - "~/.local/bin"
+    - "~/.cargo/bin"
     - "~/.local/go/bin"
     - "~/go/bin"
-    - "~/.cargo/bin"
-    - "~/bin"
   become: false
 
 - name: Ensure necessary files are present
@@ -58,6 +57,7 @@
     content: ''
   with_items:
     - "~/.cache/zsh/dummy-zcompdump-path-marker"
+  when: terminal_software_zsh_enabled
   become: false
 
 - name: Ensure personal repos are present in .config
@@ -68,14 +68,18 @@
     rsync_opts:
       - "--exclude=.git"
   with_items:
-    - "{{ terminal_dot_config_repos }}"
+    - "{{ terminal_software_personal_config_repos }}"
   become: false
 
 - name: Ensure zsh .env in home folder
   ansible.builtin.copy:
-    src: .zshenv
     dest: "~/.zshenv"
     mode: "0644"
+    content: |
+      # Redirect
+      export ZDOTDIR="$HOME/.config/zsh"
+      . $ZDOTDIR/.zshenv
+  when: terminal_software_zsh_enabled
   become: false
 
 - name: Ensure git repos are cloned
@@ -87,21 +91,23 @@
     update: false
     force: false
   with_items:
-    - "{{ terminal_repos }}"
+    - "{{ terminal_software_repos }}"
   become: false
 
 - name: Ensure spaceship repo is cloned
   ansible.builtin.git:
     clone: true
     dest: "/opt/spaceship-prompt"
-    repo: "{{ terminal_spaceship_repo }}"
+    repo: "{{ terminal_software_spaceship_repo }}"
     version: master
     update: false
     force: false
     depth: 1
+  when: terminal_software_spaceship_enabled
   notify: link spaceship
 
 - name: Ensure users shell is zsh
   ansible.builtin.user:
     name: "{{ vps_user }}"
     shell: /usr/bin/zsh
+  when: terminal_software_zsh_enabled

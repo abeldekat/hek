@@ -44,6 +44,15 @@ _searxng_update(){
   ansible-playbook -K main.yml --tags="searxng";
 }
 
+_with_tags(){
+  if [[ (-z "$1") ]]; then
+		echo "Usage: <tags>"
+		exit 1
+	fi
+  local tags="$1"
+  ansible-playbook -K main.yml --tags="$tags";
+}
+
 
 # p) PLAYBOOK=provision.yml; ARGS=( "${@:2}"  -t update-users ) ;;
 # *) PLAYBOOK=main.yml; ARGS=( "${@}" ) ;;
@@ -57,6 +66,7 @@ case "$action" in
   10) _wireguard_update_users ;;
   11) _wireguard_rotate ;;
   20) _searxng_update ;;
+  99) _with_tags "$1" ;;
   *) echo -e "Unknown subcommand. " && exit 1 ;;
 esac
 
