@@ -1,0 +1,36 @@
+---
+
+- name: Ensure service file is in systemd folder
+  ansible.builtin.template:
+    src: searxng-docker.service.j2
+    dest: "{{ searxng_systemd_dir + '/searxng-docker.service' }}"
+    mode: 0644
+
+- name: Ensure custom caddyfile is installed in /etc/caddy
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: /etc/caddy/Caddyfile
+    backup: true
+    mode: 0644
+  become: true
+  notify: restart caddy
+
+- name: Ensure custom docker-compose file is installed
+  ansible.builtin.template:
+    src: docker-compose.yaml.j2
+    dest: "{{ searxng_install_dir + '/docker-compose.yaml' }}"
+    mode: 0644
+
+- name: Ensure the settings are set
+  ansible.builtin.template:
+    src: settings.yml.j2
+    dest: "{{ searxng_install_dir + '/searxng/settings.yml' }}"
+    mode: 0644
+  notify:
+    - restart searxng
+
+- name: Searxng enabled and started
+  ansible.builtin.systemd:
+    name: searxng-docker
+    enabled: true
+    state: started

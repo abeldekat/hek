@@ -10,4 +10,11 @@
   ansible.builtin.systemd:
     name: searxng-docker
     state: restarted
-    scope: "{{ 'user' if searxng_rootless else 'system' }}"
+
+- name: restart rootless searxng
+  ansible.builtin.shell: |
+    export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock && \
+    docker compose restart
+  args:
+    chdir: "{{ searxng_install_dir }}"
+    executable: /bin/bash

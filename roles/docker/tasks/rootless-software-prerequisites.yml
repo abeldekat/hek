@@ -10,5 +10,6 @@
       - uidmap
       - dbus-user-session
       - fuse-overlayfs
+      - rootlesskit
     state: present
     update_cache: true

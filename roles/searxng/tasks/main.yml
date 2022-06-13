@@ -6,8 +6,9 @@
 # no .env file necessary, custom docker compose without caddy, custom Caddyfile
 # searxng-docker.service is put directly into the systemd dir
 # searxng-docker.service is modified: docker compose instead of docker-compose
-# searxng-docker.service is modified: DOCKER_HOST when rootless
 # Caddyfile can block ips
+#
+# rootless: no service file, uses docker compose with restart: unless-stopped
 
 - name: Checkout searxng fork
   ansible.builtin.git:
@@ -18,50 +19,10 @@
     update: false
     force: false
 
-# /run/user/1000/
-- name: Retrieve the value of XDG_RUNTIME_DIR needed for templating systemd service
-  ansible.builtin.shell: echo "$XDG_RUNTIME_DIR"
-  changed_when: false
-  args:
-    executable: bash
-  register: xdg_runtime_dir_result
+- name: Searxng tasks
+  ansible.builtin.import_tasks: searxng.yml
+  when: not searxng_rootless
 
-- name: Set fact XDG_RUNTIME_DIR
-  ansible.builtin.set_fact:
-    searxng_systemd_rootless_xdg_runtime_dir: "{{ xdg_runtime_dir_result.stdout }}"
-
-- name: Ensure service file is in systemd folder
-  ansible.builtin.template:
-    src: searxng-docker.service.j2
-    dest: "{{ searxng_systemd_dir + '/searxng-docker.service' }}"
-    mode: 0644
-
-- name: Ensure custom caddyfile is installed in /etc/caddy
-  ansible.builtin.template:
-    src: Caddyfile.j2
-    dest: /etc/caddy/Caddyfile
-    backup: true
-    mode: 0644
-  become: true
-  notify: restart caddy
-
-- name: Ensure custom docker-compose file is installed
-  ansible.builtin.template:
-    src: docker-compose.yaml.j2
-    dest: "{{ searxng_install_dir + '/docker-compose.yaml' }}"
-    mode: 0644
-
-- name: Ensure the settings are set
-  ansible.builtin.template:
-    src: settings.yml.j2
-    dest: "{{ searxng_install_dir + '/searxng/settings.yml' }}"
-    mode: 0644
-  notify:
-    - restart searxng
-
-- name: Searxng enabled and started
-  ansible.builtin.systemd:
-    name: searxng-docker
-    enabled: true
-    state: started
-    scope: "{{ 'user' if searxng_rootless else 'system' }}"
+- name: Searxng rootless installation tasks
+  ansible.builtin.import_tasks: searxng-rootless.yml
+  when: searxng_rootless

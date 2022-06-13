@@ -1,0 +1,45 @@
+---
+
+- name: Software tasks
+  ansible.builtin.import_tasks: software-prerequisites.yml
+
+- name: Repo tasks
+  ansible.builtin.import_tasks: repo.yml
+
+# Add directory before installing docker so no restart is required
+- name: Ensure /etc/docker is present
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    mode: 0755
+
+# Mode: 0644 or more restrictive, not present by default after docker installed
+# Configure default logging driver https://docs.docker.com/engine/install/linux-postinstall/
+- name: Ensure daemon.json is present
+  ansible.builtin.copy:
+    src: daemon.json
+    dest: /etc/docker
+    mode: 0600
+  when: not docker_rootless_enabled
+
+- name: Install tasks
+  ansible.builtin.import_tasks: apt.yml
+
+# on debian docker is managed by systemd and the following is not strictly necessary:
+# sudo systemctl enable docker.service
+- name: Ensure docker is enabled and started
+  ansible.builtin.systemd:
+    service: "{{ item }}"
+    state: started
+    enabled: true
+    masked: false
+  with_items:
+    - "docker.service"
+    - "docker.socket"
+
+# notify: reset connection
+- name: Ensure user is added to the docker group
+  ansible.builtin.user:
+    name: "{{ vps_user }}"
+    append: true
+    groups: docker

@@ -7,9 +7,6 @@ After=docker.service
 Restart=on-failure
 
 Environment=SEARXNG_DOCKERCOMPOSEFILE=docker-compose.yaml
-{% if searxng_rootless %}
-Environment=DOCKER_HOST=unix://{{ searxng_systemd_rootless_xdg_runtime_dir }}/docker.sock
-{% endif %}
 
 WorkingDirectory={{ searxng_install_dir }}
 ExecStart=/usr/bin/docker compose -f ${SEARXNG_DOCKERCOMPOSEFILE} up --remove-orphans

@@ -43,5 +43,3 @@ searxng_systemd_dir: "{{ searxng_systemd_dir_systemwide }}"
 #
 # see groupvars:
 searxng_rootless: false
-# Rootless: path containing docker sock
-searxng_systemd_rootless_xdg_runtime_dir: ''

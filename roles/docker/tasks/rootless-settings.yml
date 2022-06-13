@@ -1,0 +1,46 @@
+---
+
+# systemctl --user is-active dbus
+# systemctl --user enable --now dbus
+- name: Ensure systemctl --user is-active dbus
+  ansible.builtin.systemd:
+    service: dbus
+    scope: user
+    state: started
+    enabled: true
+  become: false
+
+# ls /var/lib/systemd/linger
+- name: Capture if user is lingering
+  ansible.builtin.stat:
+    path: "/var/lib/systemd/linger/{{ vps_user }}"
+  register: user_lingering
+
+- name: Ensure lingering is enabled
+  ansible.builtin.command: "loginctl enable-linger {{ vps_user }}"
+  when:
+    - not user_lingering.stat.exists
+
+- name: Capture rootlesskit binary path
+  ansible.builtin.command: "which rootlesskit"
+  changed_when: false
+  register: rootlesskit_bin
+
+# TODO: Test this, idempotence
+- name: Capture rootlesskit current cap
+  ansible.builtin.command: "getcap {{ rootlesskit_bin.stdout }}"
+  changed_when: false
+  register: rootlesskit_cap
+
+# sudo setcap cap_net_bind_service=ep $(which rootlesskit)
+- name: Ensure privileged ports are available in rootless mode, setcap
+  ansible.builtin.command: "setcap cap_net_bind_service=ep {{ rootlesskit_bin.stdout }}"
+  when: rootlesskit_cap.stdout == ''
+
+# https://www.debian.org/releases/stable/amd64/release-notes/ch-information.html
+# 5.1.14. Linux enables user namespaces by default
+# values are set to 3775
+- name: Ensure user.max_user_namespaces is 28633
+  ansible.posix.sysctl:
+    name: user.max_user_namespaces
+    value: 28633

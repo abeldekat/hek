@@ -1,0 +1,92 @@
+---
+
+# https://docs.docker.com/engine/security/rootless/
+# Current linux kernel: 5.10.0-14-amd64
+# --> overlay2 only runs on kernel 5.11 or later, user fuse-overlay
+
+# /etc/subuid and /etc/subgid should contain at least 65,536 subordinate UIDs/GIDs for the user.
+# grep ^$(whoami): /etc/subuid
+# grep ^$(whoami): /etc/subgid
+#
+# slirp4netns --version: 1.0.1
+#
+# cat /proc/sys/user/max_user_namespaces
+# --> 3775, might be too small
+# To fix this issue, add user.max_user_namespaces=28633 to /etc/sysctl.conf (or /etc/sysctl.d) and run sudo sysctl --system.
+#
+# rootless, user does not have to be in docker group
+
+- name: Software tasks
+  ansible.builtin.import_tasks: software-prerequisites.yml
+
+- name: Repo tasks
+  ansible.builtin.import_tasks: repo.yml
+
+- name: Additional rootless software tasks
+  ansible.builtin.import_tasks: rootless-software-prerequisites.yml
+
+- name: Rootless tasks before installation
+  ansible.builtin.import_tasks: rootless-config.yml
+  become: false
+
+- name: Install tasks
+  ansible.builtin.import_tasks: apt.yml
+
+- name: Ensure system-wide docker is disabled and masked
+  ansible.builtin.systemd:
+    service: "{{ item }}"
+    state: stopped
+    enabled: false
+    masked: true
+  with_items:
+    - "docker.service"
+    - "docker.socket"
+
+- name: Ensure rootless settings
+  ansible.builtin.import_tasks: rootless-settings.yml
+
+- name: Set fact run_setuptool
+  ansible.builtin.import_tasks: rootless-setuptool-fact.yml
+
+- name: Ensure bashrc contains DOCKER_HOST export
+  ansible.builtin.lineinfile:
+    dest: "~/.bashrc"
+    line: "export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock"
+    state: present
+    backup: true
+  become: false
+
+- name: Ensure zshrc contains DOCKER_HOST export
+  ansible.builtin.lineinfile:
+    dest: "~/.config/zsh/.zshrc"
+    line: "export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock"
+    state: present
+    backup: true
+  when: docker_rootless_and_terminal_software_zsh_enabled
+  become: false
+
+- name: Ensure script dockerd-rootless-setuptool runs
+  ansible.builtin.command: dockerd-rootless-setuptool.sh install --force
+  become: false
+  when: run_setuptool
+
+- name: Ensure reboot after rootless setup script has ran.
+  ansible.builtin.reboot:
+  when: run_setuptool
+
+- name: Wait until the server becomes ready...
+  ansible.builtin.wait_for_connection:
+    delay: 20
+    timeout: 320
+  when: run_setuptool
+
+# The socket path is set to $XDG_RUNTIME_DIR/docker.sock by default. $XDG_RUNTIME_DIR is typically set to /run/user/$UID.
+# The data dir is set to ~/.local/share/docker by default. The data dir should not be on NFS.
+# The daemon config dir is set to ~/.config/docker by default. This directory is different from ~/.docker that is used by the client.
+- name: Ensure rootless docker is enabled and started
+  ansible.builtin.systemd:
+    service: docker
+    scope: user
+    state: started
+    enabled: true
+  become: false

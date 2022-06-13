@@ -1,0 +1,12 @@
+---
+# Note: use docker compose, not docker-compose
+# apt-cache policy docker-ce
+- name: Ensure docker is installed
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+      - "python{{'3' if ansible_python.version.major == 3 else ''}}-docker"
+    state: present
