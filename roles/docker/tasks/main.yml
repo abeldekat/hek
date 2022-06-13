@@ -19,8 +19,6 @@
   when: docker_rootless_enabled
   become: false
 
-# 20.10.16
-# TODO: 20.10.17 rootless docker on restart no more containers searxn proces dead
 - name: Install tasks
   ansible.builtin.import_tasks: install.yml
 

@@ -49,7 +49,7 @@ wireguard_dns_servers: >-
 #  docker: must be enabled by its services
 #
 ######################################################################
-docker_rootless_and_terminal_enabled: "{{ true if docker_rootless_enabled and terminal_enabled else false }}"
+docker_rootless_and_terminal_software_zsh_enabled: "{{ true if docker_rootless_enabled and terminal_software_zsh_enabled else false }}"
 
 ######################################################################
 #

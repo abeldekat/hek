@@ -108,7 +108,7 @@
     line: "export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock"
     state: present
     backup: true
-  when: docker_rootless_and_terminal_enabled
+  when: docker_rootless_and_terminal_software_zsh_enabled
   become: false
 
 - name: Ensure reboot after rootless setup script has ran.
