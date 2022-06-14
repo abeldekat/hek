@@ -27,8 +27,7 @@
 - name: Capture if searxng is running
   ansible.builtin.shell: |
     set -o pipefail && \
-    export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock && \
-    docker ps | grep -c searxng || true
+    docker compose ls | grep -c searxng-docker || true
   args:
     chdir: "{{ searxng_install_dir }}"
     executable: /bin/bash
@@ -37,7 +36,6 @@
 
 - name: Ensure searxng is running
   ansible.builtin.shell: |
-    export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock && \
     docker compose up -d
   args:
     chdir: "{{ searxng_install_dir }}"

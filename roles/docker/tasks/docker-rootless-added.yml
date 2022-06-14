@@ -48,17 +48,19 @@
 - name: Set fact run_setuptool
   ansible.builtin.import_tasks: rootless-setuptool-fact.yml
 
+# add variables to the top of .bashrc before it bails out when terminal is not interactive
 - name: Ensure bashrc contains DOCKER_HOST export
   ansible.builtin.lineinfile:
     dest: "~/.bashrc"
     line: "export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock"
     state: present
+    insertbefore: BOF
     backup: true
   become: false
 
-- name: Ensure zshrc contains DOCKER_HOST export
+- name: Ensure zshenv contains DOCKER_HOST export
   ansible.builtin.lineinfile:
-    dest: "~/.config/zsh/.zshrc"
+    dest: "~/.config/zsh/.zshenv"
     line: "export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock"
     state: present
     backup: true

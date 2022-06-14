@@ -1,9 +1,20 @@
 ---
 
+# curl -fsSL https://get.docker.com/rootless | sh
+# https://download.docker.com/linux/debian/dists/bullseye/pool/stable/amd64/
+# https://docs.docker.com/compose/install/compose-plugin/#install-the-plugin-manually
+# rootless docker with systemd: does not start on reboot. Use docker compose directly
+
 - name: Docker tasks
   ansible.builtin.import_tasks: docker.yml
   when: not docker_rootless_enabled
 
+# 1 no wireguard, searxng root: 34 tasks, 86 threads
+# 1 no wireguard, searxng rootless from script without docker repo: 39 tasks, 91 threads
+# both use somewhere between 350m, starts lower
+# 1 no wireguard, searxng rootless added on top of normal installation: 40 tasks, 101 threads
+# --> 400m, up to 450 mb
 - name: Rootless Docker tasks
-  ansible.builtin.import_tasks: docker-rootless-added.yml
+  ansible.builtin.import_tasks: docker-rootless-from-script.yml
+  # ansible.builtin.import_tasks: docker-rootless-added.yml
   when: docker_rootless_enabled

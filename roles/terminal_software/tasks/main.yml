@@ -111,3 +111,6 @@
     name: "{{ vps_user }}"
     shell: /usr/bin/zsh
   when: terminal_software_zsh_enabled
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  ansible.builtin.meta: flush_handlers
