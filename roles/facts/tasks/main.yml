@@ -1,14 +1,5 @@
 ---
 
-- name: Check apparmor support
-  ansible.builtin.command: apparmor_status
-  changed_when: false
-  register: apparmor_status
-
-- name: Set fact if apparmor enabled
-  ansible.builtin.set_fact:
-    apparmor_enabled: true
-  when: '"profiles are in enforce mode" in apparmor_status.stdout'
 - name: Set ip_subject_alt_name as a fact
   ansible.builtin.set_fact:
     ip_subject_alt_name: "{{ ansible_default_ipv4.address }}"

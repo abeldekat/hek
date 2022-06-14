@@ -3,7 +3,6 @@
 ###############################################################################
 # Not modifiable:
 # defaults for facts set in tasks, used by other roles:
-apparmor_enabled: false
 #
 # The folder name inside 'configs' containing wireguard configs
 ip_subject_alt_name: ''

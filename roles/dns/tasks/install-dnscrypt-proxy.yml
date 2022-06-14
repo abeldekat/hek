@@ -23,7 +23,18 @@
     state: present
     update_cache: true
 
-- block:
+- name: Check apparmor support
+  ansible.builtin.command: apparmor_status
+  changed_when: false
+  register: apparmor_status
+
+- name: Set fact if apparmor enabled
+  ansible.builtin.set_fact:
+    apparmor_enabled: true
+  when: '"profiles are in enforce mode" in apparmor_status.stdout'
+
+- name: Ensure apparmor configured
+  block:
     - name: Configure AppArmor policy for dnscrypt-proxy
       ansible.builtin.copy:
         src: apparmor.profile.dnscrypt-proxy

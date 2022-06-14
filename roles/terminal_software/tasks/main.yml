@@ -60,13 +60,24 @@
   when: terminal_software_zsh_enabled
   become: false
 
+# archive mode is -rlptgoD (no -A,-X,-U,-N,-H)
+# -r recursive
+# -l links
+# -p permissions
+# -t modification times
+# -g preserve group
+# -o preserve owner(superuser only)
+# -D --devices(preservice device files, superuser) --specials(preserve spefial files)
+#
+# some files(.zshenv) are changed on the host, do not overwrite these:
+# --update -u skip files that are newer on the receiver
 - name: Ensure personal repos are present in .config
   ansible.posix.synchronize:
     src: "{{ item }}"
     dest: "~/.config"
     mode: push
     rsync_opts:
-      - "--exclude=.git"
+      - "-u --exclude=.git"
   with_items:
     - "{{ terminal_software_personal_config_repos }}"
   become: false
