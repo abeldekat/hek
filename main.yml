@@ -32,6 +32,7 @@
 # wireguard prefer ipv6? Needs brackets in endpoint client.conf
 # Firewalld for better defaults and docker integration
 # Test python env
+# searxng: Override disabled engines, like searxng_engines_restrict
 # fail2ban instead of custom ssh port
 # ssh: unknown terminal alacritty
 # Think of a name for the repo
