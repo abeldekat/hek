@@ -29,9 +29,8 @@
 #   wireguard_port_avoid redirects to port_actual
 #   between_clients?
 #   hash_limit
-# TODO: wireguard prefer ipv6? Needs brackets in endpoint client.conf
+# wireguard prefer ipv6? Needs brackets in endpoint client.conf
 # Firewalld for better defaults and docker integration
-# .zshenv should be content, not copy
 # Test python env
 # fail2ban instead of custom ssh port
 # ssh: unknown terminal alacritty

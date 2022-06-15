@@ -1,5 +1,0 @@
----
-
-- name: Set IPv6 support as a fact
-  ansible.builtin.set_fact:
-    ipv6_support: "{% if ansible_default_ipv6['gateway'] is defined %}true{% else %}false{% endif %}"

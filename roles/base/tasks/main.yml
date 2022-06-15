@@ -28,7 +28,7 @@
       value: 1
     - item: net.ipv4.conf.all.forwarding
       value: 1
-    - item: "{{ 'net.ipv6.conf.all.forwarding' if ipv6_support else none }}"
+    - item: "{{ 'net.ipv6.conf.all.forwarding' if vps_ipv6_support else none }}"
       value: 1
 
 - name: Ensure systemd services enabled and started

@@ -30,7 +30,7 @@
 {# Allow either list to be empty. Output nothing if both are empty. #}
 {% set servers = [] %}
 {% if dns_dnscrypt_servers.ipv4 %}{% set servers = dns_dnscrypt_servers.ipv4 %}{% endif %}
-{% if ipv6_support and dns_dnscrypt_servers.ipv6 %}{% set servers = servers + dns_dnscrypt_servers.ipv6 %}{% endif %}
+{% if vps_ipv6_support and dns_dnscrypt_servers.ipv6 %}{% set servers = servers + dns_dnscrypt_servers.ipv6 %}{% endif %}
 {% if servers %}server_names = ['{{ servers | join("', '") }}']{% endif %}
 
 
@@ -38,7 +38,7 @@
 ## Note: When using systemd socket activation, choose an empty set (i.e. [] ).
 
 listen_addresses  = [
-  '{{ dns_local_service_ip }}:53'{% if ipv6_support %},
+  '{{ dns_local_service_ip }}:53'{% if vps_ipv6_support %},
   '[{{ dns_local_service_ipv6 }}]:53'{% endif %}
   ]
 
@@ -62,7 +62,7 @@ max_clients = 250
 ipv4_servers = true
 
 # Use servers reachable over IPv6 -- Do not enable if you don't have IPv6 connectivity
-ipv6_servers = {{ ipv6_support | bool | lower }}
+ipv6_servers = {{ vps_ipv6_support | bool | lower }}
 
 # Use servers implementing the DNSCrypt protocol
 dnscrypt_servers = true
