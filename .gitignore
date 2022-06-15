@@ -6,3 +6,5 @@
 .DS_Store
 .python-version
 /configs/*
+/tools/searxng/
+/tools/*.yml
