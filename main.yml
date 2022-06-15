@@ -49,6 +49,18 @@
         name: facts
       tags: [always]
 
+    - name: Import nftables role
+      ansible.builtin.import_role:
+        name: nftables
+      when: nftables_enabled
+      tags: [nftables]
+
+    - name: Import firewalld role
+      ansible.builtin.import_role:
+        name: firewalld
+      when: firewalld_enabled
+      tags: [firewalld]
+
     - name: Import base role
       ansible.builtin.import_role:
         name: base
@@ -60,19 +72,12 @@
       when: dns_enabled
       tags: [dns]
 
-    - name: Import nftables role
-      ansible.builtin.import_role:
-        name: nftables
-      when: nftables_enabled
-      tags: [nftables]
-
     - name: Test if wireguard is already configured
       ansible.builtin.stat:
         path: "{{ '/etc/wireguard/' + wireguard_interface + '.conf' }}"
       register: _wireguard_exists
       when: wireguard_enabled
       tags: [wireguard]
-
 
     - name: Ensure wireguard initial setup
       block:

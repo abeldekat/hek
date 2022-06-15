@@ -22,3 +22,23 @@
   import_playbook: playbooks/process_ip.yml
   tags:
     - process_ip
+
+- name: Add firewall before proceeding to main playbook
+  hosts: vps_servers
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Ensure firewalld installed
+      ansible.builtin.apt:
+        name: firewalld
+        state: present
+        update_cache: true
+      when: firewalld_enabled
+
+    - name: Ensure firewalld systemd service runs
+      ansible.builtin.systemd:
+        name: firewalld
+        daemon_reload: true
+        enabled: true
+        state: started
+      when: firewalld_enabled

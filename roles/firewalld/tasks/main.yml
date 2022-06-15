@@ -11,3 +11,45 @@
     daemon_reload: true
     enabled: true
     state: started
+
+- name: Ensure public ipv4 interface is added to public zone
+  ansible.posix.firewalld:
+    zone: public
+    permanent: true
+    interface: "{{ ansible_default_ipv4['interface'] }}"
+    state: enabled
+
+- name: Ensure public ipv6 interface is added to public zone
+  ansible.posix.firewalld:
+    zone: public
+    permanent: true
+    interface: "{{ ansible_default_ipv6['interface'] }}"
+    state: enabled
+  when: vps_ipv6_support
+
+- name: Ensure http and https are served
+  ansible.posix.firewalld:
+    zone: public
+    permanent: true
+    service: "{{ item }}"
+    state: enabled
+  with_items:
+    - http
+    - https
+  when: firewalld_webserver_enabled
+
+- name: Ensure wireguard port is open on public zone
+  ansible.posix.firewalld:
+    zone: public
+    permanent: true
+    port: "{{ wireguard_port }}/udp"
+    state: enabled
+  when: firewalld_wireguard_enabled
+
+- name: Ensure wireguard is added to the external zone
+  ansible.posix.firewalld:
+    zone: external
+    permanent: true
+    interface: "{{ wireguard_interface }}"
+    state: enabled
+  when: firewalld_wireguard_enabled
