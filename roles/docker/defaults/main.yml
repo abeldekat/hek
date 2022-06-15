@@ -3,9 +3,7 @@
 ###############################################################################
 # Modifiable:
 #
-# Not stable yet with systemd --user. No start on reboot:
-# Rootless worked with:
-docker_rootless_enabled: false
+docker_rootless_enabled: true
 
 ###############################################################################
 # Not modifiable:

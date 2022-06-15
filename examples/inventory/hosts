@@ -1,0 +1,2 @@
+[vps_servers]
+searx.somedomain.xyz ansible_ssh_user=somename become=true become_user=root

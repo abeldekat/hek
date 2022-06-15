@@ -1,0 +1,123 @@
+---
+################################################################################
+## Default roles enabled: WIREGUARD(dnscrypt and adblocking included), SEARXNG(private instance), NFTABLES
+## Roles that are dynamically inferred by the system: DNS, CADDY, DOCKER
+##
+## Each role in this personal configuration points to the file containing the default values
+## Variables that can be changed are marked in the defaults
+## This configuration is intended to hold all overrides to the defaults.
+##
+## Variables with logic connecting roles are managed in group_vars
+
+################################################################################
+## REQUIRED: Change these variables
+#
+# The ansible-ssh-user from hosts file:
+vps_user: change_this_user
+#
+# on debian: mkpasswd --method=SHA-512
+vps_sha_password: 'CHANGE_THIS_PASSWORD'
+#
+# the seed used for idempotent randomization
+vps_seed: change_this_seed
+#
+# Allow the following keys ssh access to the vpn:
+# ssh-keygen -t ed25519 -b 4096 -C "laptop2somedomain"
+# Note: $HOME will be prepended
+vps_provision_ssh_keys:
+  - "/.ssh/laptop2somedomain.pub"
+
+################################################################################
+## SEARXNG, roles/searxng/defaults/main.yml, non-public default enabled
+## REQUIRED: Change these variables
+#
+# searxng_enabled: false
+#
+## openssl rand -hex 32
+searxng_secret_key: change_this_secret
+#
+searxng_hostname: searx.somedomain.xyz
+searxng_email: searx@somedomain.xyz
+
+################################################################################
+## SEARXNG tweaking
+#
+# searxng_default_lang: 'en-US'
+#
+## Limit the number of engines by adding engines to this restrict list
+## Default behaviour: remove the specified engines if list has items
+## The keep option keeps the specified engines and removes all others
+# searxng_engines_restrict:
+#   - google
+#   - startpage
+# searxng_engines_restrict_keep: false
+
+################################################################################
+## WIREGUARD: roles/wireguard/defaults/main.yml, default enabled
+## Read when interested: wireguard_threadmodel.md
+## The main setup will create wireguard infrastructure only once(IDEMPOTENCE)
+## Modify an existing wireguard installation by using either:
+## ./vps 10 --> add or remove users
+## ./vps 11 --> new wireguard setup generated
+#
+# wireguard_enabled: true
+#
+## Every device must have a unique user. There are 65,534 slots.
+## Requirements: Escape leading 0's or only numbers in double quotes("000dan" or "123").
+## The list defaults to one client named vpnuser, emailaddresses are not allowed
+wireguard_users:
+  - phone
+  - pc
+
+################################################################################
+## DNS: roles/dns/defaults/main.yml, dnscrypt-proxy with adblocking default dynamically enabled
+## Provides DNS encryption:
+## 1. adblocking, defaults to StevenBlack's list
+## 2. dnscrypt_servers, defaults to cloudflare
+## 3. Randomly generated IP address for the local dns resolver
+## 4. Fallback DNS when dns_encryption_enabled is false
+#
+## dns_adblocking_enabled implies dns_encryption_enabled
+# dns_encryption_enabled: true
+# dns_adblocking_enabled: true
+
+################################################################################
+## DOCKER: containers, roles/docker/defaults/main.yml, default dynamically enabled
+
+################################################################################
+## CADDY: webserver, roles/caddy/defaults/main.yml, default dynamically enabled
+
+################################################################################
+## NFTABLES: firewall, roles/nftables/defaults/main.yml, default enabled
+
+################################################################################
+## BASE: roles/base/defaults/main.yml
+## 1. setup software
+## 2. unattended_reboot, default true,
+
+################################################################################
+## TERMINAL: roles/terminal/defaults/main.yml, default disabled
+## Install extra software(zsh and more)
+## Install repos: zsh-completions, z.lua
+## Install zsh theme: spaceship
+#
+# terminal_software_enabled: true
+#
+## Personal repos, rsync from controller to host .config, excluding git folder
+# terminal_software_personal_config_repos:
+#   - "~/git/debian/zsh"
+#
+## software repos, git
+# terminal_software_repos:
+#   - {repo: 'https://github.com/zsh-users/zsh-completions.git', folder: '~/builds/zsh-completions'}
+#   - {repo: 'https://github.com/skywind3000/z.lua.git', folder: '~/builds/z.lua'}
+#
+## flags
+# terminal_software_zsh_enabled: true
+# terminal_software_spaceship_enabled: true
+
+################################################################################
+## PROVISION: These settings are set automatically when running the script
+## Note: Ziggo provides a /56, leaving 8 bits for subnetting
+vps_home_ipv4: changed_by_script
+vps_home_ipv6: changed_by_script
