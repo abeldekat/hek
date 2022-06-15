@@ -1,0 +1,13 @@
+---
+- name: Ensure firewalld installed
+  ansible.builtin.apt:
+    name: firewalld
+    state: present
+    update_cache: true
+
+- name: Ensure firewalld systemd service runs
+  ansible.builtin.systemd:
+    name: firewalld
+    daemon_reload: true
+    enabled: true
+    state: started
