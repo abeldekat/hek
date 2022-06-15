@@ -10,7 +10,7 @@
     creates: "{{ config_prefix|default('/') }}etc/wireguard/private_{{ item }}.lock"
   with_items:
     - "{{ wireguard_users }}"
-    - "{{ ip_subject_alt_name }}"
+    - "{{ wireguard_host_ip }}"
 
 # - name: Debug
 #   ansible.builtin.debug:
@@ -38,7 +38,7 @@
         mode: "0644"
       with_items:
         - "{{ wireguard_users }}"
-        - "{{ ip_subject_alt_name }}"
+        - "{{ wireguard_host_ip }}"
   when: wg_genkey.changed
 
 - name: Generate preshared keys
@@ -48,7 +48,7 @@
     creates: "{{ config_prefix|default('/') }}etc/wireguard/preshared_{{ item }}.lock"
   with_items:
     - "{{ wireguard_users }}"
-    - "{{ ip_subject_alt_name }}"
+    - "{{ wireguard_host_ip }}"
 
 - block:
     - name: Save preshared keys
@@ -69,7 +69,7 @@
         mode: 0644
       with_items:
         - "{{ wireguard_users }}"
-        - "{{ ip_subject_alt_name }}"
+        - "{{ wireguard_host_ip }}"
   when: wg_genpsk.changed
 
 # public keys are derived from private keys
@@ -84,7 +84,7 @@
     executable: bash
   with_items:
     - "{{ wireguard_users }}"
-    - "{{ ip_subject_alt_name }}"
+    - "{{ wireguard_host_ip }}"
 
 - name: Save public keys
   ansible.builtin.copy:

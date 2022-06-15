@@ -73,7 +73,9 @@
       when: wireguard_enabled
       tags: [wireguard]
 
-    - block:
+
+    - name: Ensure wireguard initial setup
+      block:
         - name: Ensure no local wireguard config present on new wg creation
           ansible.builtin.file:
             dest: "{{ wireguard_config_path }}"
