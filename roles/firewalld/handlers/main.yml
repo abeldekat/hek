@@ -4,3 +4,7 @@
     name: firewalld
     state: restarted
     daemon_reload: true
+
+- name: reload firewalld
+  ansible.builtin.command:
+    cmd: firewall-cmd --reload
