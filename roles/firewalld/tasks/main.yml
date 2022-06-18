@@ -1,124 +1,32 @@
----
-# See tutorials: https://www.procustodibus.com/
-# useful commands:
-# ip -brief address show
-# nmcli connecton show
-# Using nmcli on laptop to bind a connection to a firewald zone:
-# sudo nmcli connection modify "<mywireless>" connection.zone home
 
-- name: Ensure firewalld installed
+- name: Ensure firewalld and nftables are installed
   ansible.builtin.apt:
-    name: firewalld
+    name: "{{ item }}"
     state: present
     update_cache: true
+  with_items:
+    - nftables
+    - firewalld
 
-- name: Ensure firewalld systemd service runs
+- name: Ensure nftables systemd service is disabled and masked
+  ansible.builtin.systemd:
+    name: nftables
+    daemon_reload: true
+    enabled: false
+    masked: true
+
+- name: Ensure firewalld systemd service is enabled and started
   ansible.builtin.systemd:
     name: firewalld
     daemon_reload: true
-    enabled: true
     state: started
+    enabled: true
 
-- name: Ensure public ipv4 interface is added to public zone
-  ansible.posix.firewalld:
-    zone: public
-    permanent: true
-    interface: "{{ ansible_default_ipv4['interface'] }}"
-    state: enabled
-  notify: reload firewalld
+# zone: public
+- name: Import public tasks
+  ansible.builtin.import_tasks: public.yml
 
-- name: Ensure public ipv6 interface is added to public zone
-  ansible.posix.firewalld:
-    zone: public
-    permanent: true
-    interface: "{{ ansible_default_ipv6['interface'] }}"
-    state: enabled
-  when: vps_ipv6_support
-  notify: reload firewalld
-
-- name: Ensure custom admin zone is present
-  ansible.posix.firewalld:
-    zone: admin
-    permanent: true
-    state: present
-  notify: reload firewalld
-
-- name: Ensure custom wireguard zone mywg is present
-  ansible.posix.firewalld:
-    zone: mywg
-    permanent: true
-    state: present
+# zone: vps
+- name: Import wireguard tasks
+  ansible.builtin.import_tasks: vps.yml
   when: firewalld_wireguard_enabled
-  notify: reload firewalld
-
-- name: Force all notified handlers to run at this point, not waiting for normal sync points
-  ansible.builtin.meta: flush_handlers
-
-# - name: Ensure custom admin zone is restricted to ansible controller ip
-#   ansible.posix.firewalld:
-#     zone: admin
-#     permanent: true
-#     state: enabled
-#     source: "{{ vps_home_ipv4 }}"
-#   notify: reload firewalld
-
-- name: Ensure custom admin zone allows ssh
-  ansible.posix.firewalld:
-    zone: admin
-    permanent: true
-    state: enabled
-    service: ssh
-  notify: reload firewalld
-
-# - name: Ensure public zone does not allow ssh
-#   ansible.posix.firewalld:
-#     zone: public
-#     permanent: true
-#     service: ssh
-#     state: disabled
-#   notify: reload firewalld
-
-# - name: Ensure custom wireguard zone allows services
-#   ansible.posix.firewalld:
-#     zone: mywg
-#     permanent: true
-#     service: "{{ item }}"
-#     state: enabled
-#   with_items:
-#     - ssh
-#     - dhcpv6-client
-#   notify: reload firewalld
-#   when: firewalld_webserver_enabled
-
-# - name: Ensure wireguard interface is added to custom wireguard zone
-#   ansible.posix.firewalld:
-#     zone: mywg
-#     permanent: true
-#     interface: "{{ wireguard_interface }}"
-#     state: enabled
-#   notify: reload firewalld
-#   when: firewalld_wireguard_enabled
-
-# - name: Ensure public zone allows wireguard port
-#   ansible.posix.firewalld:
-#     zone: public
-#     permanent: true
-#     port: "{{ wireguard_port }}/udp"
-#     state: enabled
-#   notify: reload firewalld
-#   when: firewalld_wireguard_enabled
-
-- name: Ensure public zone allows http and https
-  ansible.posix.firewalld:
-    zone: public
-    permanent: true
-    service: "{{ item }}"
-    state: enabled
-  with_items:
-    - http
-    - https
-  notify: reload firewalld
-  when: firewalld_webserver_enabled
-
-- name: Force all notified handlers to run at this point, not waiting for normal sync points
-  ansible.builtin.meta: flush_handlers

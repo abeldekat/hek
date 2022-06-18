@@ -1,0 +1,80 @@
+---
+
+# no zone drifting:
+# https://firewalld.org/2020/01/allowzonedrifting
+#
+# rich rules for masquerading: Conditionally accept forward and masquerade
+# --> when the masquerade flag is set directly on zone public the following changes occur in nft firewalld table:
+# chain nat_POST_public_allow {
+#         oifname != "lo" masquerade
+# }
+# chain filter_FWDO_public_allow {
+# ct state { new, untracked } accept
+# }
+
+- name: Ensure vps zone is present
+  ansible.posix.firewalld:
+    zone: vps
+    permanent: true
+    state: present
+  notify: reload firewalld
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  ansible.builtin.meta: flush_handlers
+
+- name: Ensure vps zone allows ssh
+  ansible.posix.firewalld:
+    permanent: true
+    zone: vps
+    service: ssh
+    state: enabled
+  notify: reload firewalld
+
+- name: Ensure vps zone allows http and https
+  ansible.posix.firewalld:
+    permanent: true
+    zone: vps
+    service: "{{ item }}"
+    state: enabled
+  with_items:
+    - http
+    - https
+  when: firewalld_webserver_enabled
+  notify: reload firewalld
+
+- name: Ensure vps zone binds to wireguard interface name
+  ansible.posix.firewalld:
+    zone: vps
+    permanent: true
+    interface: "{{ wireguard_interface }}"
+    state: enabled
+  notify: reload firewalld
+
+# these rules selectively allow forward and nat postrouting.
+# see nft list ruleset | tee nft.out
+- name: Ensure rich masquerade rules are present for vps ip
+  ansible.posix.firewalld:
+    zone: public
+    permanent: true
+    rich_rule: 'rule family="ipv4" source address="{{ wireguard_network_ipv4 }}" masquerade'
+    state: enabled
+  notify: reload firewalld
+- name: Ensure rich masquerade rules are present for vps ip6
+  ansible.posix.firewalld:
+    zone: public
+    permanent: true
+    rich_rule: 'rule family="ipv6" source address="{{ wireguard_network_ipv6 }}" masquerade'
+    state: enabled
+  when: vps_ipv6_support
+  notify: reload firewalld
+
+- name: Ensure public zone allows wireguard port
+  ansible.posix.firewalld:
+    zone: public
+    permanent: true
+    port: "{{ wireguard_port }}/udp"
+    state: enabled
+  notify: reload firewalld
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  ansible.builtin.meta: flush_handlers

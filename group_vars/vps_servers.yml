@@ -21,10 +21,10 @@ dns_local_service_ip_seed: "{{ vps_seed + ansible_fqdn }}"
 
 ######################################################################
 #
-#  firewalld: default enabled
+#  firewalld: default disabled
 #
 ######################################################################
-firewalld_enabled: true
+firewalld_enabled: false
 firewalld_webserver_enabled: "{{ true if searxng_enabled else false }}"
 # exposes vars from wireguard role
 firewalld_wireguard_enabled: "{{ true if wireguard_enabled else false }}"
@@ -33,15 +33,16 @@ firewalld_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled else false 
 
 ######################################################################
 #
-#  nftables: default disabled
+#  nftables: default disabled, enable here
 #
 ######################################################################
 #
-nftables_enabled: false
+nftables_enabled: true
 nftables_webserver_enabled: "{{ true if searxng_enabled else false }}"
 # exposes vars from wireguard role
 nftables_wireguard_enabled: "{{ true if wireguard_enabled else false }}"
 # exposes vars from dns role
+# TODO: dns_adblocking_enabled?
 nftables_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled else false }}"
 
 ######################################################################

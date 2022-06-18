@@ -42,6 +42,7 @@ searxng_email: searx@somedomain.xyz
 ################################################################################
 ## SEARXNG tweaking
 #
+# searxng_public: false
 # searxng_default_lang: 'en-US'
 #
 ## Limit the number of engines by adding engines to this restrict list

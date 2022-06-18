@@ -30,7 +30,7 @@
 #   between_clients?
 #   hash_limit
 # wireguard prefer ipv6? Needs brackets in endpoint client.conf
-# Firewalld for better defaults and docker integration
+# firewalld not up when closing machine using the close button in the web interface of the provider
 # Test python env
 # searxng: Override disabled engines, like searxng_engines_restrict
 # fail2ban instead of custom ssh port
