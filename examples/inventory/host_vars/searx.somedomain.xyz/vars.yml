@@ -88,6 +88,9 @@ wireguard_users:
 ################################################################################
 ## CADDY: webserver, roles/caddy/defaults/main.yml, default dynamically enabled
 
+###############################################################################
+## FIREWALLD: firewall, roles/firewalld/defaults/main.yml, default disabled
+
 ################################################################################
 ## NFTABLES: firewall, roles/nftables/defaults/main.yml, default enabled
 
