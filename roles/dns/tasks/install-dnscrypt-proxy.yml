@@ -13,10 +13,6 @@
 # 3574 /usr/sbin/dnscrypt-proxy -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml
 # triggered by: dnscrypt-proxy.socket
 
-# TODO:
-# stderr: |-
-# E: Could not get lock /var/lib/dpkg/lock-frontend. It is held by process 3295 (unattended-upgr)
-# E: Unable to acquire the dpkg frontend lock (/var/lib/dpkg/lock-frontend), is another process using it?
 - name: Ensure dnscrypt-proxy is installed
   ansible.builtin.apt:
     name: dnscrypt-proxy
@@ -58,10 +54,9 @@
     group: root
 
 # Drop-In: /etc/systemd/system/dnscrypt-proxy.service.d
-# └─99-algo.conf
 - name: Add custom requirements to successfully start the unit
   ansible.builtin.copy:
-    dest: /etc/systemd/system/dnscrypt-proxy.service.d/99-algo.conf
+    dest: /etc/systemd/system/dnscrypt-proxy.service.d/99-vps.conf
     mode: 0644
     content: |
       [Unit]

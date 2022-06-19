@@ -29,7 +29,7 @@ firewalld_webserver_enabled: "{{ true if searxng_enabled else false }}"
 # exposes vars from wireguard role
 firewalld_wireguard_enabled: "{{ true if wireguard_enabled else false }}"
 # exposes vars from dns role
-firewalld_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled else false }}"
+firewalld_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled or dns_adblocking_enabled else false }}"
 
 ######################################################################
 #
@@ -42,8 +42,7 @@ nftables_webserver_enabled: "{{ true if searxng_enabled else false }}"
 # exposes vars from wireguard role
 nftables_wireguard_enabled: "{{ true if wireguard_enabled else false }}"
 # exposes vars from dns role
-# TODO: dns_adblocking_enabled?
-nftables_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled else false }}"
+nftables_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled or dns_adblocking_enabled else false }}"
 
 ######################################################################
 #

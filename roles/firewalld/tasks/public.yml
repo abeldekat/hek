@@ -32,18 +32,6 @@
     state: disabled
   notify: reload firewalld
 
-- name: Ensure public zone allows http https
-  ansible.posix.firewalld:
-    zone: public
-    permanent: true
-    service: "{{ item }}"
-    state: enabled
-  with_items:
-    - http
-    - https
-  notify: reload firewalld
-  when: firewalld_webserver_enabled
-
 - name: Ensure restricting ssh rules are present for ip4
   ansible.posix.firewalld:
     zone: public
@@ -61,6 +49,14 @@
   when: not vps_home_ipv6 | default('') == ''
   notify: reload firewalld
 
+- name: Ensure all other ssh is dropped
+  ansible.posix.firewalld:
+    zone: public
+    permanent: true
+    rich_rule: 'rule priority=1 service name="ssh" drop'
+    state: enabled
+  notify: reload firewalld
+
 - name: Ensure public zone does not allow ssh
   ansible.posix.firewalld:
     zone: public
@@ -68,6 +64,18 @@
     service: ssh
     state: disabled
   notify: reload firewalld
+
+- name: Ensure public zone allows http https
+  ansible.posix.firewalld:
+    zone: public
+    permanent: true
+    service: "{{ item }}"
+    state: enabled
+  with_items:
+    - http
+    - https
+  notify: reload firewalld
+  when: firewalld_webserver_enabled
 
 - name: Force all notified handlers to run at this point, not waiting for normal sync points
   ansible.builtin.meta: flush_handlers

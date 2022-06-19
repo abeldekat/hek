@@ -55,5 +55,6 @@ dns_enabled: false
 # Randomly generated IP address for the local dns resolver
 # As of Ansible version 2.3, it’s also possible to initialize the random number
 # generator from a seed. This way, you can create random-but-idempotent numbers:
+# 172.16.0.0/12 (172.16.0.0 – 172.31.255.255): private ip addresses
 dns_local_service_ip: "{{ '172.16.0.1' | ansible.utils.ipmath(1048573 | random(seed=dns_local_service_ip_seed)) }}"
 dns_local_service_ipv6: "{{ 'fd00::1' | ansible.utils.ipmath(1048573 | random(seed=dns_local_service_ip_seed)) }}"

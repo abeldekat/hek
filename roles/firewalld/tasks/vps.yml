@@ -30,7 +30,16 @@
     state: enabled
   notify: reload firewalld
 
-- name: Ensure vps zone allows http and https
+- name: Ensure vps zone allows dns with dnscrypt proxy
+  ansible.posix.firewalld:
+    permanent: true
+    zone: vps
+    service: dns
+    state: enabled
+  when: firewalld_dnscrypt_proxy_enabled
+  notify: reload firewalld
+
+- name: Ensure vps zone allows http https
   ansible.posix.firewalld:
     permanent: true
     zone: vps

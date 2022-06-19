@@ -1,4 +1,15 @@
 ---
+# Now listening to 172.24.117.23:53 [UDP]
+# Now listening to 172.24.117.23:53 [TCP]
+# Now listening to [fd00::8:7517]:53 [UDP]
+# Now listening to [fd00::8:7517]:53 [TCP]
+# Systemd sockets are untested and unsupported - use at your own risk
+# Wiring systemd TCP socket #0, dnscrypt-proxy.socket, 127.0.2.1:53
+# Wiring systemd UDP socket #1, dnscrypt-proxy.socket, 127.0.2.1:53
+#
+# pkill -STOP dnscrypt-proxy
+# --> test, if page does not load --> proxy is in use
+# pkill -CONT dnscrypt-proxy
 
 # only needed for dnscrypt-proxy
 - name: Loopback for services configured
