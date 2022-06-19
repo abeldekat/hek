@@ -17,13 +17,11 @@
         owner: root
         group: root
 
-    # TODO: lock_passwd: true ?
     - name: Add a new user
       ansible.builtin.user:
         name: "{{ vps_user }}"
         password: "{{ vps_sha_password }}"
         append: true
-        # groups: adm, netdev
         groups: sudo
         update_password: on_create
         shell: /bin/bash
