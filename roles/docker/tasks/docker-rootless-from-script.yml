@@ -31,18 +31,6 @@
     - {line: 'export PATH=$HOME/bin:$PATH', dest: '~/.bashrc'}
   become: false
 
-- name: Ensure .zshenv contains DOCKER_HOST export and bin path
-  ansible.builtin.lineinfile:
-    dest: "{{ item.dest }}"
-    line: "{{ item.line }}"
-    state: present
-    backup: true
-  with_items:
-    - {line: 'export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock', dest: '~/.config/zsh/.zshenv'}
-    - {line: 'export PATH=$HOME/bin:$PATH', dest: '~/.config/zsh/.zshenv'}
-  when: docker_rootless_and_terminal_software_zsh_enabled
-  become: false
-
 - name: Ensure script dockerd-rootless-setuptool runs
   ansible.builtin.shell: |
     set -o pipefail && \

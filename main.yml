@@ -49,6 +49,11 @@
         name: facts
       tags: [always]
 
+    - name: Import base role
+      ansible.builtin.import_role:
+        name: base
+      tags: [base]
+
     - name: Import nftables role
       ansible.builtin.import_role:
         name: nftables
@@ -60,11 +65,6 @@
         name: firewalld
       when: firewalld_enabled
       tags: [firewalld]
-
-    - name: Import base role
-      ansible.builtin.import_role:
-        name: base
-      tags: [base]
 
     - name: Import dns role
       ansible.builtin.import_role:

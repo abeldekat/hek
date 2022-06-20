@@ -8,5 +8,3 @@ docker_rootless_enabled: true
 ###############################################################################
 # Not modifiable:
 docker_enabled: false
-# modifies zshrc:
-docker_rootless_and_terminal_enabled: false

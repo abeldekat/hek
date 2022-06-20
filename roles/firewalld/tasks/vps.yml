@@ -3,7 +3,7 @@
 # no zone drifting:
 # https://firewalld.org/2020/01/allowzonedrifting
 #
-# rich rules for masquerading: Conditionally accept forward and masquerade
+# policy for masquerading: Conditionally accept forward and masquerade
 # --> when the masquerade flag is set directly on zone public the following changes occur in nft firewalld table:
 # chain nat_POST_public_allow {
 #         oifname != "lo" masquerade
@@ -11,6 +11,24 @@
 # chain filter_FWDO_public_allow {
 # ct state { new, untracked } accept
 # }
+#
+# Firewalld will eventually support masquerading by policy on ingress zone with interface:
+# https://github.com/firewalld/firewalld/issues/939
+# https://firewalld.org/2020/09/policy-objects-filtering-container-and-vm-traffic
+# if one wants to have the masquerade on policy, vps zone cannot be assigned to interface.
+# chain nat_POST_policy_vpsToWorld_allow {
+# chain filter_FORWARD_POLICIES_pre {
+#         ip6 saddr 2001:db8:a160::/48 jump filter_FWD_policy_vpsToWorld
+#         ip saddr 10.49.0.0/16 jump filter_FWD_policy_vpsToWorld
+# }
+
+- name: Ensure wireguard is known as service
+  ansible.builtin.template:
+    src: wireguard.xml.j2
+    dest: "/etc/firewalld/services/wireguard.xml"
+    mode: 0644
+  notify:
+    - reload firewalld
 
 - name: Ensure vps zone is present
   ansible.posix.firewalld:
@@ -22,21 +40,29 @@
 - name: Force all notified handlers to run at this point, not waiting for normal sync points
   ansible.builtin.meta: flush_handlers
 
+- name: Ensure wireguard ip4 is bound
+  ansible.posix.firewalld:
+    zone: vps
+    permanent: true
+    source: "{{ wireguard_network_ipv4 }}"
+    state: enabled
+  notify: reload firewalld
+
+- name: Ensure wireguard ip6 is bound
+  ansible.posix.firewalld:
+    zone: vps
+    permanent: true
+    source: "{{ wireguard_network_ipv6 }}"
+    state: enabled
+  when: vps_ipv6_support
+  notify: reload firewalld
+
 - name: Ensure vps zone allows ssh
   ansible.posix.firewalld:
     permanent: true
     zone: vps
     service: ssh
     state: enabled
-  notify: reload firewalld
-
-- name: Ensure vps zone allows dns with dnscrypt proxy
-  ansible.posix.firewalld:
-    permanent: true
-    zone: vps
-    service: dns
-    state: enabled
-  when: firewalld_dnscrypt_proxy_enabled
   notify: reload firewalld
 
 - name: Ensure vps zone allows http https
@@ -51,37 +77,50 @@
   when: firewalld_webserver_enabled
   notify: reload firewalld
 
-- name: Ensure vps zone binds to wireguard interface name
+- name: Ensure vps zone allows dns with dnscrypt proxy
   ansible.posix.firewalld:
+    permanent: true
     zone: vps
-    permanent: true
-    interface: "{{ wireguard_interface }}"
+    service: dns
     state: enabled
+  when: firewalld_dnscrypt_proxy_enabled
   notify: reload firewalld
 
-# these rules selectively allow forward and nat postrouting.
-# see nft list ruleset | tee nft.out
-- name: Ensure rich masquerade rules are present for vps ip
-  ansible.posix.firewalld:
-    zone: public
-    permanent: true
-    rich_rule: 'rule family="ipv4" source address="{{ wireguard_network_ipv4 }}" masquerade'
-    state: enabled
-  notify: reload firewalld
-- name: Ensure rich masquerade rules are present for vps ip6
-  ansible.posix.firewalld:
-    zone: public
-    permanent: true
-    rich_rule: 'rule family="ipv6" source address="{{ wireguard_network_ipv6 }}" masquerade'
-    state: enabled
-  when: vps_ipv6_support
-  notify: reload firewalld
+- name: Capture vpsToWorld policy is present
+  ansible.builtin.shell: |
+    set -o pipefail && \
+    firewall-cmd --get-policies | grep -c vpsToWorld || true
+  args:
+    executable: /bin/bash
+  register: vpstoworld_result
+  changed_when: false
 
-- name: Ensure public zone allows wireguard port
+- name: Ensure vpsToWorld policy is present and configured
+  ansible.builtin.shell: |
+    firewall-cmd --permanent --new-policy=vpsToWorld && \
+    firewall-cmd --permanent --policy=vpsToWorld --add-ingress-zone=vps && \
+    firewall-cmd --permanent --policy=vpsToWorld --add-egress-zone=ANY && \
+    firewall-cmd --permanent --policy=vpsToWorld --add-masquerade
+    firewall-cmd --reload
+  args:
+    executable: /bin/bash
+  when: vpstoworld_result.stdout == '0'
+
+- name: Ensure vpsToWorld policy allows ipv6 masquerading
+  ansible.builtin.shell: |
+    firewall-cmd --permanent --policy=vpsToWorld --add-rich-rule='rule family="ipv6" masquerade' && \
+    firewall-cmd --reload
+  args:
+    executable: /bin/bash
+  when:
+    - vps_ipv6_support
+    - vpstoworld_result.stdout == '0'
+
+- name: Ensure public zone allows wireguard
   ansible.posix.firewalld:
     zone: public
     permanent: true
-    port: "{{ wireguard_port }}/udp"
+    service: wireguard
     state: enabled
   notify: reload firewalld
 

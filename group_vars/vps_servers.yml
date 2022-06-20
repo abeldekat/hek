@@ -62,7 +62,6 @@ wireguard_dns_servers: >-
 #  docker: must be enabled by its services
 #
 ######################################################################
-docker_rootless_and_terminal_software_zsh_enabled: "{{ true if docker_rootless_enabled and terminal_software_zsh_enabled else false }}"
 
 ######################################################################
 #
@@ -80,3 +79,10 @@ docker_enabled: "{{ true if searxng_enabled else false }}"
 searxng_rootless: "{{ true if docker_rootless_enabled else false }}"
 searxng_install_dir: "{{ searxng_install_dir_rootless if docker_rootless_enabled else searxng_install_dir_systemwide }}"
 searxng_systemd_dir: "{{ searxng_systemd_dir_rootless if docker_rootless_enabled else searxng_systemd_dir_systemwide }}"
+
+######################################################################
+#
+#  terminal software
+#
+######################################################################
+terminal_software_add_docker_rootless_to_zsh: "{{ true if docker_rootless_enabled and terminal_software_zsh_enabled else false }}"

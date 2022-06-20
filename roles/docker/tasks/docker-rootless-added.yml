@@ -1,5 +1,7 @@
 ---
 
+# @Deprecated
+#
 # https://docs.docker.com/engine/security/rootless/
 # Current linux kernel: 5.10.0-14-amd64
 # --> overlay2 only runs on kernel 5.11 or later, user fuse-overlay
@@ -56,15 +58,6 @@
     state: present
     insertbefore: BOF
     backup: true
-  become: false
-
-- name: Ensure zshenv contains DOCKER_HOST export
-  ansible.builtin.lineinfile:
-    dest: "~/.config/zsh/.zshenv"
-    line: "export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock"
-    state: present
-    backup: true
-  when: docker_rootless_and_terminal_software_zsh_enabled
   become: false
 
 - name: Ensure script dockerd-rootless-setuptool runs
