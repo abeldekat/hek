@@ -116,13 +116,5 @@
     - vps_ipv6_support
     - vpstoworld_result.stdout == '0'
 
-- name: Ensure public zone allows wireguard
-  ansible.posix.firewalld:
-    zone: public
-    permanent: true
-    service: wireguard
-    state: enabled
-  notify: reload firewalld
-
 - name: Force all notified handlers to run at this point, not waiting for normal sync points
   ansible.builtin.meta: flush_handlers

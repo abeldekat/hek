@@ -1,0 +1,87 @@
+---
+
+# https://blog.mohag.net/2018/05/managing-firewalld-ipsets-and-services.html
+# example nft output
+# set test {
+#         type ipv4_addr
+#         elements = { 1.2.3.4 }
+# }
+
+- name: Ensure admin zone is present
+  ansible.posix.firewalld:
+    zone: admin
+    permanent: true
+    state: present
+  notify: reload firewalld
+
+- name: Ensure admin ipv4 set is present
+  ansible.builtin.template:
+    src: admin_ipset.xml.j2
+    dest: /etc/firewalld/ipsets/admin_ipfour.xml
+    mode: 0644
+  with_items:
+    - "{{ firewalld_admin_ipset_ipfour }}"
+  notify: reload firewalld
+
+- name: Ensure admin ipv6 set is present
+  ansible.builtin.template:
+    src: admin_ipset.xml.j2
+    dest: /etc/firewalld/ipsets/admin_ipsix.xml
+    mode: 0644
+  with_items:
+    - "{{ firewalld_admin_ipset_ipsix }}"
+  when: vps_ipv6_support
+  notify: reload firewalld
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  ansible.builtin.meta: flush_handlers
+
+- name: Ensure admin ipv4 set is bound
+  ansible.posix.firewalld:
+    zone: admin
+    permanent: true
+    source: ipset:admin_ipfour
+    state: enabled
+  notify: reload firewalld
+
+- name: Ensure admin ipv6 set is bound
+  ansible.posix.firewalld:
+    zone: admin
+    permanent: true
+    source: ipset:admin_ipsix
+    state: enabled
+  when: vps_ipv6_support
+  notify: reload firewalld
+
+- name: Ensure admin zone allows wireguard
+  ansible.posix.firewalld:
+    zone: admin
+    permanent: true
+    service: wireguard
+    state: enabled
+  notify: reload firewalld
+  when: firewalld_wireguard_enabled
+
+- name: Ensure admin zone allows http https
+  ansible.posix.firewalld:
+    zone: admin
+    permanent: true
+    service: "{{ item }}"
+    state: enabled
+  with_items:
+    - http
+    - https
+  notify: reload firewalld
+  when: firewalld_webserver_enabled
+
+# Reason of existance: only allow ssh for the admin
+- name: Ensure admin zone allows ssh
+  ansible.posix.firewalld:
+    zone: admin
+    permanent: true
+    service: ssh
+    state: enabled
+  notify: reload firewalld
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  ansible.builtin.meta: flush_handlers

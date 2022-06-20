@@ -23,17 +23,14 @@
 #   libyaml = True
 
 # TODO:
-# Add example config
 # Evaluate:
 #   Test firewall with port_avoid
 #   wireguard_port_avoid redirects to port_actual
 #   between_clients?
 #   hash_limit
 # wireguard prefer ipv6? Needs brackets in endpoint client.conf
-# firewalld not up when closing machine using the close button in the web interface of the provider
 # Test python env
 # searxng: Override disabled engines, like searxng_engines_restrict
-# fail2ban instead of custom ssh port
 # ssh: unknown terminal alacritty
 # Think of a name for the repo
 # Readme and repo on github

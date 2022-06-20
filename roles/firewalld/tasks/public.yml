@@ -2,14 +2,14 @@
 
 - name: Ensure public zone is present
   ansible.posix.firewalld:
-    zone: public
+    zone: publicvps
     permanent: true
     state: present
   notify: reload firewalld
 
 - name: Ensure public ipv4 interface is added to public zone
   ansible.posix.firewalld:
-    zone: public
+    zone: publicvps
     permanent: true
     interface: "{{ ansible_default_ipv4['interface'] }}"
     state: enabled
@@ -17,57 +17,25 @@
 
 - name: Ensure public ipv6 interface is added to public zone
   ansible.posix.firewalld:
-    zone: public
+    zone: publicvps
     permanent: true
     interface: "{{ ansible_default_ipv6['interface'] }}"
     state: enabled
   when: vps_ipv6_support
   notify: reload firewalld
 
-- name: Ensure public zone does not allow dhcpv6-client
+- name: Ensure public zone allows wireguard
   ansible.posix.firewalld:
-    zone: public
+    zone: publicvps
     permanent: true
-    service: dhcpv6-client
-    state: disabled
-  notify: reload firewalld
-
-- name: Ensure restricting ssh rules are present for ip4
-  ansible.posix.firewalld:
-    zone: public
-    permanent: true
-    rich_rule: 'rule family="ipv4" source address="{{ vps_home_ipv4 }}" service name="ssh" accept'
+    service: wireguard
     state: enabled
   notify: reload firewalld
-
-- name: Ensure restricting ssh rules are present for ip6
-  ansible.posix.firewalld:
-    zone: public
-    permanent: true
-    rich_rule: 'rule family="ipv6" source address="{{ vps_home_ipv6 }}" service name="ssh" accept'
-    state: enabled
-  when: not vps_home_ipv6 | default('') == ''
-  notify: reload firewalld
-
-- name: Ensure all other ssh is dropped
-  ansible.posix.firewalld:
-    zone: public
-    permanent: true
-    rich_rule: 'rule priority=1 service name="ssh" drop'
-    state: enabled
-  notify: reload firewalld
-
-- name: Ensure public zone does not allow ssh
-  ansible.posix.firewalld:
-    zone: public
-    permanent: true
-    service: ssh
-    state: disabled
-  notify: reload firewalld
+  when: firewalld_wireguard_enabled
 
 - name: Ensure public zone allows http https
   ansible.posix.firewalld:
-    zone: public
+    zone: publicvps
     permanent: true
     service: "{{ item }}"
     state: enabled
@@ -76,6 +44,14 @@
     - https
   notify: reload firewalld
   when: firewalld_webserver_enabled
+
+- name: Ensure public zone drops ssh
+  ansible.posix.firewalld:
+    zone: publicvps
+    permanent: true
+    rich_rule: 'rule priority=1 service name="ssh" drop'
+    state: enabled
+  notify: reload firewalld
 
 - name: Force all notified handlers to run at this point, not waiting for normal sync points
   ansible.builtin.meta: flush_handlers

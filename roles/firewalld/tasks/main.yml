@@ -23,7 +23,25 @@
     state: started
     enabled: true
 
-# zone: public
+- name: Ensure firewalld factory reset is present for development
+  ansible.builtin.copy:
+    dest: /root/factory_reset_firewalld.sh
+    mode: 0744
+    content: |
+      #!/bin/bash
+      firewall-cmd --permanent --delete-zone=admin
+      firewall-cmd --permanent --delete-zone=publicvps
+      firewall-cmd --permanent --delete-zone=vps
+      firewall-cmd --permanent --delete-ipset=admin_ipfour
+      firewall-cmd --permanent --delete-ipset=admin_ipsix
+      firewall-cmd --permanent --delete-policy=vpsToWorld
+      firewall-cmd --reload
+
+# zone: admin
+- name: Import admin tasks
+  ansible.builtin.import_tasks: admin.yml
+
+# zone: publicvps
 - name: Import public tasks
   ansible.builtin.import_tasks: public.yml
 

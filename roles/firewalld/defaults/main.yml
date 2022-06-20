@@ -9,6 +9,20 @@ firewalld_wireguard_enabled: false
 # starts using vars from dnscrypt-proxy role
 firewalld_dnscrypt_proxy_enabled: false
 #
+firewalld_admin_ipset_ipfour:
+  description: The ipset for the adminzone, ipv4
+  family: inet
+  type: net
+  entries:
+    - "{{ vps_home_ipv4 }}"
+#
+firewalld_admin_ipset_ipsix:
+  description: The ipset for the adminzone, ipv6
+  family: inet6
+  type: net
+  entries:
+    - "{{ vps_home_ipv6 }}"
+#
 # TODO: Not implemented: Traffic between wireguard clients, something to have?
 # Block traffic between connected clients. Change this to false to enable
 # connected clients to reach each other, as well as other computers on the
