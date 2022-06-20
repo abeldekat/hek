@@ -1,3 +1,4 @@
+---
 
 - name: Ensure firewalld and nftables are installed
   ansible.builtin.apt:
