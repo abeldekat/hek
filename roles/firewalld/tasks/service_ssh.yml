@@ -1,0 +1,26 @@
+---
+
+# Reason of existance: only allow ssh for the admin
+- name: Ensure admin zone allows ssh
+  ansible.posix.firewalld:
+    zone: admin
+    permanent: true
+    service: ssh
+    state: enabled
+  notify: reload firewalld
+
+- name: Ensure vps zone allows ssh
+  ansible.posix.firewalld:
+    permanent: true
+    zone: vps
+    service: ssh
+    state: enabled
+  notify: reload firewalld
+
+- name: Ensure publicvps zone drops ssh
+  ansible.posix.firewalld:
+    zone: publicvps
+    permanent: true
+    rich_rule: 'rule priority=1 service name="ssh" drop'
+    state: enabled
+  notify: reload firewalld

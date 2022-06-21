@@ -2,6 +2,7 @@
 
 ###############################################################################
 # Modifiable:
+###############################################################################
 
 ###############################################################################
 # Not modifiable:
@@ -13,19 +14,36 @@ firewalld_wireguard_enabled: false
 # starts using vars from dnscrypt-proxy role
 firewalld_dnscrypt_proxy_enabled: false
 #
+firewalld_custom_admin_zone: admin
+firewalld_custom_public_zone: publicvps
+firewalld_custom_vps_zone: vps
+firewalld_custom_zones:
+  - "{{ firewalld_custom_admin_zone }}"
+  - "{{ firewalld_custom_public_zone }}"
+#
 firewalld_admin_ipset_ipfour:
-  description: The ipset for the adminzone, ipv4
-  family: inet
-  type: net
-  entries:
-    - "{{ vps_home_ipv4 }}"
+  template: 'admin_ipset.xml.j2'
+  dest: 'admin_ipfour.xml'
+  name: 'admin_ipfour'
+  use: true
+  config:
+    description: The ipset for the adminzone, ipv4
+    family: inet
+    type: net
+    entries:
+      - "{{ vps_home_ipv4 }}"
 #
 firewalld_admin_ipset_ipsix:
-  description: The ipset for the adminzone, ipv6
-  family: inet6
-  type: net
-  entries:
-    - "{{ vps_home_ipv6 }}"
+  template: 'admin_ipset.xml.j2'
+  dest: 'admin_ipsix.xml'
+  name: 'admin_ipsix'
+  use: "{{ vps_ipv6_support }}"
+  config:
+    description: The ipset for the adminzone, ipv6
+    family: inet6
+    type: net
+    entries:
+      - "{{ vps_home_ipv6 }}"
 #
 firewalld_vps_ipset_ipfour: ''
 #

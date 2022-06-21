@@ -1,74 +1,61 @@
 ---
 
-# important commands:
-# firewall-cmd --get-default-zone
-# firewall-cmd --get-active-zones
-# firewall-cmd --get-ipsets
-# firewall-cmd --get-policies
-#
-# default zone listing:
-# firewall-cmd --list-all
-#
-# other zones listing:
-# firewall-cmd --info-zone=admin
-# firewall-cmd --info-ipset=admin_ipfour
-# firewall-cmd --info-policy=vpsToWorld
-# firewall-cmd --list-all-policies
+# firewall-cmd --get-default-zone firewall-cmd --get-active-zones
+# firewall-cmd --get-ipsets firewall-cmd --get-policies
+# default zone listing: firewall-cmd --list-all
+# other zones listing: firewall-cmd --info-zone=admin firewall-cmd --info-ipset=admin_ipfour
+# firewall-cmd --info-policy=vpsToWorld firewall-cmd --list-all-policies
 
-- name: Ensure firewalld and nftables are installed
-  ansible.builtin.apt:
-    name: "{{ item }}"
-    state: present
-    update_cache: true
-  with_items:
-    - nftables
-    - firewalld
+### SETUP
 
-- name: Ensure nftables systemd service is disabled and masked
-  ansible.builtin.systemd:
-    name: nftables
-    daemon_reload: true
-    enabled: false
-    masked: true
-
-- name: Ensure firewalld systemd service is enabled and started
-  ansible.builtin.systemd:
-    name: firewalld
-    daemon_reload: true
-    state: started
-    enabled: true
-
-- name: Import needed entities tasks
-  ansible.builtin.import_tasks: needed_entities.yml
-- name: Ensure that new needed entities are reloaded only at this point
-  ansible.builtin.meta: flush_handlers
-- name: Import sources to zones tasks
-  ansible.builtin.import_tasks: sources_to_zones.yml
-
-# zone: admin
-- name: Import admin tasks
-  ansible.builtin.import_tasks: admin.yml
-
-# zone: publicvps
-- name: Import publicvps tasks
-  ansible.builtin.import_tasks: publicvps.yml
-
-# zone: vps
-- name: Import wireguard tasks
-  ansible.builtin.import_tasks: vps.yml
+- name: Set all zones to be used as fact
+  ansible.builtin.set_fact:
+    firewalld_custom_zones: "{{ firewalld_custom_zones + [firewalld_custom_vps_zone] }}"
   when: firewalld_wireguard_enabled
 
-# Note that up to this point, given a clean install, the runtime is
-# still connected to the default zone, public, allowing only dhcpv6-client
-# and ssh to the world
-- name: Ensure that applied configurations are reloaded only at this point
+- name: Import installation tasks
+  ansible.builtin.import_tasks: install.yml
+
+- name: Import new entities tasks
+  ansible.builtin.import_tasks: new_entities.yml
+
+- name: ++++ Ensure that new needed entities are reloaded all at once
   ansible.builtin.meta: flush_handlers
 
-# zone: publicvps
-- name: Import default zone tasks
+### ACTIVATION AND SERVICES
+
+- name: Import attach sources to zones tasks
+  ansible.builtin.import_tasks: sources_to_zones.yml
+
+- name: Import allow ssh service tasks
+  ansible.builtin.import_tasks: service_ssh.yml
+
+- name: Import allow http and https service tasks
+  ansible.builtin.import_tasks: service_web.yml
+  when: firewalld_webserver_enabled
+
+- name: Import allow wireguard service tasks
+  ansible.builtin.import_tasks: service_wireguard.yml
+  when: firewalld_wireguard_enabled
+
+- name: Import allow dns service tasks
+  ansible.builtin.import_tasks: service_dns.yml
+  when: firewalld_wireguard_enabled
+
+- name: Import allow vps forwarding and masquerading tasks
+  ansible.builtin.import_tasks: vps_to_world.yml
+  when: firewalld_wireguard_enabled
+
+# Gven a clean install, until here, the runtime is still connected to the default public zone,
+# allowing only dhcpv6-client and ssh to the world
+- name: ++++ Ensure that applied sources and services are reloaded all at once
+  ansible.builtin.meta: flush_handlers
+
+### MISC
+
+- name: Import change default zone tasks
   ansible.builtin.import_tasks: default_zone.yml
 
-# script for development:
-- name: Import script for development tasks
-  ansible.builtin.import_tasks: factory_reset_script.yml
-  when: false
+# Script for development:
+# - name: Import factory reset script for development tasks
+#   ansible.builtin.import_tasks: factory_reset_script.yml

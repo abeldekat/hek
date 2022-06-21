@@ -1,13 +1,15 @@
 ---
 
-- name: Ensure publicvps zone allows wireguard
+- name: Ensure vps zone allows http https
   ansible.posix.firewalld:
-    zone: publicvps
+    zone: vps
     permanent: true
-    service: wireguard
+    service: "{{ item }}"
     state: enabled
+  with_items:
+    - http
+    - https
   notify: reload firewalld
-  when: firewalld_wireguard_enabled
 
 - name: Ensure publicvps zone allows http https
   ansible.posix.firewalld:
@@ -19,12 +21,14 @@
     - http
     - https
   notify: reload firewalld
-  when: firewalld_webserver_enabled
 
-- name: Ensure publicvps zone drops ssh
+- name: Ensure admin zone allows http https
   ansible.posix.firewalld:
-    zone: publicvps
+    zone: admin
     permanent: true
-    rich_rule: 'rule priority=1 service name="ssh" drop'
+    service: "{{ item }}"
     state: enabled
+  with_items:
+    - http
+    - https
   notify: reload firewalld

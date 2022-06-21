@@ -1,0 +1,24 @@
+---
+
+- name: Ensure firewalld and nftables are installed
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  with_items:
+    - nftables
+    - firewalld
+
+- name: Ensure nftables systemd service is disabled and masked
+  ansible.builtin.systemd:
+    name: nftables
+    daemon_reload: true
+    enabled: false
+    masked: true
+
+- name: Ensure firewalld systemd service is enabled and started
+  ansible.builtin.systemd:
+    name: firewalld
+    daemon_reload: true
+    state: started
+    enabled: true

@@ -22,35 +22,6 @@
 #         ip saddr 10.49.0.0/16 jump filter_FWD_policy_vpsToWorld
 # }
 
-- name: Ensure vps zone allows ssh
-  ansible.posix.firewalld:
-    permanent: true
-    zone: vps
-    service: ssh
-    state: enabled
-  notify: reload firewalld
-
-- name: Ensure vps zone allows http https
-  ansible.posix.firewalld:
-    permanent: true
-    zone: vps
-    service: "{{ item }}"
-    state: enabled
-  with_items:
-    - http
-    - https
-  when: firewalld_webserver_enabled
-  notify: reload firewalld
-
-- name: Ensure vps zone allows dns if dnscrypt proxy enabled
-  ansible.posix.firewalld:
-    permanent: true
-    zone: vps
-    service: dns
-    state: enabled
-  when: firewalld_dnscrypt_proxy_enabled
-  notify: reload firewalld
-
 - name: Capture vpsToWorld policy is present
   ansible.builtin.shell: |
     set -o pipefail && \

@@ -1,0 +1,32 @@
+---
+# All entities that need to exist and reloaded in the runtime before further configuration is possible
+
+- name: Ensure zones are present
+  ansible.posix.firewalld:
+    zone: "{{ item }}"
+    permanent: true
+    state: present
+  loop: "{{ firewalld_custom_zones }}"
+  notify: reload firewalld
+
+- name: Ensure ip sets are present
+  ansible.builtin.template:
+    src: "{{ item.template }}"
+    dest: "{{ '/etc/firewalld/ipsets/' + item.dest }}"
+    mode: 0644
+  when: item.use
+  loop:
+    - "{{ firewalld_admin_ipset_ipfour }}"
+    - "{{ firewalld_admin_ipset_ipsix }}"
+    - "{{ firewalld_vps_ipset_ipfour }}"
+    - "{{ firewalld_vps_ipset_ipsix }}"
+  notify: reload firewalld
+
+- name: Ensure wireguard service is present
+  ansible.builtin.template:
+    src: wireguard.xml.j2
+    dest: "/etc/firewalld/services/wireguard.xml"
+    mode: 0644
+  when: firewalld_wireguard_enabled
+  notify:
+    - reload firewalld
