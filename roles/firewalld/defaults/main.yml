@@ -1,4 +1,8 @@
 ---
+
+###############################################################################
+# Modifiable:
+
 ###############################################################################
 # Not modifiable:
 firewalld_enabled: false
@@ -22,6 +26,10 @@ firewalld_admin_ipset_ipsix:
   type: net
   entries:
     - "{{ vps_home_ipv6 }}"
+#
+firewalld_vps_ipset_ipfour: ''
+#
+firewalld_vps_ipset_ipsix: ''
 #
 # TODO: Not implemented: Traffic between wireguard clients, something to have?
 # Block traffic between connected clients. Change this to false to enable

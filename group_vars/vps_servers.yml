@@ -30,6 +30,20 @@ firewalld_webserver_enabled: "{{ true if searxng_enabled else false }}"
 firewalld_wireguard_enabled: "{{ true if wireguard_enabled else false }}"
 # exposes vars from dns role
 firewalld_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled or dns_adblocking_enabled else false }}"
+#
+firewalld_vps_ipset_ipfour:
+  description: The ipset for the vps zone, ipv4
+  family: inet
+  type: net
+  entries:
+    - "{{ wireguard_network_ipv4 }}"
+#
+firewalld_vps_ipset_ipsix:
+  description: The ipset for the vps zone, ipv6
+  family: inet6
+  type: net
+  entries:
+    - "{{ wireguard_network_ipv6 }}"
 
 ######################################################################
 #

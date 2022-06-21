@@ -1,13 +1,13 @@
 ---
 
-- name: Ensure public zone is present
+- name: Ensure publicvps zone is present
   ansible.posix.firewalld:
     zone: publicvps
     permanent: true
     state: present
   notify: reload firewalld
 
-- name: Ensure public ipv4 interface is added to public zone
+- name: Ensure ipv4 interface is added to publicvps zone
   ansible.posix.firewalld:
     zone: publicvps
     permanent: true
@@ -15,7 +15,7 @@
     state: enabled
   notify: reload firewalld
 
-- name: Ensure public ipv6 interface is added to public zone
+- name: Ensure ipv6 interface is added to publicvps zone
   ansible.posix.firewalld:
     zone: publicvps
     permanent: true
@@ -24,7 +24,7 @@
   when: vps_ipv6_support
   notify: reload firewalld
 
-- name: Ensure public zone allows wireguard
+- name: Ensure publicvps zone allows wireguard
   ansible.posix.firewalld:
     zone: publicvps
     permanent: true
@@ -33,7 +33,7 @@
   notify: reload firewalld
   when: firewalld_wireguard_enabled
 
-- name: Ensure public zone allows http https
+- name: Ensure publicvps zone allows http https
   ansible.posix.firewalld:
     zone: publicvps
     permanent: true
@@ -45,7 +45,7 @@
   notify: reload firewalld
   when: firewalld_webserver_enabled
 
-- name: Ensure public zone drops ssh
+- name: Ensure publicvps zone drops ssh
   ansible.posix.firewalld:
     zone: publicvps
     permanent: true

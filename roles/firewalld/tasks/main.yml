@@ -1,5 +1,20 @@
 ---
 
+# important commands:
+# firewall-cmd --get-default-zone
+# firewall-cmd --get-active-zones
+# firewall-cmd --get-ipsets
+# firewall-cmd --get-policies
+#
+# default zone listing:
+# firewall-cmd --list-all
+#
+# other zones listing:
+# firewall-cmd --info-zone=admin
+# firewall-cmd --info-ipset=admin_ipfour
+# firewall-cmd --info-policy=vpsToWorld
+# firewall-cmd --list-all-policies
+
 - name: Ensure firewalld and nftables are installed
   ansible.builtin.apt:
     name: "{{ item }}"
@@ -23,29 +38,24 @@
     state: started
     enabled: true
 
-- name: Ensure firewalld factory reset is present for development
-  ansible.builtin.copy:
-    dest: /root/factory_reset_firewalld.sh
-    mode: 0744
-    content: |
-      #!/bin/bash
-      firewall-cmd --permanent --delete-zone=admin
-      firewall-cmd --permanent --delete-zone=publicvps
-      firewall-cmd --permanent --delete-zone=vps
-      firewall-cmd --permanent --delete-ipset=admin_ipfour
-      firewall-cmd --permanent --delete-ipset=admin_ipsix
-      firewall-cmd --permanent --delete-policy=vpsToWorld
-      firewall-cmd --reload
+# script for development:
+- name: Import script for development tasks
+  ansible.builtin.import_tasks: factory_reset_script.yml
+  when: false
 
 # zone: admin
 - name: Import admin tasks
   ansible.builtin.import_tasks: admin.yml
 
 # zone: publicvps
-- name: Import public tasks
-  ansible.builtin.import_tasks: public.yml
+- name: Import publicvps tasks
+  ansible.builtin.import_tasks: publicvps.yml
 
 # zone: vps
 - name: Import wireguard tasks
   ansible.builtin.import_tasks: vps.yml
   when: firewalld_wireguard_enabled
+
+# zone: publicvps
+- name: Import default zone tasks
+  ansible.builtin.import_tasks: default_zone.yml

@@ -1,0 +1,20 @@
+---
+
+- name: Capture default zone
+  ansible.builtin.shell: |
+    set -o pipefail && \
+    firewall-cmd --get-default-zone | grep -w -c publicvps || true
+  args:
+    executable: /bin/bash
+  register: defaultzone_result
+  changed_when: false
+
+- name: Ensure publicvps is the default zone
+  ansible.builtin.shell: |
+    firewall-cmd --set-default-zone=publicvps
+  args:
+    executable: /bin/bash
+  when: defaultzone_result.stdout == '0'
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  ansible.builtin.meta: flush_handlers

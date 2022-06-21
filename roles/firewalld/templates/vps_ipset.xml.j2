@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ipset type="hash:{{ item.type }}">
+  <description>{{ item.description }}</description>
+  <option name="family" value="{{ item.family }}"/>
+{% for entry in item.entries %}
+  <entry>{{ entry }}</entry>
+{% endfor %}
+</ipset>
