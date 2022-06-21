@@ -1,0 +1,78 @@
+---
+
+# All entities that need to exist and need to be reloaded before
+# further configuration is possible
+
+- name: Block admin
+  block:
+    - name: Ensure admin zone is present
+      ansible.posix.firewalld:
+        zone: admin
+        permanent: true
+        state: present
+      notify: reload firewalld
+
+    - name: Ensure admin ipv4 set is present
+      ansible.builtin.template:
+        src: admin_ipset.xml.j2
+        dest: /etc/firewalld/ipsets/admin_ipfour.xml
+        mode: 0644
+      with_items:
+        - "{{ firewalld_admin_ipset_ipfour }}"
+      notify: reload firewalld
+
+    - name: Ensure admin ipv6 set is present
+      ansible.builtin.template:
+        src: admin_ipset.xml.j2
+        dest: /etc/firewalld/ipsets/admin_ipsix.xml
+        mode: 0644
+      with_items:
+        - "{{ firewalld_admin_ipset_ipsix }}"
+      when: vps_ipv6_support
+      notify: reload firewalld
+
+- name: Block publicvps
+  block:
+    - name: Ensure publicvps zone is present
+      ansible.posix.firewalld:
+        zone: publicvps
+        permanent: true
+        state: present
+      notify: reload firewalld
+
+- name: Block wireguard
+  block:
+    - name: Ensure wireguard is known as service
+      ansible.builtin.template:
+        src: wireguard.xml.j2
+        dest: "/etc/firewalld/services/wireguard.xml"
+        mode: 0644
+      notify:
+        - reload firewalld
+
+    - name: Ensure vps zone is present
+      ansible.posix.firewalld:
+        zone: vps
+        permanent: true
+        state: present
+      notify: reload firewalld
+
+    - name: Ensure vps ipv4 set is present
+      ansible.builtin.template:
+        src: vps_ipset.xml.j2
+        dest: /etc/firewalld/ipsets/vps_ipfour.xml
+        mode: 0644
+      with_items:
+        - "{{ firewalld_vps_ipset_ipfour }}"
+      notify: reload firewalld
+
+    - name: Ensure vps ipv6 set is present
+      ansible.builtin.template:
+        src: vps_ipset.xml.j2
+        dest: /etc/firewalld/ipsets/vps_ipsix.xml
+        mode: 0644
+      with_items:
+        - "{{ firewalld_vps_ipset_ipsix }}"
+      when: vps_ipv6_support
+      notify: reload firewalld
+  when: firewalld_wireguard_enabled

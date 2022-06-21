@@ -9,12 +9,10 @@
   register: defaultzone_result
   changed_when: false
 
+# The set-default-zone command applies to both runtime and permanent
 - name: Ensure publicvps is the default zone
   ansible.builtin.shell: |
     firewall-cmd --set-default-zone=publicvps
   args:
     executable: /bin/bash
   when: defaultzone_result.stdout == '0'
-
-- name: Force all notified handlers to run at this point, not waiting for normal sync points
-  ansible.builtin.meta: flush_handlers

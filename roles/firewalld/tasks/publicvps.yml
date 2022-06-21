@@ -1,12 +1,5 @@
 ---
 
-- name: Ensure publicvps zone is present
-  ansible.posix.firewalld:
-    zone: publicvps
-    permanent: true
-    state: present
-  notify: reload firewalld
-
 - name: Ensure ipv4 interface is added to publicvps zone
   ansible.posix.firewalld:
     zone: publicvps
@@ -52,6 +45,3 @@
     rich_rule: 'rule priority=1 service name="ssh" drop'
     state: enabled
   notify: reload firewalld
-
-- name: Force all notified handlers to run at this point, not waiting for normal sync points
-  ansible.builtin.meta: flush_handlers

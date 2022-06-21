@@ -38,10 +38,11 @@
     state: started
     enabled: true
 
-# script for development:
-- name: Import script for development tasks
-  ansible.builtin.import_tasks: factory_reset_script.yml
-  when: false
+- name: Import needed entities tasks
+  ansible.builtin.import_tasks: needed_entities.yml
+
+- name: Ensure that new needed entities are reloaded only at this point
+  ansible.builtin.meta: flush_handlers
 
 # zone: admin
 - name: Import admin tasks
@@ -56,6 +57,14 @@
   ansible.builtin.import_tasks: vps.yml
   when: firewalld_wireguard_enabled
 
+- name: Ensure that applied configurations are reloaded only at this point
+  ansible.builtin.meta: flush_handlers
+
 # zone: publicvps
 - name: Import default zone tasks
   ansible.builtin.import_tasks: default_zone.yml
+
+# script for development:
+- name: Import script for development tasks
+  ansible.builtin.import_tasks: factory_reset_script.yml
+  when: false
