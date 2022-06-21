@@ -7,23 +7,6 @@
 #         elements = { 1.2.3.4 }
 # }
 
-- name: Ensure admin ipv4 set is bound
-  ansible.posix.firewalld:
-    zone: admin
-    permanent: true
-    source: ipset:admin_ipfour
-    state: enabled
-  notify: reload firewalld
-
-- name: Ensure admin ipv6 set is bound
-  ansible.posix.firewalld:
-    zone: admin
-    permanent: true
-    source: ipset:admin_ipsix
-    state: enabled
-  when: vps_ipv6_support
-  notify: reload firewalld
-
 - name: Ensure admin zone allows wireguard
   ansible.posix.firewalld:
     zone: admin

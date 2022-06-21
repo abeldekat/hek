@@ -1,0 +1,59 @@
+---
+
+- name: Block admin
+  block:
+    - name: Ensure admin ipv4 set is bound
+      ansible.posix.firewalld:
+        zone: admin
+        permanent: true
+        source: ipset:admin_ipfour
+        state: enabled
+      notify: reload firewalld
+
+    - name: Ensure admin ipv6 set is bound
+      ansible.posix.firewalld:
+        zone: admin
+        permanent: true
+        source: ipset:admin_ipsix
+        state: enabled
+      when: vps_ipv6_support
+      notify: reload firewalld
+
+- name: Block publicvps
+  block:
+    - name: Ensure ipv4 interface is added to publicvps zone
+      ansible.posix.firewalld:
+        zone: publicvps
+        permanent: true
+        interface: "{{ ansible_default_ipv4['interface'] }}"
+        state: enabled
+      notify: reload firewalld
+
+    - name: Ensure ipv6 interface is added to publicvps zone
+      ansible.posix.firewalld:
+        zone: publicvps
+        permanent: true
+        interface: "{{ ansible_default_ipv6['interface'] }}"
+        state: enabled
+      when: vps_ipv6_support
+      notify: reload firewalld
+
+- name: Block wireguard
+  block:
+    - name: Ensure wireguard ip4 is bound
+      ansible.posix.firewalld:
+        zone: vps
+        permanent: true
+        source: ipset:vps_ipfour
+        state: enabled
+      notify: reload firewalld
+
+    - name: Ensure wireguard ip6 is bound
+      ansible.posix.firewalld:
+        zone: vps
+        permanent: true
+        source: ipset:vps_ipsix
+        state: enabled
+      when: vps_ipv6_support
+      notify: reload firewalld
+  when: firewalld_wireguard_enabled

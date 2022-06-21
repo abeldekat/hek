@@ -22,23 +22,6 @@
 #         ip saddr 10.49.0.0/16 jump filter_FWD_policy_vpsToWorld
 # }
 
-- name: Ensure wireguard ip4 is bound
-  ansible.posix.firewalld:
-    zone: vps
-    permanent: true
-    source: ipset:vps_ipfour
-    state: enabled
-  notify: reload firewalld
-
-- name: Ensure wireguard ip6 is bound
-  ansible.posix.firewalld:
-    zone: vps
-    permanent: true
-    source: ipset:vps_ipsix
-    state: enabled
-  when: vps_ipv6_support
-  notify: reload firewalld
-
 - name: Ensure vps zone allows ssh
   ansible.posix.firewalld:
     permanent: true

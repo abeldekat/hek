@@ -1,22 +1,5 @@
 ---
 
-- name: Ensure ipv4 interface is added to publicvps zone
-  ansible.posix.firewalld:
-    zone: publicvps
-    permanent: true
-    interface: "{{ ansible_default_ipv4['interface'] }}"
-    state: enabled
-  notify: reload firewalld
-
-- name: Ensure ipv6 interface is added to publicvps zone
-  ansible.posix.firewalld:
-    zone: publicvps
-    permanent: true
-    interface: "{{ ansible_default_ipv6['interface'] }}"
-    state: enabled
-  when: vps_ipv6_support
-  notify: reload firewalld
-
 - name: Ensure publicvps zone allows wireguard
   ansible.posix.firewalld:
     zone: publicvps

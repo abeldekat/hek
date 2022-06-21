@@ -40,9 +40,10 @@
 
 - name: Import needed entities tasks
   ansible.builtin.import_tasks: needed_entities.yml
-
 - name: Ensure that new needed entities are reloaded only at this point
   ansible.builtin.meta: flush_handlers
+- name: Import sources to zones tasks
+  ansible.builtin.import_tasks: sources_to_zones.yml
 
 # zone: admin
 - name: Import admin tasks
@@ -57,6 +58,9 @@
   ansible.builtin.import_tasks: vps.yml
   when: firewalld_wireguard_enabled
 
+# Note that up to this point, given a clean install, the runtime is
+# still connected to the default zone, public, allowing only dhcpv6-client
+# and ssh to the world
 - name: Ensure that applied configurations are reloaded only at this point
   ansible.builtin.meta: flush_handlers
 
