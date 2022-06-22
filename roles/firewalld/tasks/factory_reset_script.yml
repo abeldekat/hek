@@ -7,9 +7,9 @@
     content: |
       #!/bin/bash
       firewall-cmd --set-default-zone=public
-      firewall-cmd --permanent --delete-zone="{{ firewalld_custom_admin_zone }}"
-      firewall-cmd --permanent --delete-zone="{{ firewalld_custom_public_zone }}"
-      firewall-cmd --permanent --delete-zone="{{ firewalld_custom_vps_zone }}"
+      firewall-cmd --permanent --delete-zone="{{ fw_zone_admin }}"
+      firewall-cmd --permanent --delete-zone="{{ fw_zone_public }}"
+      firewall-cmd --permanent --delete-zone="{{ fw_zone_vps }}"
       firewall-cmd --permanent --delete-ipset=admin_ipfour
       firewall-cmd --permanent --delete-ipset=admin_ipsix
       firewall-cmd --permanent --delete-ipset=vps_ipfour

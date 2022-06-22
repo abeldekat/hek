@@ -11,7 +11,7 @@
 
 - name: Ensure interfaces are bound
   ansible.posix.firewalld:
-    zone: "{{ firewalld_custom_public_zone }}"
+    zone: "{{ fw_zone_public }}"
     permanent: true
     interface: "{{ item.interface }}"
     state: enabled

@@ -32,7 +32,7 @@ firewalld_wireguard_enabled: "{{ true if wireguard_enabled else false }}"
 firewalld_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled or dns_adblocking_enabled else false }}"
 #
 firewalld_vps_ipset_ipfour:
-  zone: "{{ firewalld_custom_vps_zone }}"
+  zone: "{{ fw_zone_vps }}"
   template: 'vps_ipset.xml.j2'
   dest: 'vps_ipfour.xml'
   name: 'vps_ipfour'
@@ -44,7 +44,7 @@ firewalld_vps_ipset_ipfour:
       - "{{ wireguard_network_ipv4 }}"
 #
 firewalld_vps_ipset_ipsix:
-  zone: "{{ firewalld_custom_vps_zone }}"
+  zone: "{{ fw_zone_vps }}"
   template: 'vps_ipset.xml.j2'
   dest: 'vps_ipsix.xml'
   name: 'vps_ipsix'

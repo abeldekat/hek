@@ -11,14 +11,14 @@
 
 - name: wireguard service tasks
   ansible.builtin.include_tasks: service_wireguard.yml
-  loop: ["{{ firewalld_custom_admin_zone }}", "{{ firewalld_custom_public_zone }}"]
+  loop: ["{{ fw_zone_admin }}", "{{ fw_zone_public }}"]
   loop_control:
     loop_var: zone
   when: firewalld_wireguard_enabled
 
 - name: dns service tasks
   ansible.builtin.include_tasks: service_dns.yml
-  loop: ["{{ firewalld_custom_vps_zone }}"]
+  loop: ["{{ fw_zone_vps }}"]
   loop_control:
     loop_var: zone
   when:

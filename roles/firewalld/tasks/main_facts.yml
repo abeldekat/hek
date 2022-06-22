@@ -2,11 +2,11 @@
 
 - name: Facts, all base zones
   ansible.builtin.set_fact:
-    fw_zones_active: ["{{ firewalld_custom_admin_zone }}", "{{ firewalld_custom_public_zone }}"]
+    fw_zones_active: ["{{ fw_zone_admin }}", "{{ fw_zone_public }}"]
 
 - name: Facts, all needed zones
   ansible.builtin.set_fact:
-    fw_zones_active: "{{ fw_zones_active + [firewalld_custom_vps_zone] }}"
+    fw_zones_active: "{{ fw_zones_active + [fw_zone_vps] }}"
   when: firewalld_wireguard_enabled
 
 - name: Facts, base ipsets

@@ -14,13 +14,13 @@ firewalld_wireguard_enabled: false
 # starts using vars from dnscrypt-proxy role
 firewalld_dnscrypt_proxy_enabled: false
 #
-firewalld_custom_admin_zone: admin
-firewalld_custom_public_zone: publicvps
-firewalld_custom_vps_zone: vps
+fw_zone_admin: admin
+fw_zone_public: publicvps
+fw_zone_vps: vps
 fw_zones_active: []
 #
 firewalld_admin_ipset_ipfour:
-  zone: "{{ firewalld_custom_admin_zone }}"
+  zone: "{{ fw_zone_admin }}"
   template: 'admin_ipset.xml.j2'
   dest: 'admin_ipfour.xml'
   name: 'admin_ipfour'
@@ -32,7 +32,7 @@ firewalld_admin_ipset_ipfour:
       - "{{ vps_home_ipv4 }}"
 #
 firewalld_admin_ipset_ipsix:
-  zone: "{{ firewalld_custom_admin_zone }}"
+  zone: "{{ fw_zone_admin }}"
   template: 'admin_ipset.xml.j2'
   dest: 'admin_ipsix.xml'
   name: 'admin_ipsix'

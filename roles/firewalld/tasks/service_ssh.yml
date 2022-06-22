@@ -3,11 +3,11 @@
 # Reason of existance: drop public ssh on custom public zone
 - name: Fact, base zones ssh
   ansible.builtin.set_fact:
-    firewalld_ssh_zones: ["{{ firewalld_custom_admin_zone }}"]
+    firewalld_ssh_zones: ["{{ fw_zone_admin }}"]
 
 - name: Fact, all zones ssh
   ansible.builtin.set_fact:
-    firewalld_ssh_zones: "{{ firewalld_ssh_zones + [firewalld_custom_vps_zone] }}"
+    firewalld_ssh_zones: "{{ firewalld_ssh_zones + [fw_zone_vps] }}"
   when: firewalld_wireguard_enabled
 
 - name: Ensure zones allow ssh

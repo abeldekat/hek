@@ -34,7 +34,7 @@
 - name: Ensure vpsToWorld policy is present and configured
   ansible.builtin.shell: |
     firewall-cmd --permanent --new-policy=vpsToWorld && \
-    firewall-cmd --permanent --policy=vpsToWorld --add-ingress-zone="{{ firewalld_custom_vps_zone }}" && \
+    firewall-cmd --permanent --policy=vpsToWorld --add-ingress-zone="{{ fw_zone_vps }}" && \
     firewall-cmd --permanent --policy=vpsToWorld --add-egress-zone=ANY && \
     firewall-cmd --permanent --policy=vpsToWorld --add-masquerade
   args:
