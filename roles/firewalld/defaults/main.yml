@@ -17,7 +17,7 @@ firewalld_dnscrypt_proxy_enabled: false
 firewalld_custom_admin_zone: admin
 firewalld_custom_public_zone: publicvps
 firewalld_custom_vps_zone: vps
-firewalld_custom_zones: []
+fw_zones_active: []
 #
 firewalld_admin_ipset_ipfour:
   zone: "{{ firewalld_custom_admin_zone }}"

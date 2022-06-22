@@ -26,5 +26,5 @@
     rich_rule: 'rule priority=1 service name="ssh" drop'
     state: enabled
   when: item not in firewalld_ssh_zones
-  loop: "{{ firewalld_custom_zones }}"
+  loop: "{{ fw_zones_active }}"
   notify: reload firewalld

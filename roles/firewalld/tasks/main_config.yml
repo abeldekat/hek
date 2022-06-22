@@ -4,7 +4,7 @@
 
 - name: http and https service tasks
   ansible.builtin.include_tasks: service_web.yml
-  loop: "{{ firewalld_custom_zones }}"
+  loop: "{{ fw_zones_active }}"
   loop_control:
     loop_var: zone
   when: firewalld_webserver_enabled

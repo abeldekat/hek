@@ -6,7 +6,7 @@
     zone: "{{ item }}"
     permanent: true
     state: present
-  loop: "{{ firewalld_custom_zones }}"
+  loop: "{{ fw_zones_active }}"
   notify: reload firewalld
 
 - name: Ensure ip sets are present
