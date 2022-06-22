@@ -14,7 +14,7 @@
     src: "{{ item.template }}"
     dest: "{{ '/etc/firewalld/ipsets/' + item.dest }}"
     mode: 0644
-  loop: "{{ firewalld_custom_ipsets }}"
+  loop: "{{ fw_ipsets_active }}"
   notify: reload firewalld
 
 - name: Ensure vps service is present

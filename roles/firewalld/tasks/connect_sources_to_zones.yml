@@ -6,7 +6,7 @@
     permanent: true
     source: "{{ 'ipset:' + item.name }}"
     state: enabled
-  loop: "{{ firewalld_custom_ipsets }}"
+  loop: "{{ fw_ipsets_active }}"
   notify: reload firewalld
 
 - name: Ensure interfaces are bound

@@ -21,42 +21,14 @@ firewalld_vps_network_ipv6: ''
 fw_zone_admin: admin
 fw_zone_public: publicvps
 fw_zone_vps: vps
-fw_ipset_admin: admin_ipfour
-fw_ipset_admin_ipsix: admin_ipsix
-fw_ipset_vps: vps_ipfour
-fw_ipset_vps_ipsix: vps_ipsix
+fw_ipset_admin: {}
+fw_ipset_admin_ipsix: {}
+fw_ipset_vps: {}
+fw_ipset_vps_ipsix: {}
 fw_service_vps: wireguard
-#
-# Collections
+# Collections:
 fw_zones_active: []
-#
-firewalld_admin_ipset_ipfour:
-  zone: "{{ fw_zone_admin }}"
-  template: 'admin_ipset.xml.j2'
-  dest: 'admin_ipfour.xml'
-  name: "{{ fw_ipset_admin }}"
-  config:
-    description: The ipset for the adminzone, ipv4
-    family: inet
-    type: net
-    entries:
-      - "{{ vps_home_ipv4 }}"
-#
-firewalld_admin_ipset_ipsix:
-  zone: "{{ fw_zone_admin }}"
-  template: 'admin_ipset.xml.j2'
-  dest: 'admin_ipsix.xml'
-  name: "{{ fw_ipset_admin_ipsix }}"
-  config:
-    description: The ipset for the adminzone, ipv6
-    family: inet6
-    type: net
-    entries:
-      - "{{ vps_home_ipv6 }}"
-#
-firewalld_vps_ipset_ipfour: {}
-#
-firewalld_vps_ipset_ipsix: {}
+fw_ipsets_active_active: []
 #
 # TODO: Not implemented: Traffic between wireguard clients, something to have?
 # Block traffic between connected clients. Change this to false to enable
