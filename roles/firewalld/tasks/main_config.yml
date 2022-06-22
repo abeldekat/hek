@@ -2,7 +2,7 @@
 - name: attach sources and interfaces to zones
   ansible.builtin.import_tasks: attach_to_zones.yml
 
-- name: ssh service allow
+- name: ssh service accept
   ansible.builtin.include_tasks: service_ssh_accept.yml
   when:
     - zone in fw_zones_active
@@ -31,7 +31,7 @@
 
 - name: vps config, anticipate multiple vps zones
   block:
-    - name: vps service access
+    - name: vps service entry point
       ansible.builtin.include_tasks: service_wireguard.yml
       when:
         - zone in fw_zones_active
