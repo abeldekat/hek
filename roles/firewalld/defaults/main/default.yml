@@ -9,7 +9,7 @@
 firewalld_enabled: false
 # ports 80 and 443 to the world:
 firewalld_webserver_enabled: false
-# starts using vars from dnscrypt-proxy role
+# port 53
 firewalld_dnscrypt_proxy_enabled: false
 #
 # Vps:
@@ -18,13 +18,10 @@ firewalld_vps_port: ''
 firewalld_vps_network_ipv4: ''
 firewalld_vps_network_ipv6: ''
 # Entities:
+# See: ipsets.yml
 fw_zone_admin: admin
 fw_zone_public: publicvps
 fw_zone_vps: vps
-fw_ipset_admin: {}
-fw_ipset_admin_ipsix: {}
-fw_ipset_vps: {}
-fw_ipset_vps_ipsix: {}
 fw_service_vps: wireguard
 # Collections:
 fw_zones_active: []
