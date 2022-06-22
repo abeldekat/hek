@@ -1,22 +1,22 @@
 ---
-- name: Import attach sources to zones tasks
+- name: attach sources to zones tasks
   ansible.builtin.import_tasks: connect_sources_to_zones.yml
 
-- name: Import allow http and https service tasks
+- name: http and https service tasks
   ansible.builtin.include_tasks: service_web.yml
   loop: "{{ firewalld_custom_zones }}"
   loop_control:
     loop_var: zone
   when: firewalld_webserver_enabled
 
-- name: Import allow wireguard service tasks
+- name: wireguard service tasks
   ansible.builtin.include_tasks: service_wireguard.yml
   loop: ["{{ firewalld_custom_admin_zone }}", "{{ firewalld_custom_public_zone }}"]
   loop_control:
     loop_var: zone
   when: firewalld_wireguard_enabled
 
-- name: Import allow dns service tasks
+- name: dns service tasks
   ansible.builtin.include_tasks: service_dns.yml
   loop: ["{{ firewalld_custom_vps_zone }}"]
   loop_control:
@@ -25,9 +25,9 @@
     - firewalld_wireguard_enabled
     - firewalld_dnscrypt_proxy_enabled
 
-- name: Import ssh service tasks
+- name: ssh service tasks
   ansible.builtin.import_tasks: service_ssh.yml
 
-- name: Import allow vps forwarding and masquerading tasks
+- name: vps forwarding and masquerading tasks
   ansible.builtin.import_tasks: connect_vps_to_world.yml
   when: firewalld_wireguard_enabled
