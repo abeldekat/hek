@@ -1,31 +1,8 @@
 ---
 
-- name: Ensure vps zone allows http https
+- name: Ensure zones allow http https
   ansible.posix.firewalld:
-    zone: vps
-    permanent: true
-    service: "{{ item }}"
-    state: enabled
-  with_items:
-    - http
-    - https
-  when: firewalld_wireguard_enabled
-  notify: reload firewalld
-
-- name: Ensure publicvps zone allows http https
-  ansible.posix.firewalld:
-    zone: publicvps
-    permanent: true
-    service: "{{ item }}"
-    state: enabled
-  with_items:
-    - http
-    - https
-  notify: reload firewalld
-
-- name: Ensure admin zone allows http https
-  ansible.posix.firewalld:
-    zone: admin
+    zone: "{{ zone }}"
     permanent: true
     service: "{{ item }}"
     state: enabled

@@ -1,27 +1,30 @@
 ---
 
-# Reason of existance: only allow ssh for the admin
-- name: Ensure admin zone allows ssh
-  ansible.posix.firewalld:
-    zone: admin
-    permanent: true
-    service: ssh
-    state: enabled
-  notify: reload firewalld
+# Reason of existance: drop public ssh on custom public zone
+- name: Fact, base zones ssh
+  ansible.builtin.set_fact:
+    firewalld_ssh_zones: ["{{ firewalld_custom_admin_zone }}"]
 
-- name: Ensure vps zone allows ssh
-  ansible.posix.firewalld:
-    permanent: true
-    zone: vps
-    service: ssh
-    state: enabled
+- name: Fact, all zones ssh
+  ansible.builtin.set_fact:
+    firewalld_ssh_zones: "{{ firewalld_ssh_zones + [firewalld_custom_vps_zone] }}"
   when: firewalld_wireguard_enabled
+
+- name: Ensure zones allow ssh
+  ansible.posix.firewalld:
+    zone: "{{ item }}"
+    permanent: true
+    service: ssh
+    state: enabled
+  loop: "{{ firewalld_ssh_zones }}"
   notify: reload firewalld
 
-- name: Ensure publicvps zone drops ssh
+- name: Ensure other zones drop ssh
   ansible.posix.firewalld:
-    zone: publicvps
+    zone: "{{ item }}"
     permanent: true
     rich_rule: 'rule priority=1 service name="ssh" drop'
     state: enabled
+  when: item not in firewalld_ssh_zones
+  loop: "{{ firewalld_custom_zones }}"
   notify: reload firewalld

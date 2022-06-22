@@ -1,10 +1,9 @@
 ---
 
-- name: Ensure vps zone allows dns if dnscrypt proxy enabled
+- name: Ensure zones allows dns if dnscrypt proxy enabled
   ansible.posix.firewalld:
     permanent: true
-    zone: vps
+    zone: "{{ zone }}"
     service: dns
     state: enabled
-  when: firewalld_dnscrypt_proxy_enabled
   notify: reload firewalld

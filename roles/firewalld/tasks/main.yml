@@ -26,5 +26,5 @@
   ansible.builtin.import_tasks: main_change_default_zone.yml
 
 # Script for development:
-# - name: Import factory reset script for development tasks
-#   ansible.builtin.import_tasks: factory_reset_script.yml
+- name: Import factory reset script for development tasks
+  ansible.builtin.import_tasks: factory_reset_script.yml

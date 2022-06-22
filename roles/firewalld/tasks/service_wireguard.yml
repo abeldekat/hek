@@ -1,16 +1,8 @@
 ---
 
-- name: Ensure admin zone allows wireguard
+- name: Ensure zones allow wireguard
   ansible.posix.firewalld:
-    zone: admin
-    permanent: true
-    service: wireguard
-    state: enabled
-  notify: reload firewalld
-
-- name: Ensure publicvps zone allows wireguard
-  ansible.posix.firewalld:
-    zone: publicvps
+    zone: "{{ zone }}"
     permanent: true
     service: wireguard
     state: enabled
