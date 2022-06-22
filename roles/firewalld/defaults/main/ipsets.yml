@@ -1,0 +1,47 @@
+---
+
+# Entities ipset
+fw_ipset_admin:
+  zone: "{{ fw_zone_admin }}"
+  template: 'admin_ipset.xml.j2'
+  dest: 'admin_ipfour.xml'
+  name: 'admin_ipfour'
+  config:
+    description: The ipset for the adminzone, ipv4
+    family: inet
+    type: net
+    entries:
+      - "{{ vps_home_ipv4 }}"
+fw_ipset_admin_ipsix:
+  zone: "{{ fw_zone_admin }}"
+  template: 'admin_ipset.xml.j2'
+  dest: 'admin_ipsix.xml'
+  name: 'admin_ipsix'
+  config:
+    description: The ipset for the adminzone, ipv6
+    family: inet6
+    type: net
+    entries:
+      - "{{ vps_home_ipv6 }}"
+fw_ipset_vps:
+  zone: "{{ fw_zone_vps }}"
+  template: 'vps_ipset.xml.j2'
+  dest: 'vps_ipfour.xml'
+  name: 'vps_ipfour'
+  config:
+    description: The ipset for the vps zone, ipv4
+    family: inet
+    type: net
+    entries:
+      - "{{ firewalld_vps_network_ipv4 }}"
+fw_ipset_vps_ipsix:
+  zone: "{{ fw_zone_vps }}"
+  template: 'vps_ipset.xml.j2'
+  dest: 'vps_ipsix.xml'
+  name: 'vps_ipsix'
+  config:
+    description: The ipset for the vps zone, ipv6
+    family: inet6
+    type: net
+    entries:
+      - "{{ firewalld_vps_network_ipv6 }}"
