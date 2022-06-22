@@ -2,7 +2,7 @@
 
 - name: Ensure zones allow ssh
   ansible.posix.firewalld:
-    zone: "{{ zone }}"
+    zone: "{{ item }}"
     permanent: true
     service: ssh
     state: enabled

@@ -2,7 +2,7 @@
 
 - name: Ensure zones allow vps
   ansible.posix.firewalld:
-    zone: "{{ zone }}"
+    zone: "{{ item }}"
     permanent: true
     service: "{{ fw_service_vps }}"
     state: enabled

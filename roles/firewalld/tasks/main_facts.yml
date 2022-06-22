@@ -1,12 +1,12 @@
 ---
 
-- name: Facts, all base zones
+- name: Facts, base zones
   ansible.builtin.set_fact:
     fw_zones_active: ["{{ fw_zone_admin }}", "{{ fw_zone_public }}"]
 
 - name: Facts, all active zones
   ansible.builtin.set_fact:
-    fw_zones_active: "{{ fw_zones_active + [fw_zone_vps] }}"
+    fw_zones_active: "{{ fw_zones_active | union([fw_zone_vps]) }}"
   when: firewalld_vps_enabled
 
 - name: Facts, base ipsets
@@ -15,17 +15,20 @@
 
 - name: Facts, add ipv6 to base ipsets
   ansible.builtin.set_fact:
-    fw_ipsets_active: "{{ fw_ipsets_active + [fw_ipset_admin_ipsix] }}"
+    fw_ipsets_active: "{{ fw_ipsets_active | union([fw_ipset_admin_ipsix]) }}"
   when: vps_ipv6_support
 
-- name: Facts, wireguard ipsets
+# vps toggle should be true and vps zone must be in active zones
+- name: Facts, vps ipsets
   block:
     - name: Facts, add wireguard ipv4 to base ipsets
       ansible.builtin.set_fact:
-        fw_ipsets_active: "{{ fw_ipsets_active + [fw_ipset_vps] }}"
+        fw_ipsets_active: "{{ fw_ipsets_active | union([fw_ipset_vps]) }}"
 
     - name: Facts, add wireguard ipv6 to base ipsets
       ansible.builtin.set_fact:
-        fw_ipsets_active: "{{ fw_ipsets_active + [fw_ipset_vps_ipsix] }}"
+        fw_ipsets_active: "{{ fw_ipsets_active | union([fw_ipset_vps_ipsix]) }}"
       when: vps_ipv6_support
-  when: firewalld_vps_enabled
+  when:
+    - firewalld_vps_enabled
+    - fw_zones_active | intersect([fw_zone_vps])

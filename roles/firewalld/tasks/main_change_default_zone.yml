@@ -1,18 +1,20 @@
 ---
 
-- name: Capture default zone
+
+- name: capture default zone present
   ansible.builtin.shell: |
     set -o pipefail && \
-    firewall-cmd --get-default-zone | grep -w -c publicvps || true
+    firewall-cmd --get-default-zone | grep -w -c {{ fw_zone_public }} || true
   args:
     executable: /bin/bash
   register: defaultzone_result
   changed_when: false
+  when: fw_zones_active | intersect([fw_zone_public])
 
 # The set-default-zone command applies to both runtime and permanent
-- name: Ensure publicvps is the default zone
+- name: ensure default zone
   ansible.builtin.shell: |
-    firewall-cmd --set-default-zone=publicvps
+    firewall-cmd --set-default-zone={{ fw_zone_public }}
   args:
     executable: /bin/bash
-  when: defaultzone_result.stdout == '0'
+  when: fw_zones_active | intersect([fw_zone_public]) and defaultzone_result.stdout == '0'

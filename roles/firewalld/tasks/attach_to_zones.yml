@@ -15,7 +15,7 @@
     permanent: true
     interface: "{{ item.interface }}"
     state: enabled
-  when: item.use
+  when: item.use and fw_zones_active | intersect([fw_zone_public])
   loop:
     - {use: true, interface: "{{ ansible_default_ipv4['interface'] }}"}
     - {use: "{{ vps_ipv6_support }}", interface: "{{ ansible_default_ipv6['interface'] }}"}

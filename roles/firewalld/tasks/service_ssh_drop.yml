@@ -1,7 +1,7 @@
 ---
 - name: Ensure zones drop ssh
   ansible.posix.firewalld:
-    zone: "{{ zone }}"
+    zone: "{{ item }}"
     permanent: true
     rich_rule: 'rule priority=1 service name="ssh" drop'
     state: enabled
