@@ -51,11 +51,11 @@
         name: base
       tags: [base]
 
-    - name: Import nftables role
-      ansible.builtin.import_role:
-        name: nftables
-      when: nftables_enabled
-      tags: [nftables]
+    # - name: Import nftables role
+    #   ansible.builtin.import_role:
+    #     name: nftables_deprecated
+    #   when: nftables_enabled
+    #   tags: [nftables]
 
     - name: Import firewalld role
       ansible.builtin.import_role:

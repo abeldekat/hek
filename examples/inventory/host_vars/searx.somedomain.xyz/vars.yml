@@ -1,6 +1,6 @@
 ---
 ################################################################################
-## Default roles enabled: WIREGUARD(dnscrypt and adblocking included), SEARXNG(private instance), NFTABLES
+## Default roles enabled: WIREGUARD(dnscrypt and adblocking included), SEARXNG(private instance), FIREWALLD
 ## Roles that are dynamically inferred by the system: DNS, CADDY, DOCKER
 ##
 ## Each role in this personal configuration points to the file containing the default values
@@ -89,15 +89,15 @@ wireguard_users:
 ## CADDY: webserver, roles/caddy/defaults/main.yml, default dynamically enabled
 
 ###############################################################################
-## FIREWALLD: firewall, roles/firewalld/defaults/main.yml, default disabled
+## FIREWALLD: firewall, roles/firewalld/defaults/main/default.yml, default enabled
 
 ################################################################################
-## NFTABLES: firewall, roles/nftables/defaults/main.yml, default enabled
+## NFTABLES: firewall, roles/nftables/defaults/main.yml, default disabled, deprecated
 
 ################################################################################
 ## BASE: roles/base/defaults/main.yml
 ## 1. setup software
-## 2. unattended_reboot, default true,
+## 2. unattended_reboot, default true
 
 ################################################################################
 ## TERMINAL: roles/terminal/defaults/main.yml, default disabled

@@ -17,7 +17,7 @@
 - name: Import setup tasks
   ansible.builtin.import_tasks: main_setup.yml
 
-- name: ++++ Ensure that new entities are reloaded all at once
+- name: ++++ Ensure that new entities are reloaded in one sweep
   ansible.builtin.meta: flush_handlers
 
 - name: Import config tasks
@@ -25,7 +25,7 @@
 
 # Gven a clean install, until here, the runtime is still connected to the default public zone,
 # allowing only dhcpv6-client and ssh to the world
-- name: ++++ Ensure that applied sources and services are reloaded all at once
+- name: ++++ Ensure that applied sources and services are reloaded in one sweep
   ansible.builtin.meta: flush_handlers
 
 - name: Import change default zone tasks

@@ -18,32 +18,32 @@
 #         ip saddr 10.49.0.0/16 jump filter_FWD_policy_vpsToWorld
 # }
 
-- name: Capture vpsToWorld policy is present
+- name: Capture policy is present
   ansible.builtin.shell: |
     set -o pipefail && \
-    firewall-cmd --get-policies | grep -c vpsToWorld || true
+    firewall-cmd --get-policies | grep -c {{ fw_policy_vps }} || true
   args:
     executable: /bin/bash
-  register: vpstoworld_result
+  register: policy_result
   changed_when: false
 
-- name: Ensure vpsToWorld policy is present and configured
+- name: Ensure policy is present and configured
   ansible.builtin.shell: |
-    firewall-cmd --permanent --new-policy=vpsToWorld && \
-    firewall-cmd --permanent --policy=vpsToWorld --add-ingress-zone="{{ zone }}" && \
-    firewall-cmd --permanent --policy=vpsToWorld --add-egress-zone=ANY && \
-    firewall-cmd --permanent --policy=vpsToWorld --add-masquerade
+    firewall-cmd --permanent --new-policy={{ fw_policy_vps }} && \
+    firewall-cmd --permanent --policy={{ fw_policy_vps }} --add-ingress-zone="{{ zone }}" && \
+    firewall-cmd --permanent --policy={{ fw_policy_vps }} --add-egress-zone=ANY && \
+    firewall-cmd --permanent --policy={{ fw_policy_vps }} --add-masquerade
   args:
     executable: /bin/bash
-  when: vpstoworld_result.stdout == '0'
+  when: policy_result.stdout == '0'
   notify: reload firewalld
 
-- name: Ensure vpsToWorld policy allows ipv6 masquerading
+- name: Ensure policy allows ipv6 masquerading
   ansible.builtin.shell: |
-    firewall-cmd --permanent --policy=vpsToWorld --add-rich-rule='rule family="ipv6" masquerade'
+    firewall-cmd --permanent --policy={{ fw_policy_vps }} --add-rich-rule='rule family="ipv6" masquerade'
   args:
     executable: /bin/bash
   when:
     - vps_ipv6_support
-    - vpstoworld_result.stdout == '0'
+    - policy_result.stdout == '0'
   notify: reload firewalld
