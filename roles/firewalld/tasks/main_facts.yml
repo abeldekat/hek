@@ -7,7 +7,7 @@
 - name: Facts, all needed zones
   ansible.builtin.set_fact:
     fw_zones_active: "{{ fw_zones_active + [fw_zone_vps] }}"
-  when: firewalld_wireguard_enabled
+  when: firewalld_vps_enabled
 
 - name: Facts, base ipsets
   ansible.builtin.set_fact:
@@ -28,4 +28,4 @@
       ansible.builtin.set_fact:
         firewalld_custom_ipsets: "{{ firewalld_custom_ipsets + [firewalld_vps_ipset_ipsix] }}"
       when: vps_ipv6_support
-  when: firewalld_wireguard_enabled
+  when: firewalld_vps_enabled

@@ -27,7 +27,7 @@ dns_local_service_ip_seed: "{{ vps_seed + ansible_fqdn }}"
 firewalld_enabled: false
 firewalld_webserver_enabled: "{{ true if searxng_enabled else false }}"
 # exposes vars from wireguard role
-firewalld_wireguard_enabled: "{{ true if wireguard_enabled else false }}"
+firewalld_vps_enabled: "{{ true if wireguard_enabled else false }}"
 # exposes vars from dns role
 firewalld_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled or dns_adblocking_enabled else false }}"
 #

@@ -14,7 +14,7 @@
   loop: ["{{ fw_zone_admin }}", "{{ fw_zone_public }}"]
   loop_control:
     loop_var: zone
-  when: firewalld_wireguard_enabled
+  when: firewalld_vps_enabled
 
 - name: dns service tasks
   ansible.builtin.include_tasks: service_dns.yml
@@ -22,7 +22,7 @@
   loop_control:
     loop_var: zone
   when:
-    - firewalld_wireguard_enabled
+    - firewalld_vps_enabled
     - firewalld_dnscrypt_proxy_enabled
 
 - name: ssh service tasks
@@ -30,4 +30,4 @@
 
 - name: vps forwarding and masquerading tasks
   ansible.builtin.import_tasks: connect_vps_to_world.yml
-  when: firewalld_wireguard_enabled
+  when: firewalld_vps_enabled

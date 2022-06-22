@@ -10,7 +10,7 @@ firewalld_enabled: false
 # ports 80 and 443 to the world:
 firewalld_webserver_enabled: false
 # starts using vars from wireguard role
-firewalld_wireguard_enabled: false
+firewalld_vps_enabled: false
 # starts using vars from dnscrypt-proxy role
 firewalld_dnscrypt_proxy_enabled: false
 #

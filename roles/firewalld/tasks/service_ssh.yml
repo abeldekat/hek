@@ -8,7 +8,7 @@
 - name: Fact, all zones ssh
   ansible.builtin.set_fact:
     firewalld_ssh_zones: "{{ firewalld_ssh_zones + [fw_zone_vps] }}"
-  when: firewalld_wireguard_enabled
+  when: firewalld_vps_enabled
 
 - name: Ensure zones allow ssh
   ansible.posix.firewalld:
