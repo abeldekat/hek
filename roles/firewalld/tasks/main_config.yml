@@ -9,7 +9,7 @@
     loop_var: zone
   when: firewalld_webserver_enabled
 
-- name: wireguard service tasks
+- name: vps service tasks
   ansible.builtin.include_tasks: service_wireguard.yml
   loop: ["{{ fw_zone_admin }}", "{{ fw_zone_public }}"]
   loop_control:

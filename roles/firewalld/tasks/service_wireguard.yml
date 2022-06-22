@@ -4,6 +4,6 @@
   ansible.posix.firewalld:
     zone: "{{ zone }}"
     permanent: true
-    service: "{{ firewalld_service_vps }}"
+    service: "{{ fw_service_vps }}"
     state: enabled
   notify: reload firewalld
