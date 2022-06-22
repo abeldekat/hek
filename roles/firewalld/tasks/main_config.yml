@@ -1,33 +1,61 @@
 ---
-- name: attach sources to zones tasks
-  ansible.builtin.import_tasks: connect_sources_to_zones.yml
+- name: attach sources and interfaces to zones
+  ansible.builtin.import_tasks: attach_to_zones.yml
 
-- name: http and https service tasks
+- name: ssh service allow
+  ansible.builtin.include_tasks: service_ssh_accept.yml
+  when:
+    - zone in fw_zones_active
+  loop:
+    - "{{ fw_zone_admin }}"
+    - "{{ fw_zone_vps if firewalld_vps_enabled else omit }}"
+  loop_control:
+    loop_var: zone
+
+- name: ssh service drop
+  ansible.builtin.include_tasks: service_ssh_drop.yml
+  when:
+    - zone in fw_zones_active
+  loop:
+    - "{{ fw_zone_public }}"
+  loop_control:
+    loop_var: zone
+
+- name: http and https service
   ansible.builtin.include_tasks: service_web.yml
+  when:
+    - firewalld_webserver_enabled
   loop: "{{ fw_zones_active }}"
   loop_control:
     loop_var: zone
-  when: firewalld_webserver_enabled
 
-- name: vps service tasks
-  ansible.builtin.include_tasks: service_wireguard.yml
-  loop: ["{{ fw_zone_admin }}", "{{ fw_zone_public }}"]
-  loop_control:
-    loop_var: zone
-  when: firewalld_vps_enabled
+- name: vps config, anticipate multiple vps zones
+  block:
+    - name: vps service access
+      ansible.builtin.include_tasks: service_wireguard.yml
+      when:
+        - zone in fw_zones_active
+      loop:
+        - "{{ fw_zone_admin }}"
+        - "{{ fw_zone_public }}"
+      loop_control:
+        loop_var: zone
 
-- name: dns service tasks
-  ansible.builtin.include_tasks: service_dns.yml
-  loop: ["{{ fw_zone_vps }}"]
-  loop_control:
-    loop_var: zone
-  when:
-    - firewalld_vps_enabled
-    - firewalld_dnscrypt_proxy_enabled
+    - name: dns service
+      ansible.builtin.include_tasks: service_dns.yml
+      when:
+        - firewalld_dnscrypt_proxy_enabled
+        - zone in fw_zones_active
+      loop:
+        - "{{ fw_zone_vps }}"
+      loop_control:
+        loop_var: zone
 
-- name: ssh service tasks
-  ansible.builtin.import_tasks: service_ssh.yml
-
-- name: vps forwarding and masquerading tasks
-  ansible.builtin.import_tasks: connect_vps_to_world.yml
+    - name: vps forwarding and masquerading
+      ansible.builtin.include_tasks: attach_vps_to_world.yml
+      when: zone in fw_zones_active
+      loop:
+        - "{{ fw_zone_vps }}"
+      loop_control:
+        loop_var: zone
   when: firewalld_vps_enabled

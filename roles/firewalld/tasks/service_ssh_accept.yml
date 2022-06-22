@@ -1,12 +1,9 @@
 ---
 
-- name: Ensure zones allow http https
+- name: Ensure zones allow ssh
   ansible.posix.firewalld:
     zone: "{{ zone }}"
     permanent: true
-    service: "{{ item }}"
+    service: ssh
     state: enabled
-  loop:
-    - http
-    - https
   notify: reload firewalld

@@ -1,12 +1,8 @@
 ---
-
-- name: Ensure zones allow http https
+- name: Ensure zones drop ssh
   ansible.posix.firewalld:
     zone: "{{ zone }}"
     permanent: true
-    service: "{{ item }}"
+    rich_rule: 'rule priority=1 service name="ssh" drop'
     state: enabled
-  loop:
-    - http
-    - https
   notify: reload firewalld
