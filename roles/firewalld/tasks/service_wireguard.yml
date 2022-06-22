@@ -1,9 +1,9 @@
 ---
 
-- name: Ensure zones allow wireguard
+- name: Ensure zones allow vps
   ansible.posix.firewalld:
     zone: "{{ zone }}"
     permanent: true
-    service: wireguard
+    service: "{{ firewalld_service_vps }}"
     state: enabled
   notify: reload firewalld

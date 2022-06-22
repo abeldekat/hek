@@ -17,7 +17,7 @@
   loop: "{{ firewalld_custom_ipsets }}"
   notify: reload firewalld
 
-- name: Ensure wireguard service is present
+- name: Ensure vps service is present
   ansible.builtin.template:
     src: wireguard.xml.j2
     dest: "/etc/firewalld/services/wireguard.xml"
