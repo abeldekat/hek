@@ -1,60 +1,29 @@
 ---
-
 # firewall-cmd --get-default-zone firewall-cmd --get-active-zones
 # firewall-cmd --get-ipsets firewall-cmd --get-policies
 # default zone listing: firewall-cmd --list-all
 # other zones listing: firewall-cmd --info-zone=admin firewall-cmd --info-ipset=admin_ipfour
 # firewall-cmd --info-policy=vpsToWorld firewall-cmd --list-all-policies
 
-### SETUP
+- name: Import facts tasks
+  ansible.builtin.import_tasks: main_facts.yml
 
-- name: Set all zones to be used as fact
-  ansible.builtin.set_fact:
-    firewalld_custom_zones: "{{ firewalld_custom_zones + [firewalld_custom_vps_zone] }}"
-  when: firewalld_wireguard_enabled
-
-- name: Import installation tasks
-  ansible.builtin.import_tasks: install.yml
-
-- name: Import new entities tasks
-  ansible.builtin.import_tasks: new_entities.yml
+- name: Import setup tasks
+  ansible.builtin.import_tasks: main_setup.yml
 
 - name: ++++ Ensure that new needed entities are reloaded all at once
   ansible.builtin.meta: flush_handlers
 
-### ACTIVATION AND SERVICES
-
-- name: Import attach sources to zones tasks
-  ansible.builtin.import_tasks: sources_to_zones.yml
-
-- name: Import allow ssh service tasks
-  ansible.builtin.import_tasks: service_ssh.yml
-
-- name: Import allow http and https service tasks
-  ansible.builtin.import_tasks: service_web.yml
-  when: firewalld_webserver_enabled
-
-- name: Import allow wireguard service tasks
-  ansible.builtin.import_tasks: service_wireguard.yml
-  when: firewalld_wireguard_enabled
-
-- name: Import allow dns service tasks
-  ansible.builtin.import_tasks: service_dns.yml
-  when: firewalld_wireguard_enabled
-
-- name: Import allow vps forwarding and masquerading tasks
-  ansible.builtin.import_tasks: vps_to_world.yml
-  when: firewalld_wireguard_enabled
+- name: Import config tasks
+  ansible.builtin.import_tasks: main_config.yml
 
 # Gven a clean install, until here, the runtime is still connected to the default public zone,
 # allowing only dhcpv6-client and ssh to the world
 - name: ++++ Ensure that applied sources and services are reloaded all at once
   ansible.builtin.meta: flush_handlers
 
-### MISC
-
 - name: Import change default zone tasks
-  ansible.builtin.import_tasks: default_zone.yml
+  ansible.builtin.import_tasks: main_change_default_zone.yml
 
 # Script for development:
 # - name: Import factory reset script for development tasks

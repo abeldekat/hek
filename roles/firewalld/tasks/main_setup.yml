@@ -1,0 +1,7 @@
+---
+
+- name: Import installation tasks
+  ansible.builtin.import_tasks: setup_install.yml
+
+- name: Import new entities tasks
+  ansible.builtin.import_tasks: setup_entities.yml

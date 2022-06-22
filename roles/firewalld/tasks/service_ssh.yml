@@ -15,6 +15,7 @@
     zone: vps
     service: ssh
     state: enabled
+  when: firewalld_wireguard_enabled
   notify: reload firewalld
 
 - name: Ensure publicvps zone drops ssh

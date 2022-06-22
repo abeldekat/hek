@@ -1,0 +1,31 @@
+---
+
+- name: Facts, all base zones
+  ansible.builtin.set_fact:
+    firewalld_custom_zones: ["{{ firewalld_custom_admin_zone }}", "{{ firewalld_custom_public_zone }}"]
+
+- name: Facts, all needed zones
+  ansible.builtin.set_fact:
+    firewalld_custom_zones: "{{ firewalld_custom_zones + [firewalld_custom_vps_zone] }}"
+  when: firewalld_wireguard_enabled
+
+- name: Facts, base ipsets
+  ansible.builtin.set_fact:
+    firewalld_custom_ipsets: ["{{ firewalld_admin_ipset_ipfour }}"]
+
+- name: Facts, add ipv6 to base ipsets
+  ansible.builtin.set_fact:
+    firewalld_custom_ipsets: "{{ firewalld_custom_ipsets + [firewalld_admin_ipset_ipsix] }}"
+  when: vps_ipv6_support
+
+- name: Facts, wireguard ipsets
+  block:
+    - name: Facts, add wireguard ipv4 to base ipsets
+      ansible.builtin.set_fact:
+        firewalld_custom_ipsets: "{{ firewalld_custom_ipsets + [firewalld_vps_ipset_ipfour] }}"
+
+    - name: Facts, add wireguard ipv6 to base ipsets
+      ansible.builtin.set_fact:
+        firewalld_custom_ipsets: "{{ firewalld_custom_ipsets + [firewalld_vps_ipset_ipsix] }}"
+      when: vps_ipv6_support
+  when: firewalld_wireguard_enabled

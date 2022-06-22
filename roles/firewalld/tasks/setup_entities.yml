@@ -14,12 +14,7 @@
     src: "{{ item.template }}"
     dest: "{{ '/etc/firewalld/ipsets/' + item.dest }}"
     mode: 0644
-  when: item.use
-  loop:
-    - "{{ firewalld_admin_ipset_ipfour }}"
-    - "{{ firewalld_admin_ipset_ipsix }}"
-    - "{{ firewalld_vps_ipset_ipfour }}"
-    - "{{ firewalld_vps_ipset_ipsix }}"
+  loop: "{{ firewalld_custom_ipsets }}"
   notify: reload firewalld
 
 - name: Ensure wireguard service is present

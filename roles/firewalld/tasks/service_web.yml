@@ -9,6 +9,7 @@
   with_items:
     - http
     - https
+  when: firewalld_wireguard_enabled
   notify: reload firewalld
 
 - name: Ensure publicvps zone allows http https

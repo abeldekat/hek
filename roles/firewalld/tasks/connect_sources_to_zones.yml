@@ -4,14 +4,9 @@
   ansible.posix.firewalld:
     zone: "{{ item.zone }}"
     permanent: true
-    source: "{{ 'ipset:' + item.var.name }}"
+    source: "{{ 'ipset:' + item.name }}"
     state: enabled
-  when: item.var.use
-  loop:
-    - {zone: admin, var: "{{ firewalld_admin_ipset_ipfour }}"}
-    - {zone: admin, var: "{{ firewalld_admin_ipset_ipsix }}"}
-    - {zone: vps, var: "{{ firewalld_vps_ipset_ipfour }}"}
-    - {zone: vps, var: "{{ firewalld_vps_ipset_ipsix }}"}
+  loop: "{{ firewalld_custom_ipsets }}"
   notify: reload firewalld
 
 - name: Ensure interfaces are bound
