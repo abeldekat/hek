@@ -1,8 +1,14 @@
 ---
-# firewall-cmd --get-default-zone firewall-cmd --get-active-zones
-# firewall-cmd --get-ipsets firewall-cmd --get-policies
+# See tutorials: https://www.procustodibus.com/, but: prevent zonedrifting
+# https://firewalld.org/2020/01/allowzonedrifting
+# useful commands:
+# ip -brief address show
+# nmcli connecton show
+# ss -tn | grep :22, find the ip in use by ssh
+# sudo nmcli connection modify "<mywireless>" connection.zone home ( on client )
+# firewall-cmd --get-default-zone firewall-cmd --get-active-zones firewall-cmd --get-ipsets firewall-cmd --get-policies
 # default zone listing: firewall-cmd --list-all
-# other zones listing: firewall-cmd --info-zone=admin firewall-cmd --info-ipset=admin_ipfour
+# firewall-cmd --info-zone=admin firewall-cmd --info-ipset=admin_ipfour
 # firewall-cmd --info-policy=vpsToWorld firewall-cmd --list-all-policies
 
 - name: Import facts tasks
@@ -11,7 +17,7 @@
 - name: Import setup tasks
   ansible.builtin.import_tasks: main_setup.yml
 
-- name: ++++ Ensure that new needed entities are reloaded all at once
+- name: ++++ Ensure that new entities are reloaded all at once
   ansible.builtin.meta: flush_handlers
 
 - name: Import config tasks
@@ -26,5 +32,5 @@
   ansible.builtin.import_tasks: main_change_default_zone.yml
 
 # Script for development:
-- name: Import factory reset script for development tasks
-  ansible.builtin.import_tasks: factory_reset_script.yml
+# - name: Import factory reset script for development tasks
+#   ansible.builtin.import_tasks: factory_reset_script.yml

@@ -1,8 +1,4 @@
 ---
-
-# no zone drifting:
-# https://firewalld.org/2020/01/allowzonedrifting
-#
 # policy for masquerading: Conditionally accept forward and masquerade
 # --> when the masquerade flag is set directly on zone public the following changes occur in nft firewalld table:
 # chain nat_POST_public_allow {
