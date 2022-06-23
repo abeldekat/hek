@@ -1,6 +1,6 @@
 ---
 
-- name: Ensure zones allows dns
+- name: Ensure zones allows samba
   ansible.posix.firewalld:
     permanent: true
     zone: "{{ item }}"
