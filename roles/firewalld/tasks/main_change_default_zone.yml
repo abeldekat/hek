@@ -1,20 +1,24 @@
 ---
 
 
-- name: capture default zone present
+- name: Capture target zone is in active zones
+  ansible.builtin.set_fact:
+    target_zone_present: "{{ (fw_zones_active | intersect([fw_zone_public]) | length==1) }}"
+
+- name: Capture target zone is present on host
   ansible.builtin.shell: |
     set -o pipefail && \
     firewall-cmd --get-default-zone | grep -w -c {{ fw_zone_public }} || true
   args:
     executable: /bin/bash
-  register: defaultzone_result
+  register: target_zone_result
   changed_when: false
-  when: fw_zones_active | intersect([fw_zone_public])
+  when: target_zone_present
 
 # The set-default-zone command applies to both runtime and permanent
-- name: ensure default zone
+- name: Ensure target zone is default zone on host
   ansible.builtin.shell: |
     firewall-cmd --set-default-zone={{ fw_zone_public }}
   args:
     executable: /bin/bash
-  when: fw_zones_active | intersect([fw_zone_public]) and defaultzone_result.stdout == '0'
+  when: target_zone_present and target_zone_result.stdout == '0'
