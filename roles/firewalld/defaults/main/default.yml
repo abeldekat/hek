@@ -20,6 +20,7 @@ firewalld_samba_enabled: false
 # Vps:
 firewalld_vpn_enabled: false
 firewalld_vpn_port: ''
+firewalld_vpn_ports_to_redirect: []
 firewalld_vpn_network_ipv4: ''
 firewalld_vpn_network_ipv6: ''
 #
@@ -28,7 +29,7 @@ fw_zone_admin: admin
 fw_zone_public: publicvps
 fw_zone_vpn: vpn
 fw_service_vpn: wireguard
-fw_policy_vpn: vpnToWorld
+fw_policy_vpn_to_world: vpnToWorld
 #
 # Entities ipsets
 # See: ipsets.yml

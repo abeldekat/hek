@@ -3,9 +3,13 @@
 # https://firewalld.org/2020/01/allowzonedrifting
 # useful commands:
 # ip -brief address show
-# nmcli connecton show
 # ss -tn | grep :22, find the ip in use by ssh
+# nmcli connecton show
 # sudo nmcli connection modify "<mywireless>" connection.zone home ( on client )
+# test open port:
+# nc -z -v <ip> <port>
+# test open port inside server
+# lsof -I -P -n
 # firewall-cmd --get-default-zone firewall-cmd --get-active-zones firewall-cmd --get-ipsets firewall-cmd --get-policies
 # default zone listing: firewall-cmd --list-all
 # firewall-cmd --info-zone=admin firewall-cmd --info-ipset=admin_ipfour
@@ -31,6 +35,6 @@
 - name: Import change default zone tasks
   ansible.builtin.import_tasks: main_change_default_zone.yml
 
-# # Script for development:
+## Script for development:
 # - name: Import factory reset script for development tasks
 #   ansible.builtin.import_tasks: factory_reset_script.yml

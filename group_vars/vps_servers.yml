@@ -31,6 +31,7 @@ firewalld_vpn_enabled: "{{ true if wireguard_enabled else false }}"
 firewalld_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled or dns_adblocking_enabled else false }}"
 #
 firewalld_vpn_port: "{{ wireguard_port }}"
+firewalld_vpn_ports_to_redirect: "{{ wireguard_ports_to_redirect }}"
 firewalld_vpn_network_ipv4: "{{ wireguard_network_ipv4 }}"
 firewalld_vpn_network_ipv6: "{{ wireguard_network_ipv6 }}"
 

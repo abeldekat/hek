@@ -21,7 +21,7 @@
 - name: Capture policy is present
   ansible.builtin.shell: |
     set -o pipefail && \
-    firewall-cmd --get-policies | grep -c {{ fw_policy_vpn }} || true
+    firewall-cmd --get-policies | grep -c {{ fw_policy_vpn_to_world }} || true
   args:
     executable: /bin/bash
   register: policy_result
@@ -29,10 +29,10 @@
 
 - name: Ensure policy is present and configured
   ansible.builtin.shell: |
-    firewall-cmd --permanent --new-policy={{ fw_policy_vpn }} && \
-    firewall-cmd --permanent --policy={{ fw_policy_vpn }} --add-ingress-zone="{{ item }}" && \
-    firewall-cmd --permanent --policy={{ fw_policy_vpn }} --add-egress-zone=ANY && \
-    firewall-cmd --permanent --policy={{ fw_policy_vpn }} --add-masquerade
+    firewall-cmd --permanent --new-policy={{ fw_policy_vpn_to_world }} && \
+    firewall-cmd --permanent --policy={{ fw_policy_vpn_to_world }} --add-ingress-zone="{{ item }}" && \
+    firewall-cmd --permanent --policy={{ fw_policy_vpn_to_world }} --add-egress-zone=ANY && \
+    firewall-cmd --permanent --policy={{ fw_policy_vpn_to_world }} --add-masquerade
   args:
     executable: /bin/bash
   when: policy_result.stdout == '0'
@@ -40,7 +40,7 @@
 
 - name: Ensure policy allows ipv6 masquerading
   ansible.builtin.shell: |
-    firewall-cmd --permanent --policy={{ fw_policy_vpn }} --add-rich-rule='rule family="ipv6" masquerade'
+    firewall-cmd --permanent --policy={{ fw_policy_vpn_to_world }} --add-rich-rule='rule family="ipv6" masquerade'
   args:
     executable: /bin/bash
   when:

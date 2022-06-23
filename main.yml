@@ -23,8 +23,7 @@
 #   libyaml = True
 
 # TODO:
-# Evaluate:
-#   Test firewall with port_avoid wireguard_port_avoid redirects to port_actual
+# refactor wireguard to not need private keys on ansible controller
 # wireguard prefer ipv6? Needs brackets in endpoint client.conf
 # Test python env
 # searxng: Override disabled engines, like searxng_engines_restrict

@@ -37,8 +37,12 @@ wireguard_no_log: true
 wireguard_interface: wg0
 wireguard_service_name: "wg-quick@{{ wireguard_interface }}"
 wireguard_port: 51820
-wireguard_port_avoid: 53
-wireguard_port_actual: 51820
+# Activate redirection from other ports if network blocks the actual wireguard port.
+# Some mobile networks block 53/UDP (DNS). Ensure the ports are not in use on the vps
+# The ports will be prerouted to wireguard port, this will have some affect on performance
+# wireguard_ports_to_redirect:
+#   - 53
+wireguard_ports_to_redirect: []
 wireguard_network_ipv4: 10.49.0.0/16
 wireguard_network_ipv6: 2001:db8:a160::/48
 #
@@ -63,15 +67,3 @@ wireguard_pki_path: "{{ wireguard_config_path }}/.pki/"
 #
 # Overridden in group_vars:
 wireguard_dns_servers:
-#
-# TODO: Not implemented: Glue variables for the firewall:
-#
-# Block traffic between connected clients. Change this to false to enable
-# connected clients to reach each other, as well as other computers on the
-# same LAN as the server(i.e. the "road warrior" setup). In this
-# case, you may also want to enable SMB/CIFS and NETBIOS traffic below.
-wg_between_clients_drop:
-# Block SMB/CIFS traffic
-wg_block_smb:
-# Block NETBIOS traffic
-wg_block_netbios:

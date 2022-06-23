@@ -27,9 +27,12 @@
       ansible.builtin.include_tasks: service_wireguard.yml
       loop: "{{ fw_zones_active | intersect(fw_zones_other) }}"
 
-    - name: access to vpn via other ports
-      ansible.builtin.include_tasks: prerouting_to_wireguard.yml
+    - name: access to vpn from other ports, redirected to wireguard port
+      ansible.builtin.include_tasks: service_wireguard_by_redirection.yml
       loop: "{{ fw_zones_active | intersect(fw_zone_public) }}"
+      loop_control:
+        loop_var: zone
+      when: firewalld_vpn_ports_to_redirect
 
     - name: dns accept on vpn
       ansible.builtin.include_tasks: service_dns.yml

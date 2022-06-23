@@ -11,7 +11,7 @@
       firewall-cmd --permanent --delete-zone="{{ fw_zone_public }}"
       firewall-cmd --permanent --delete-zone="{{ fw_zone_vpn }}"
       firewall-cmd --permanent --delete-service="{{ fw_service_vpn }}"
-      firewall-cmd --permanent --delete-policy="{{ fw_policy_vpn }}"
+      firewall-cmd --permanent --delete-policy="{{ fw_policy_vpn_to_world }}"
       firewall-cmd --permanent --delete-ipset="{{ fw_ipset_admin.name }}"
       firewall-cmd --permanent --delete-ipset="{{ fw_ipset_admin_ipsix.name }}"
       firewall-cmd --permanent --delete-ipset="{{ fw_ipset_vpn.name }}"

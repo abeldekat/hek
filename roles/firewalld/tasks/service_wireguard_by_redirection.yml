@@ -1,0 +1,13 @@
+---
+
+# Note: The rules are now only set on public zone
+# The admin zone will normally be attached to the ip of the internet provider, not blocking wireguard port
+
+- name: Ensure zones have rich rules forwarding ports for ip4 and ip6
+  ansible.posix.firewalld:
+    zone: "{{ zone }}"
+    permanent: true
+    rich_rule: 'rule family="{{ item.1 }}" forward-port port="{{ item.0 }}" protocol="udp" to-port="{{ firewalld_vpn_port }}"'
+    state: enabled
+  loop: "{{ firewalld_vpn_ports_to_redirect | product([ 'ipv4', 'ipv6' ]) }}"
+  notify: reload firewalld
