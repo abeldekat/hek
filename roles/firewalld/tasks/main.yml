@@ -9,7 +9,7 @@
 # firewall-cmd --get-default-zone firewall-cmd --get-active-zones firewall-cmd --get-ipsets firewall-cmd --get-policies
 # default zone listing: firewall-cmd --list-all
 # firewall-cmd --info-zone=admin firewall-cmd --info-ipset=admin_ipfour
-# firewall-cmd --info-policy=vpsToWorld firewall-cmd --list-all-policies
+# firewall-cmd --info-policy=vpnToWorld firewall-cmd --list-all-policies
 
 - name: Import facts tasks
   ansible.builtin.import_tasks: main_facts.yml

@@ -18,21 +18,21 @@ firewalld_dnscrypt_proxy_enabled: false
 firewalld_samba_enabled: false
 #
 # Vps:
-firewalld_vps_enabled: false
-firewalld_vps_port: ''
-firewalld_vps_network_ipv4: ''
-firewalld_vps_network_ipv6: ''
+firewalld_vpn_enabled: false
+firewalld_vpn_port: ''
+firewalld_vpn_network_ipv4: ''
+firewalld_vpn_network_ipv6: ''
 #
 # Entities:
 fw_zone_admin: admin
 fw_zone_public: publicvps
-fw_zone_vps: vps
-fw_service_vps: wireguard
-fw_policy_vps: vpsToWorld
+fw_zone_vpn: vpn
+fw_service_vpn: wireguard
+fw_policy_vpn: vpnToWorld
 #
 # Entities ipsets
 # See: ipsets.yml
 #
 # Entities dynamic collections:
 fw_zones_active: []
-fw_ipsets_active_active: []
+fw_ipsets_active: []

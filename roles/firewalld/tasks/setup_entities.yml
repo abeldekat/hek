@@ -17,11 +17,11 @@
   loop: "{{ fw_ipsets_active }}"
   notify: reload firewalld
 
-- name: Ensure vps service is present
+- name: Ensure vpn service is present
   ansible.builtin.template:
     src: wireguard.xml.j2
     dest: "/etc/firewalld/services/wireguard.xml"
     mode: 0644
-  when: firewalld_vps_enabled
+  when: firewalld_vpn_enabled
   notify:
     - reload firewalld

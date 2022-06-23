@@ -11,17 +11,17 @@
 # Firewalld will eventually support masquerading by policy on ingress zone with interface:
 # https://github.com/firewalld/firewalld/issues/939
 # https://firewalld.org/2020/09/policy-objects-filtering-container-and-vm-traffic
-# if one wants to have the masquerade on policy, vps zone cannot be assigned to interface.
-# chain nat_POST_policy_vpsToWorld_allow {
+# if one wants to have the masquerade on policy, vpn zone cannot be assigned to interface.
+# chain nat_POST_policy_vpnToWorld_allow {
 # chain filter_FORWARD_POLICIES_pre {
-#         ip6 saddr 2001:db8:a160::/48 jump filter_FWD_policy_vpsToWorld
-#         ip saddr 10.49.0.0/16 jump filter_FWD_policy_vpsToWorld
+#         ip6 saddr 2001:db8:a160::/48 jump filter_FWD_policy_vpnToWorld
+#         ip saddr 10.49.0.0/16 jump filter_FWD_policy_vpnToWorld
 # }
 
 - name: Capture policy is present
   ansible.builtin.shell: |
     set -o pipefail && \
-    firewall-cmd --get-policies | grep -c {{ fw_policy_vps }} || true
+    firewall-cmd --get-policies | grep -c {{ fw_policy_vpn }} || true
   args:
     executable: /bin/bash
   register: policy_result
@@ -29,10 +29,10 @@
 
 - name: Ensure policy is present and configured
   ansible.builtin.shell: |
-    firewall-cmd --permanent --new-policy={{ fw_policy_vps }} && \
-    firewall-cmd --permanent --policy={{ fw_policy_vps }} --add-ingress-zone="{{ item }}" && \
-    firewall-cmd --permanent --policy={{ fw_policy_vps }} --add-egress-zone=ANY && \
-    firewall-cmd --permanent --policy={{ fw_policy_vps }} --add-masquerade
+    firewall-cmd --permanent --new-policy={{ fw_policy_vpn }} && \
+    firewall-cmd --permanent --policy={{ fw_policy_vpn }} --add-ingress-zone="{{ item }}" && \
+    firewall-cmd --permanent --policy={{ fw_policy_vpn }} --add-egress-zone=ANY && \
+    firewall-cmd --permanent --policy={{ fw_policy_vpn }} --add-masquerade
   args:
     executable: /bin/bash
   when: policy_result.stdout == '0'
@@ -40,7 +40,7 @@
 
 - name: Ensure policy allows ipv6 masquerading
   ansible.builtin.shell: |
-    firewall-cmd --permanent --policy={{ fw_policy_vps }} --add-rich-rule='rule family="ipv6" masquerade'
+    firewall-cmd --permanent --policy={{ fw_policy_vpn }} --add-rich-rule='rule family="ipv6" masquerade'
   args:
     executable: /bin/bash
   when:

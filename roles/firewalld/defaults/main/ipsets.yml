@@ -23,25 +23,25 @@ fw_ipset_admin_ipsix:
     type: net
     entries:
       - "{{ vps_home_ipv6 }}"
-fw_ipset_vps:
-  zone: "{{ fw_zone_vps }}"
-  template: 'vps_ipset.xml.j2'
-  dest: 'vps_ipfour.xml'
-  name: 'vps_ipfour'
+fw_ipset_vpn:
+  zone: "{{ fw_zone_vpn }}"
+  template: 'vpn_ipset.xml.j2'
+  dest: 'vpn_ipfour.xml'
+  name: 'vpn_ipfour'
   config:
-    description: The ipset for the vps zone, ipv4
+    description: The ipset for the vpn zone, ipv4
     family: inet
     type: net
     entries:
-      - "{{ firewalld_vps_network_ipv4 }}"
-fw_ipset_vps_ipsix:
-  zone: "{{ fw_zone_vps }}"
-  template: 'vps_ipset.xml.j2'
-  dest: 'vps_ipsix.xml'
-  name: 'vps_ipsix'
+      - "{{ firewalld_vpn_network_ipv4 }}"
+fw_ipset_vpn_ipsix:
+  zone: "{{ fw_zone_vpn }}"
+  template: 'vpn_ipset.xml.j2'
+  dest: 'vpn_ipsix.xml'
+  name: 'vpn_ipsix'
   config:
-    description: The ipset for the vps zone, ipv6
+    description: The ipset for the vpn zone, ipv6
     family: inet6
     type: net
     entries:
-      - "{{ firewalld_vps_network_ipv6 }}"
+      - "{{ firewalld_vpn_network_ipv6 }}"

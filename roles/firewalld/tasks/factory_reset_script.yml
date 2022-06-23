@@ -9,11 +9,11 @@
       firewall-cmd --set-default-zone=public
       firewall-cmd --permanent --delete-zone="{{ fw_zone_admin }}"
       firewall-cmd --permanent --delete-zone="{{ fw_zone_public }}"
-      firewall-cmd --permanent --delete-zone="{{ fw_zone_vps }}"
-      firewall-cmd --permanent --delete-service="{{ fw_service_vps }}"
-      firewall-cmd --permanent --delete-policy="{{ fw_policy_vps }}"
+      firewall-cmd --permanent --delete-zone="{{ fw_zone_vpn }}"
+      firewall-cmd --permanent --delete-service="{{ fw_service_vpn }}"
+      firewall-cmd --permanent --delete-policy="{{ fw_policy_vpn }}"
       firewall-cmd --permanent --delete-ipset="{{ fw_ipset_admin.name }}"
       firewall-cmd --permanent --delete-ipset="{{ fw_ipset_admin_ipsix.name }}"
-      firewall-cmd --permanent --delete-ipset="{{ fw_ipset_vps.name }}"
-      firewall-cmd --permanent --delete-ipset="{{ fw_ipset_vps_ipsix.name }}"
+      firewall-cmd --permanent --delete-ipset="{{ fw_ipset_vpn.name }}"
+      firewall-cmd --permanent --delete-ipset="{{ fw_ipset_vpn_ipsix.name }}"
       firewall-cmd --reload

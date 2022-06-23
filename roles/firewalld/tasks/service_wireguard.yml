@@ -1,9 +1,9 @@
 ---
 
-- name: Ensure zones allow vps
+- name: Ensure zones allow vpn
   ansible.posix.firewalld:
     zone: "{{ item }}"
     permanent: true
-    service: "{{ fw_service_vps }}"
+    service: "{{ fw_service_vpn }}"
     state: enabled
   notify: reload firewalld
