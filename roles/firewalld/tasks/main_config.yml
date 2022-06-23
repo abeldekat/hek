@@ -27,16 +27,21 @@
         fw_zones_vps: "{{ fw_zones_active | difference([fw_zone_admin,fw_zone_public]) }}"
         fw_zones_non_vps: "{{ fw_zones_active | intersect([fw_zone_admin,fw_zone_public]) }}"
 
-    - name: vps service providing access to vps
+    - name: access to vps via vps port
       ansible.builtin.include_tasks: service_wireguard.yml
       loop: "{{ fw_zones_non_vps }}"
 
-    - name: dns service on 'all' vps
+    - name: dns service on vps
       ansible.builtin.include_tasks: service_dns.yml
       loop: "{{ fw_zones_vps }}"
       when: firewalld_dnscrypt_proxy_enabled
 
-    - name: vps forwarding and masquerading on 'all' vps
+    - name: not recommended, untested, samba service on vps
+      ansible.builtin.include_tasks: service_samba.yml
+      loop: "{{ fw_zones_vps }}"
+      when: firewalld_samba_enabled
+
+    - name: vps forwarding and masquerading on vps
       ansible.builtin.include_tasks: attach_vps_to_world.yml
       loop: "{{ fw_zones_vps }}"
   when: firewalld_vps_enabled

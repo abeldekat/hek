@@ -1,0 +1,9 @@
+---
+
+- name: Ensure zones allows dns
+  ansible.posix.firewalld:
+    permanent: true
+    zone: "{{ item }}"
+    service: samba
+    state: enabled
+  notify: reload firewalld
