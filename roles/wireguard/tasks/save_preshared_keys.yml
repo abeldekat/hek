@@ -1,0 +1,21 @@
+---
+
+- name: Save preshared keys
+  ansible.builtin.copy:
+    dest: "{{ wireguard_pki_path }}/preshared/{{ item['item'] }}"
+    content: "{{ item['stdout'] }}"
+    mode: "0600"
+  no_log: "{{ wireguard_no_log | bool }}"
+  when: item.changed
+  with_items: "{{ wg_genpsk['results'] }}"
+  delegate_to: localhost
+  become: false
+
+- name: Touch preshared lock files
+  ansible.builtin.file:
+    dest: "/etc/wireguard/preshared_{{ item }}.lock"
+    state: touch
+    mode: 0644
+  with_items:
+    - "{{ wireguard_users }}"
+    - "{{ wireguard_host_ip }}"

@@ -7,70 +7,28 @@
   ansible.builtin.command: wg genkey
   register: wg_genkey
   args:
-    creates: "{{ config_prefix|default('/') }}etc/wireguard/private_{{ item }}.lock"
+    creates: "/etc/wireguard/private_{{ item }}.lock"
   with_items:
     - "{{ wireguard_users }}"
     - "{{ wireguard_host_ip }}"
-
-# - name: Debug
-#   ansible.builtin.debug:
-#     msg: "{{ wg_genkey }}"
-
-# on change, copy changed server stdout result to a file on the ansible controller
-# then, on server, create a new lock file
-- block:
-    # notice the content being "stdout"...
-    - name: Save private keys
-      ansible.builtin.copy:
-        dest: "{{ wireguard_pki_path }}/private/{{ item['item'] }}"
-        content: "{{ item['stdout'] }}"
-        mode: "0600"
-      no_log: "{{ wireguard_no_log|bool }}"
-      when: item.changed
-      with_items: "{{ wg_genkey['results'] }}"
-      delegate_to: localhost
-      become: false
-
-    - name: Touch the lock file
-      ansible.builtin.file:
-        dest: "{{ config_prefix|default('/') }}etc/wireguard/private_{{ item }}.lock"
-        state: touch
-        mode: "0644"
-      with_items:
-        - "{{ wireguard_users }}"
-        - "{{ wireguard_host_ip }}"
-  when: wg_genkey.changed
+  notify:
+    - Save private keys
+    - Touch private lock files
 
 - name: Generate preshared keys
   ansible.builtin.command: wg genpsk
   register: wg_genpsk
   args:
-    creates: "{{ config_prefix|default('/') }}etc/wireguard/preshared_{{ item }}.lock"
+    creates: "/etc/wireguard/preshared_{{ item }}.lock"
   with_items:
     - "{{ wireguard_users }}"
     - "{{ wireguard_host_ip }}"
+  notify:
+    - Save preshared keys
+    - Touch preshared lock files
 
-- block:
-    - name: Save preshared keys
-      ansible.builtin.copy:
-        dest: "{{ wireguard_pki_path }}/preshared/{{ item['item'] }}"
-        content: "{{ item['stdout'] }}"
-        mode: "0600"
-      no_log: "{{ wireguard_no_log|bool }}"
-      when: item.changed
-      with_items: "{{ wg_genpsk['results'] }}"
-      delegate_to: localhost
-      become: false
-
-    - name: Touch the preshared lock file
-      ansible.builtin.file:
-        dest: "{{ config_prefix|default('/') }}etc/wireguard/preshared_{{ item }}.lock"
-        state: touch
-        mode: 0644
-      with_items:
-        - "{{ wireguard_users }}"
-        - "{{ wireguard_host_ip }}"
-  when: wg_genpsk.changed
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  ansible.builtin.meta: flush_handlers
 
 # public keys are derived from private keys
 - name: Generate public keys
@@ -91,7 +49,7 @@
     dest: "{{ wireguard_pki_path }}/public/{{ item['item'] }}"
     content: "{{ item['stdout'] }}"
     mode: "0600"
-  no_log: "{{ wireguard_no_log|bool }}"
+  no_log: "{{ wireguard_no_log | bool }}"
   with_items: "{{ wg_pubkey['results'] }}"
   delegate_to: localhost
   become: false
