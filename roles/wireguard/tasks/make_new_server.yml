@@ -18,10 +18,10 @@
     port: "{{ wireguard_port }}"
     key: "{{ wg_serverkeys.stdout_lines[0] }}"
     pubkey: "{{ wg_serverkeys.stdout_lines[1] }}"
-  no_log: true
+  no_log: "{{ wireguard_no_log }}"
 
 - name: Create file containing only the server config
   ansible.builtin.template:
     src: server.conf.j2
-    dest: "/etc/wireguard/{{ wg_part_server }}"
+    dest: "{{ wg_part_server }}"
     mode: "0600"

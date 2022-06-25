@@ -2,28 +2,36 @@
 
 - name: Copy existing conf file to wg_part_existing
   ansible.builtin.copy:
-    src: "/etc/wireguard/{{ wireguard_interface }}.conf"
-    dest: "/etc/wireguard/{{ wg_part_existing }}"
+    src: "{{ wireguard_server_conf }}"
+    dest: "{{ wg_part_existing }}"
     remote_src: true
     mode: 0600
 
-- name: Delete the server block, keeping the peers block
+- name: Delete the server block, keeping the existing peers block
   ansible.builtin.blockinfile:
-    path: "/etc/wireguard/{{ wg_part_existing }}"
+    path: "{{ wg_part_existing }}"
     marker_begin: "{{ _marker }}"
     marker_end: "{{ _marker }} END"
     block: ''
   vars:
     _marker: vps_server
 
+- name: Delete all blocks from existing peers not present in wireguard_users
+  ansible.builtin.blockinfile:
+    path: "{{ wg_part_existing }}"
+    marker_begin: "{{ item }}"
+    marker_end: "{{ item }} END"
+    block: ''
+  loop: "{{ wg_clients_to_delete }}"
+
 - name: Remove starting ansible blockinfile marker for peers
   ansible.builtin.lineinfile:
-    dest: "/etc/wireguard/{{ wg_part_existing }}"
+    dest: "{{ wg_part_existing }}"
     line: "# vps_peers ANSIBLE MANAGED BLOCK"
     state: absent
 
 - name: Remove closing ansible blockinfile marker for peers
   ansible.builtin.lineinfile:
-    dest: "/etc/wireguard/{{ wg_part_existing }}"
+    dest: "{{ wg_part_existing }}"
     line: "# vps_peers END ANSIBLE MANAGED BLOCK"
     state: absent

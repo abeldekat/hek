@@ -1,19 +1,15 @@
 ---
 
-- name: debug existing server
-  ansible.builtin.debug:
-    msg: todo existing server
-
 - name: Copy existing conf file to wg_part_server
   ansible.builtin.copy:
-    src: "/etc/wireguard/{{ wireguard_interface }}.conf"
-    dest: "/etc/wireguard/{{ wg_part_server }}"
+    src: "{{ wireguard_server_conf }}"
+    dest: "{{ wg_part_server }}"
     remote_src: true
     mode: 0600
 
-- name: Delete the peers block
+- name: Delete the peers block, keeping only the server block
   ansible.builtin.blockinfile:
-    path: "/etc/wireguard/{{ wg_part_server }}"
+    path: "{{ wg_part_server }}"
     marker_begin: "{{ _marker }}"
     marker_end: "{{ _marker }} END"
     block: ''
