@@ -1,42 +1,34 @@
 ---
-- name: Ensure the required directories exist
-  ansible.builtin.file:
-    dest: "{{ item }}"
-    state: directory
-    recurse: true
-  with_items:
-    - "{{ wireguard_pki_path }}/preshared"
-    - "{{ wireguard_pki_path }}/private"
-    - "{{ wireguard_pki_path }}/public"
-  delegate_to: localhost
-  become: false
 
-- name: Calculate reduce_mtu as a fact
-  ansible.builtin.set_fact:
-    wireguard_reduce_mtu: >
-      "{{
-      1500 - ansible_default_ipv4['mtu'] | int
-      if wireguard_reduce_mtu | int == 0 and ansible_default_ipv4['mtu'] | int < 1500
-      else wireguard_reduce_mtu | int
-      }}"
+# - name: Local folders
+#   ansible.builtin.import_tasks: local_folders.yml
 
-- name: Ensure wireguard installed
-  ansible.builtin.apt:
-    name: wireguard
-    state: present
-    update_cache: true
+# - name: Reduce mtu
+#   ansible.builtin.import_tasks: reduce_mtu.yml
 
-- name: Import key generation tasks
-  ansible.builtin.import_tasks: key_generation.yml
+# - name: Installed
+#   ansible.builtin.import_tasks: installed.yml
 
-- name: Import config generation tasks
-  ansible.builtin.import_tasks: config.yml
+- name: Facts, delete, add, new server
+  ansible.builtin.import_tasks: facts.yml
 
-- name: Force all notified handlers to run at this point, not waiting for normal sync points
-  ansible.builtin.meta: flush_handlers
+- name: New server conf
+  ansible.builtin.import_tasks: new_server_conf.yml
+  # when: wg_new_server
+  when: true
 
-- name: Ensure WireGuard enabled and started
-  ansible.builtin.systemd:
-    name: "{{ wireguard_service_name }}"
-    state: started
-    enabled: true
+
+# - name: Import key generation tasks
+#   ansible.builtin.import_tasks: key_generation.yml
+
+# - name: Import config generation tasks
+#   ansible.builtin.import_tasks: config.yml
+
+# - name: Force all notified handlers to run at this point, not waiting for normal sync points
+#   ansible.builtin.meta: flush_handlers
+
+# - name: Ensure WireGuard enabled and started
+#   ansible.builtin.systemd:
+#     name: "{{ wireguard_service_name }}"
+#     state: started
+#     enabled: true

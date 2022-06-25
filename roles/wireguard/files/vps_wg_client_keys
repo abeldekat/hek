@@ -1,0 +1,8 @@
+#! /bin/bash
+set -o pipefail
+_key=$(wg genkey)
+_pskkey=$(wg genpsk)
+_pubkey=$(echo "$_key" | wg pubkey)
+echo "$_key"
+echo "$_pskkey"
+echo "$_pubkey"

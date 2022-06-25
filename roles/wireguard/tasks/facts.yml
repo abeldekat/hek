@@ -1,0 +1,31 @@
+---
+
+- name: Facts, to delete, to add, new config
+  ansible.builtin.set_fact:
+    wg_to_delete: []
+    wg_to_add: [phone, laptop, desktop]
+    wg_new_server: false
+
+- name: Facts, test if server has a .conf file
+  ansible.builtin.stat:
+    path: "{{ '/etc/wireguard/' + wireguard_interface + '.conf' }}"
+  register: _wireguard_exists
+
+- name: Facts, no conf file on server, build new
+  ansible.builtin.set_fact:
+    wg_new_server: "{{ not _wireguard_exists.stat.exists }}"
+
+# - name: Ensure no local wireguard config present on new wg creation
+#   ansible.builtin.file:
+#     dest: "{{ wireguard_config_path }}"
+#     state: absent
+#   delegate_to: localhost
+#   become: false
+
+# - name: Add or delete block
+#   block:
+#     - name: Facts add or delete
+#       ansible.builtin.set_fact:
+#         wg_to_delete: [phone]
+#         wg_to_add: [newphone]
+#   when: not wg_new_server

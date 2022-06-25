@@ -1,0 +1,18 @@
+---
+- name: Ensure wireguard installed
+  ansible.builtin.apt:
+    name: wireguard
+    state: present
+    update_cache: true
+
+- name: Ensure script vps_wg_server_keys is present
+  ansible.builtin.copy:
+    src: vps_wg_server_keys
+    dest: /usr/local/bin/vps_wg_server_keys
+    mode: 0750
+
+- name: Ensure script vps_wg_client_keys is present
+  ansible.builtin.copy:
+    src: vps_wg_client_keys
+    dest: /usr/local/bin/vps_wg_client_keys
+    mode: 0750

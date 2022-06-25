@@ -1,0 +1,9 @@
+---
+- name: Fact, calculate reduce_mtu
+  ansible.builtin.set_fact:
+    wireguard_reduce_mtu: >
+      "{{
+      1500 - ansible_default_ipv4['mtu'] | int
+      if wireguard_reduce_mtu | int == 0 and ansible_default_ipv4['mtu'] | int < 1500
+      else wireguard_reduce_mtu | int
+      }}"

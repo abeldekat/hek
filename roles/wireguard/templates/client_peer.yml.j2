@@ -1,0 +1,13 @@
+# vps peers ANSIBLE MANAGED BLOCK
+{% for u in wg_to_add %}
+{% set wg_client = wg_clients[u] %}
+
+# {{ wg_client.name }} ANSIBLE MANAGED BLOCK
+[Peer]
+PublicKey = {{ wg_client.pubkey }}
+PresharedKey = {{ wg_client.pskkey }}
+AllowedIPs = {{ wg_client.ip }}/32{{ '' if wg_client.ipv6 == '' else ',' + wg_client.ipv6 + '/128' }}
+# {{ wg_client.name }} END ANSIBLE MANAGED BLOCK
+{% endfor %}
+
+# vps server end ANSIBLE MANAGED BLOCK

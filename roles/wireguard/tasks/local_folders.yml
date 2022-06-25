@@ -1,0 +1,9 @@
+---
+
+- name: Ensure the required directories exist
+  ansible.builtin.file:
+    dest: "{{ wireguard_tmp_path }}"
+    state: directory
+    recurse: true
+  delegate_to: localhost
+  become: false

@@ -48,19 +48,13 @@ wireguard_network_ipv6: 2001:db8:a160::/48
 #
 # Previously ip_subject_alt_name: '', set in tasks
 wireguard_host_ip: "{{ ansible_default_ipv4.address }}"
-# TODO: There is a space between ipv4 and optional ipv6 in the generated config
-wireguard_client_ip: >-
-  {{ wireguard_network_ipv4 | ansible.utils.ipmath(index | int+2) }}
-  {{ ',' + wireguard_network_ipv6 | ansible.utils.ipmath(index | int+2) if vps_ipv6_support else '' }}
-wireguard_server_ip: >-
-  {{ wireguard_network_ipv4 | ansible.utils.ipaddr('1') }}
-  {{ ',' + wireguard_network_ipv6 | ansible.utils.ipaddr('1') if vps_ipv6_support else '' }}
 
 ###############################################################################
 # Local storage, modify with care, should not be needed
 #
 wireguard_config_path: "configs/{{ wireguard_host_ip }}/wireguard/"
 wireguard_pki_path: "{{ wireguard_config_path }}/.pki/"
+wireguard_tmp_path: "{{ wireguard_config_path }}/internal/"
 
 ###############################################################################
 # Not modifiable:

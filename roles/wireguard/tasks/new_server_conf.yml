@@ -1,0 +1,87 @@
+---
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
+
+# Note: server does not need a preshared key
+# public keys are derived from private keys
+- name: New wg server, retrieve keys
+  ansible.builtin.shell: vps_wg_server_keys
+  register: wg_serverkeys
+  changed_when: wg_serverkeys.changed
+  args:
+    executable: bash
+
+# TODO multiple vpn
+- name: Fact, add server config to internal dictionary
+  ansible.builtin.set_fact:
+    wg_server: "{{ wg_server | default({}) | combine(\
+                { 'ip': ip, 'ipv6': ipv6, 'port': port, 'key': key, 'pubkey': pubkey }) }}"
+  vars:
+    ip: "{{ wireguard_network_ipv4 | ansible.utils.ipaddr('1') }}"
+    ipv6: "{{ wireguard_network_ipv6 | ansible.utils.ipaddr('1') if vps_ipv6_support else '' }}"
+    port: "{{ wireguard_port }}"
+    key: "{{ wg_serverkeys.stdout_lines[0] }}"
+    pubkey: "{{ wg_serverkeys.stdout_lines[1] }}"
+  no_log: true
+
+# - name: Debug server keys
+#   ansible.builtin.debug: var=wg_serverkeys
+# - name: Debug server dict
+#   ansible.builtin.debug: var=wg_server
+
+- name: New clients, retrieve keys
+  ansible.builtin.shell: vps_wg_client_keys
+  register: wg_clientkeys
+  changed_when: wg_clientkeys.changed
+  args:
+    executable: bash
+  loop: "{{ wg_to_add }}"
+
+- name: Fact, for each client, add config to internal dictionary
+  ansible.builtin.set_fact:
+    wg_clients: "{{ wg_clients | default({}) | combine(\
+                 { name: \
+                 {'name': name, 'ip': ip, 'ipv6': ipv6, \
+                 'key': key, 'pskkey': pskkey, 'pubkey': pubkey, 'pkalive': pkalive }}) }}"
+  loop: "{{ wg_clientkeys['results'] }}"
+  loop_control:
+    index_var: client_index
+  vars:
+    name: "{{ item.item }}"
+    ip: "{{ wireguard_network_ipv4 | ansible.utils.ipmath(client_index | int+2) }}"
+    ipv6: "{{ wireguard_network_ipv6 | ansible.utils.ipmath(client_index | int+2) if vps_ipv6_support else '' }}"
+    key: "{{ item.stdout_lines[0] }}"
+    pskkey: "{{ item.stdout_lines[1] }}"
+    pubkey: "{{ item.stdout_lines[2] }}"
+    pkalive: "{{ wireguard_persistentkeepalive | string if wireguard_persistentkeepalive > 0 else '' }}"
+  no_log: true
+
+- name: Create file containing only the server config
+  ansible.builtin.template:
+    src: server.conf.j2
+    dest: "/etc/wireguard/0_server_part_{{ wireguard_interface }}.conf"
+    mode: "0600"
+
+- name: Create file containing client peers on server
+  ansible.builtin.template:
+    src: client_peer.yml.j2
+    dest: "/etc/wireguard/3_client_part_{{ wireguard_interface }}.conf"
+    mode: "0600"
+
+# Files are assembled in string sorting order
+- name: Assemble all files into a new server conf
+  ansible.builtin.assemble:
+    regexp: ".*part_{{ wireguard_interface }}.conf"
+    src: /etc/wireguard
+    dest: "/etc/wireguard/{{ wireguard_interface }}.conf"
+    mode: "0600"
+
+# - name: And delete the phone block
+#   ansible.builtin.blockinfile:
+#     path: "/etc/wireguard/{{ wireguard_interface }}.conf"
+#     marker_begin: "{{ item }}"
+#     marker_end: "{{ item }} END"
+#     block: ''
+#   loop: [phone]
+
+- name: Debug client dict
+  ansible.builtin.debug: var=wg_clients
