@@ -1,0 +1,38 @@
+---
+
+- name: Add clients, retrieve keys
+  ansible.builtin.shell: vps_wg_client_keys
+  register: wg_clientkeys
+  changed_when: wg_clientkeys.changed
+  args:
+    executable: bash
+  loop: "{{ wg_to_add }}"
+
+- name: Fact, for each new client, add config to internal dictionary
+  ansible.builtin.set_fact:
+    wg_clients: "{{ wg_clients | default({}) | combine(\
+                 { name: \
+                 {'name': name, 'ip': ip, 'ipv6': ipv6, \
+                 'key': key, 'pskkey': pskkey, 'pubkey': pubkey, 'pkalive': pkalive }}) }}"
+  loop: "{{ wg_clientkeys['results'] }}"
+  loop_control:
+    index_var: client_index
+  vars:
+    name: "{{ item.item }}"
+    ip: "{{ wireguard_network_ipv4 | ansible.utils.ipmath(client_index | int+2) }}"
+    ipv6: "{{ wireguard_network_ipv6 | ansible.utils.ipmath(client_index | int+2) if vps_ipv6_support else '' }}"
+    key: "{{ item.stdout_lines[0] }}"
+    pskkey: "{{ item.stdout_lines[1] }}"
+    pubkey: "{{ item.stdout_lines[2] }}"
+    pkalive: "{{ wireguard_persistentkeepalive | string if wireguard_persistentkeepalive > 0 else '' }}"
+  no_log: true
+
+# TODO Encapsulate 3
+- name: Create file containing new client peers on server
+  ansible.builtin.template:
+    src: server_client_peers.yml.j2
+    dest: "/etc/wireguard/{{ wg_part_new }}"
+    mode: "0600"
+
+- name: Debug client dict
+  ansible.builtin.debug: var=wg_clients

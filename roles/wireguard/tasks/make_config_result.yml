@@ -1,0 +1,9 @@
+---
+
+# Files are assembled in string sorting order
+- name: Assemble all files into a new server conf
+  ansible.builtin.assemble:
+    regexp: "{{ wg_parts_regexp }}"
+    src: /etc/wireguard
+    dest: "/etc/wireguard/{{ wireguard_interface }}.conf"
+    mode: "0600"

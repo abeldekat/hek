@@ -1,7 +1,7 @@
-# vps server ANSIBLE MANAGED BLOCK
+# vps_server ANSIBLE MANAGED BLOCK
 [Interface]
 Address = {{ wg_server.ip }}{{ '' if wg_server.ipv6 == '' else ',' + wg_server.ipv6 }}
 ListenPort = {{ wg_server.port }}
 PrivateKey = {{ wg_server.key }}
 SaveConfig = false
-# vps server end ANSIBLE MANAGED BLOCK
+# vps_server END ANSIBLE MANAGED BLOCK
