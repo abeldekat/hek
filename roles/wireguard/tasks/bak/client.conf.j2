@@ -1,0 +1,11 @@
+AllowedIPs = 0.0.0.0/0,::/0
+Endpoint = {{ wireguard_host_ip }}:{{ wg_server.port }}
+{{ '' if wg_client.pkalive == '' else 'PersistentKeepalive = ' + wg_client.pkalive }}
+[Interface]
+PrivateKey = {{ lookup('file', wireguard_tmp_path + '/private/' + item.1) }}
+Address = {{ wireguard_client_ip }}
+{% if wireguard_dns_servers|length > 0 %}
+DNS = {{ wireguard_dns_servers }}
+{% endif %}
+{% if wireguard_reduce_mtu|int > 0 %}MTU = {{ 1420 - reduce_mtu|int }}
+{% endif %}

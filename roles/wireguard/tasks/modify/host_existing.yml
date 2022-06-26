@@ -1,0 +1,16 @@
+---
+
+- name: Copy existing host file to wg_part_host
+  ansible.builtin.copy:
+    src: "{{ wireguard_host_conf }}"
+    dest: "{{ wg_part_host }}"
+    remote_src: true
+    mode: 0600
+
+- name: Delete all blocks from existing peers not present in user configuration
+  ansible.builtin.blockinfile:
+    path: "{{ wg_part_host }}"
+    marker_begin: "{{ item }}"
+    marker_end: "{{ item }} END"
+    block: ''
+  loop: "{{ wg_peers_to_delete }}"

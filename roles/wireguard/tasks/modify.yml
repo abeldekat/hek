@@ -1,0 +1,36 @@
+---
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
+
+- name: Folders in use
+  ansible.builtin.include_tasks: modify/folders.yml
+- name: Shell scripts
+  ansible.builtin.include_tasks: modify/scripts.yml
+- name: Facts, building parts
+  ansible.builtin.set_fact:
+    wg_part_host: "{{ wireguard_parts_path }}/1_host_{{ wireguard_interface }}.conf"
+    wg_part_new: "{{ wireguard_parts_path }}/2_new_{{ wireguard_interface }}.conf"
+
+- name: New host
+  ansible.builtin.include_tasks: modify/host_new.yml
+  when: wg_new_host
+
+- name: Existing host
+  ansible.builtin.include_tasks: modify/host_existing.yml
+  when: not wg_new_host
+
+# TODO: Use the last ip as start index
+- name: Add peers
+  ansible.builtin.include_tasks: modify/peers_add.yml
+  vars:
+    peers_index_start: "{{ wg_peers_from_host | default([]) | length + 2 }}"
+  when: wg_peers_to_add
+
+# Files are assembled in string sorting order, overwrites destination
+- name: Assemble all files into a host config
+  ansible.builtin.assemble:
+    src: "{{ wireguard_parts_path }}"
+    dest: "{{ wireguard_host_conf }}"
+    mode: "0600"
+  notify:
+    - Remove parts
+    - Restart wireguard

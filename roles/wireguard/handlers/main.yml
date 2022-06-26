@@ -1,17 +1,11 @@
 ---
-- name: restart wireguard
+- name: Remove parts
+  ansible.builtin.file:
+    path: /etc/wireguard/parts
+    state: absent
+
+- name: Restart wireguard
   ansible.builtin.systemd:
     name: "{{ wireguard_service_name }}"
     state: restarted
     daemon_reload: true
-
-- name: Save private keys
-  ansible.builtin.import_tasks: save_private_keys.yml
-
-- name: Save preshared keys
-  ansible.builtin.import_tasks: save_preshared_keys.yml
-
-- name: Remove server parts
-  ansible.builtin.file:
-    path: /etc/wireguard/parts
-    state: absent

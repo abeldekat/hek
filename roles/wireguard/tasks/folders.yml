@@ -1,7 +1,0 @@
----
-
-- name: Ensure the required directories exist
-  ansible.builtin.file:
-    dest: "{{ wireguard_parts_path }}"
-    state: directory
-    mode: 0700

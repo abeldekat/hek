@@ -1,0 +1,8 @@
+---
+
+- name: Facts, new wireguard host
+  ansible.builtin.set_fact:
+    wg_modify: true
+    wg_peers_from_host: []
+    wg_peers_to_delete: []
+    wg_peers_to_add: "{{ wg_peers_given }}"

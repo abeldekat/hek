@@ -1,0 +1,10 @@
+{% for u in wg_peers_to_add %}
+{% set wg_peer = wg_peers[u] %}
+# {{ wg_peer.name }} ANSIBLE MANAGED BLOCK
+
+[Peer]
+PublicKey = {{ wg_peer.pubkey }}
+PresharedKey = {{ wg_peer.pskkey }}
+AllowedIPs = {{ wg_peer.ip }}/32{{ '' if wg_peer.ipv6 == '' else ',' + wg_peer.ipv6 + '/128' }}
+# {{ wg_peer.name }} END ANSIBLE MANAGED BLOCK
+{% endfor %}

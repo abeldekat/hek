@@ -1,0 +1,5 @@
+[Interface]
+Address = {{ wg_host.ip }}{{ '' if wg_host.ipv6 == '' else ',' + wg_host.ipv6 }}
+ListenPort = {{ wg_host.port }}
+PrivateKey = {{ wg_host.key }}
+SaveConfig = false

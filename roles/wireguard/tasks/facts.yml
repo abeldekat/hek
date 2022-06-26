@@ -1,42 +1,47 @@
 ---
 
-- name: Facts, to delete, to add, new config
+# Make sure the users wireguard_users are unique
+- name: Facts as base for all role further processing
   ansible.builtin.set_fact:
-    wg_clients_from_server: []
-    wg_clients_to_delete: []
-    wg_clients_to_add: []
-    wg_new_server: false
+    wg_peers_given: "{{ wireguard_users | default([]) | unique }}"
+    wg_modify: false
+    wg_new_host: false
+    wg_peers_from_host: []
+    wg_peers_to_delete: []
+    wg_peers_to_add: []
 
-- name: Facts, test if server has a .conf file
+- name: Facts, stats hosts config file
   ansible.builtin.stat:
     path: "{{ '/etc/wireguard/' + wireguard_interface + '.conf' }}"
-  register: wireguard_server_conf_result
-
-- name: Facts, when no conf file on server, build new server, all clients are new
+  register: wireguard_host_result
+- name: Facts, set wg_new_host
   ansible.builtin.set_fact:
-    wg_new_server: "{{ _result }}"
-    wg_clients_to_add: "{{ wireguard_users if _result else [] }}"
-  vars:
-    _result: "{{ not wireguard_server_conf_result.stat.exists }}"
+    wg_new_host: "{{ not wireguard_host_result.stat.exists }}"
 
-- name: Facts, when existing conf file on server, build existing
+- name: Facts, new host
+  ansible.builtin.include_tasks: modify/facts_new.yml
+  when: wg_new_host
+
+- name: Facts, existing host
+  ansible.builtin.include_tasks: modify/facts_existing.yml
+  when: not wg_new_host
+
+- name: Fact, calculate reduce_mtu
   ansible.builtin.set_fact:
-    wg_clients_from_server: [phone, laptop, desktop]
-    wg_clients_to_delete: [laptop]
-    wg_clients_to_add: [tablet, tv]
-  when: not wg_new_server
+    wireguard_reduce_mtu: >
+      "{{
+      1500 - ansible_default_ipv4['mtu'] | int
+      if wireguard_reduce_mtu | int == 0 and ansible_default_ipv4['mtu'] | int < 1500
+      else wireguard_reduce_mtu | int
+      }}"
 
-# - name: Ensure no local wireguard config present on new wg creation
-#   ansible.builtin.file:
-#     dest: "{{ wireguard_config_path }}"
-#     state: absent
-#   delegate_to: localhost
-#   become: false
-
-# - name: Add or delete block
-#   block:
-#     - name: Facts add or delete
-#       ansible.builtin.set_fact:
-#         wg_to_delete: [phone]
-#         wg_to_add: [newphone]
-#   when: not wg_new_server
+- name: debug facts
+  ansible.builtin.debug:
+    msg: |
+      wg_peers_given: {{ wg_peers_given }}
+      modify: {{ wg_modify }}
+      new_host: {{ wg_new_host }}
+      from_host: {{ wg_peers_from_host }}
+      to_delete: {{ wg_peers_to_delete }}
+      to_add: {{ wg_peers_to_add }}
+      reduce_mtu: {{ wireguard_reduce_mtu }}
