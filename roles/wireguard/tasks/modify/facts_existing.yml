@@ -20,7 +20,7 @@
       ansible.builtin.set_fact:
         wg_modify: "{{ wg_peers_to_delete | union(wg_peers_to_add) | length > 0 }}"
 
-- name: Block calculating wireguard_peers_ip_index_start
+- name: Block calculating peers_ip_index_start
   block:
     - name: Retrieve the number of peers, removed included
       ansible.builtin.command: vps_wg_peers_count_with_history "{{ wireguard_host_conf }}"

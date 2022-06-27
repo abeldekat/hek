@@ -15,7 +15,7 @@
     block: ''
   loop: "{{ wg_peers_to_delete }}"
 
-- name: Ip adminstration, register a deleted peer
+- name: Ip adminstration, register deleted peer action
   ansible.builtin.shell: |
     for i in {1..{{ wg_peers_to_delete | length }}}
     do
