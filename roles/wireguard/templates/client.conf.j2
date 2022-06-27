@@ -1,0 +1,14 @@
+[Interface]
+PrivateKey = {{ wg_peer.key }}
+Address = {{ wg_peer.ip }}{{ '' if wg_peer.ipv6 == '' else ',' + wg_peer.ipv6 }}
+{% if wireguard_dns_servers|length > 0 %}DNS = {{ wireguard_dns_servers }}
+{% endif %}
+{% if wireguard_reduce_mtu|int > 0 %}MTU = {{ 1420 - reduce_mtu|int }}
+{% endif %}
+
+[Peer]
+PublicKey = {{ wg_host.pubkey }}
+PresharedKey = {{ wg_peer.pskkey }}
+AllowedIPs = 0.0.0.0/0,::/0
+Endpoint = {{ wireguard_host_ip }}:{{ wg_host.port }}
+{{ '' if wg_peer.pkalive == '' else 'PersistentKeepalive = ' + wg_peer.pkalive }}

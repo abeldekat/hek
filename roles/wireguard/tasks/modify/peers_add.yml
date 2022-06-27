@@ -10,10 +10,10 @@
 
 - name: Fact, for each new peer, add information to internal dictionary
   ansible.builtin.set_fact:
-    wg_peers: "{{ wg_peers | default({}) | combine(\
-                 { name: \
+    wg_peers: "{{ wg_peers | default([]) | union([\
                  {'name': name, 'ip': ip, 'ipv6': ipv6, \
-                 'key': key, 'pskkey': pskkey, 'pubkey': pubkey, 'pkalive': pkalive }}) }}"
+                 'key': key, 'pskkey': pskkey, \
+                 'pubkey': pubkey, 'pkalive': pkalive }]) }}"
   loop: "{{ wg_peerskeys['results'] }}"
   loop_control:
     index_var: peer_index
@@ -27,7 +27,15 @@
     pkalive: "{{ wireguard_persistentkeepalive | string if wireguard_persistentkeepalive > 0 else '' }}"
   no_log: "{{ wireguard_no_log }}"
 
-- name: Create new peers file
+- name: Create a client config for each peer on the ansible controller
+  ansible.builtin.include_tasks: peer_to_client.yml
+  loop: "{{ wg_peers }}"
+  loop_control:
+    loop_var: wg_peer
+  no_log: "{{ wireguard_no_log }}"
+
+# uses wg_peers
+- name: Create file wg_part_new containing all peers on the host
   ansible.builtin.template:
     src: host_peers.yml.j2
     dest: "{{ wg_part_new }}"

@@ -32,6 +32,7 @@
 # Readme and repo on github
 #     umask 077; ???
 # wireguard scripts invoke with command
+# wireguard test generated MTU
 
 
 - name: Configure the server and install required software

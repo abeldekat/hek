@@ -1,0 +1,25 @@
+---
+
+- name: Client config block
+  block:
+    - name: Client config generated
+      ansible.builtin.template:
+        src: client.conf.j2
+        dest: "{{ wireguard_config_path }}/{{ wg_peer.name }}.conf"
+        mode: "0600"
+
+    # disable ansible lint var spacing because of || true in script
+    - name: Generate QR codes  # noqa var-spacing
+      ansible.builtin.shell: >
+        umask 077;
+        which segno &&
+        segno --scale=5 --output={{ wg_peer.name }}.png \
+          "{{ lookup('template', 'client.conf.j2') }}" || true
+      changed_when: false
+      vars:
+        ansible_python_interpreter: "{{ ansible_playbook_python }}"
+      args:
+        chdir: "{{ wireguard_config_path }}"
+        executable: bash
+  delegate_to: localhost
+  become: false

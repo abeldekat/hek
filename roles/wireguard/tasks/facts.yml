@@ -1,7 +1,7 @@
 ---
 
-# Make sure the users wireguard_users are unique
-- name: Facts as base for all role further processing
+# Make sure the configured wireguard_users are unique
+- name: Facts as base for all further role processing
   ansible.builtin.set_fact:
     wg_peers_given: "{{ wireguard_users | default([]) | unique }}"
     wg_modify: false
@@ -35,7 +35,7 @@
       else wireguard_reduce_mtu | int
       }}"
 
-- name: debug facts
+- name: Show facts as base for all further role processing
   ansible.builtin.debug:
     msg: |
       wg_peers_given: {{ wg_peers_given }}
