@@ -1,19 +1,35 @@
 ---
 
-- name: Retrieve current peers
-  ansible.builtin.command: vps_wg_current_peers "{{ wireguard_host_conf }}"
-  register: wg_current_peers_result
-  changed_when: false
+- name: Block calculating peers
+  block:
+    - name: Retrieve current peers
+      ansible.builtin.command: vps_wg_current_peers "{{ wireguard_host_conf }}"
+      register: wg_current_peers_result
+      changed_when: false
 
-- name: Add current peers to internal wg_peers_from_host list
-  ansible.builtin.set_fact:
-    wg_peers_from_host: "{{ wg_peers_from_host | default([]) | union(wg_current_peers_result.stdout_lines) }}"
+    - name: Add current peers to internal wg_peers_from_host list
+      ansible.builtin.set_fact:
+        wg_peers_from_host: "{{ wg_peers_from_host | default([]) | union(wg_current_peers_result.stdout_lines) }}"
 
-- name: Calculate peers to delete and add
-  ansible.builtin.set_fact:
-    wg_peers_to_delete: "{{ wg_peers_from_host | difference(wg_peers_given) }}"
-    wg_peers_to_add: "{{ wg_peers_given | difference(wg_peers_from_host) }}"
+    - name: Calculate peers to delete and add
+      ansible.builtin.set_fact:
+        wg_peers_to_delete: "{{ wg_peers_from_host | difference(wg_peers_given) }}"
+        wg_peers_to_add: "{{ wg_peers_given | difference(wg_peers_from_host) }}"
 
-- name: Calculate wg_modify boolean
-  ansible.builtin.set_fact:
-    wg_modify: "{{ wg_peers_to_delete | union(wg_peers_to_add) | length > 0 }}"
+    - name: Calculate wg_modify boolean
+      ansible.builtin.set_fact:
+        wg_modify: "{{ wg_peers_to_delete | union(wg_peers_to_add) | length > 0 }}"
+
+- name: Block calculating wireguard_peers_ip_index_start
+  block:
+    - name: Retrieve the number of peers, removed included
+      ansible.builtin.command: vps_wg_peers_count_with_history "{{ wireguard_host_conf }}"
+      register: wg_peers_count_result
+      changed_when: false
+
+    - name: Calculate next index to use
+      ansible.builtin.set_fact:
+        wireguard_peers_ip_index_start: "{{ wg_peers_count_result.stdout | int | default(0)\
+                                                + wireguard_peers_ip_index_start | int }}"
+  when:
+    - wg_peers_to_add

@@ -10,7 +10,17 @@
 - name: Delete all blocks from existing peers not present in user configuration
   ansible.builtin.blockinfile:
     path: "{{ wg_part_host }}"
-    marker_begin: "{{ item }}"
+    marker_begin: "--> {{ item }} <--"
     marker_end: "{{ item }} END"
     block: ''
   loop: "{{ wg_peers_to_delete }}"
+
+- name: Ip adminstration, register a deleted peer
+  ansible.builtin.shell: |
+    for i in {1..{{ wg_peers_to_delete | length }}}
+    do
+      echo "# Peer REMOVED ANSIBLE MANAGED" >> {{ wg_part_host }}
+    done
+  when: wg_peers_to_delete | length > 0
+  args:
+    executable: bash

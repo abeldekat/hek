@@ -3,8 +3,6 @@
 
 - name: Folders in use
   ansible.builtin.include_tasks: modify/folders.yml
-- name: Shell scripts
-  ansible.builtin.include_tasks: modify/scripts.yml
 - name: Facts, building parts
   ansible.builtin.set_fact:
     wg_part_host: "{{ wireguard_parts_path }}/1_host_{{ wireguard_interface }}.conf"
@@ -18,11 +16,8 @@
   ansible.builtin.include_tasks: modify/host_existing.yml
   when: not wg_new_host
 
-# TODO: Use the last ip as start index
 - name: Add peers
   ansible.builtin.include_tasks: modify/peers_add.yml
-  vars:
-    peers_index_start: "{{ wg_peers_from_host | default([]) | length + 2 }}"
   when: wg_peers_to_add
 
 # Files are assembled in string sorting order, overwrites destination

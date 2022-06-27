@@ -12,8 +12,8 @@
     wg_host: "{{ wg_host | default({}) | combine(\
                 { 'ip': ip, 'ipv6': ipv6, 'port': port, 'key': key, 'pubkey': pubkey }) }}"
   vars:
-    ip: "{{ wireguard_network_ipv4 | ansible.utils.ipaddr('1') }}"
-    ipv6: "{{ wireguard_network_ipv6 | ansible.utils.ipaddr('1') if vps_ipv6_support else '' }}"
+    ip: "{{ wireguard_network_ipv4 | ansible.utils.ipaddr(wireguard_host_ip_index) }}"
+    ipv6: "{{ wireguard_network_ipv6 | ansible.utils.ipaddr(wireguard_host_ip_index) if vps_ipv6_support else '' }}"
     port: "{{ wireguard_port }}"
     key: "{{ wg_hostkeys.stdout_lines[0] }}"
     pubkey: "{{ wg_hostkeys.stdout_lines[1] }}"

@@ -6,6 +6,9 @@
     state: present
     update_cache: true
 
+- name: Shell scripts present
+  ansible.builtin.include_tasks: modify/scripts.yml
+
 - name: Facts as base for all further role processing
   ansible.builtin.include_tasks: facts.yml
 

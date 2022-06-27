@@ -30,6 +30,9 @@
 # ssh: unknown terminal alacritty
 # Think of a name for the repo
 # Readme and repo on github
+#     umask 077; ???
+# wireguard scripts invoke with command
+
 
 - name: Configure the server and install required software
   hosts: vps_servers

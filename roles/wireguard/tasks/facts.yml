@@ -10,7 +10,7 @@
     wg_peers_to_delete: []
     wg_peers_to_add: []
 
-- name: Facts, stats hosts config file
+- name: Facts, hosts config file
   ansible.builtin.stat:
     path: "{{ '/etc/wireguard/' + wireguard_interface + '.conf' }}"
   register: wireguard_host_result
@@ -41,7 +41,8 @@
       wg_peers_given: {{ wg_peers_given }}
       modify: {{ wg_modify }}
       new_host: {{ wg_new_host }}
+      reduce_mtu: {{ wireguard_reduce_mtu }}
+      wireguard_peers_ip_index_start: {{ wireguard_peers_ip_index_start }}
       from_host: {{ wg_peers_from_host }}
       to_delete: {{ wg_peers_to_delete }}
       to_add: {{ wg_peers_to_add }}
-      reduce_mtu: {{ wireguard_reduce_mtu }}

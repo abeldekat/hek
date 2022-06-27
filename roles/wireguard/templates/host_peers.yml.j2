@@ -1,6 +1,6 @@
 {% for u in wg_peers_to_add %}
 {% set wg_peer = wg_peers[u] %}
-# {{ wg_peer.name }} ANSIBLE MANAGED BLOCK
+# --> {{ wg_peer.name }} <-- ANSIBLE MANAGED BLOCK
 
 [Peer]
 PublicKey = {{ wg_peer.pubkey }}

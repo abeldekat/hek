@@ -17,4 +17,4 @@
 # Otherwise, a file with no peers results in a non zero return code
 
 set -o pipefail
-grep '^# .* ANSIBLE MANAGED BLOCK' "$1" | grep -E -v 'END|vps_server|vps_peers' | sed 's/# //g' | cut -d' ' -f1 || true
+grep '^# --> .* <-- ANSIBLE MANAGED BLOCK' "$1" | sed 's/# --> //g' | cut -d' ' -f1 || true

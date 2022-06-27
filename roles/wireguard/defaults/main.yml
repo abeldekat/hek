@@ -11,7 +11,6 @@ wireguard_enabled: true
 # Every device must have a unique user. There are 65,534 slots.
 # Requirements: Escape leading 0's or only numbers in double quotes("000dan" or "123").
 # Email addresses are not allowed
-# The list defaults to one client named vpnuser
 wireguard_users:
   - vpnuser
 #
@@ -65,5 +64,7 @@ wireguard_config_path: "configs/{{ wireguard_host_ip }}/wireguard/"
 ###############################################################################
 # Not modifiable:
 #
+wireguard_host_ip_index: 1
+wireguard_peers_ip_index_start: 2
 # Overridden in group_vars:
 wireguard_dns_servers:
