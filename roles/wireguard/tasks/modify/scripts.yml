@@ -10,3 +10,4 @@
     - vps_wg_peer_keys
     - vps_wg_current_peers
     - vps_wg_peers_count_with_history
+    - vps_wg_host_get_pubkey

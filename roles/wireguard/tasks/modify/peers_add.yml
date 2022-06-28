@@ -1,5 +1,7 @@
 ---
 
+# Internal list wg_peers, needs wg_host_as_peer
+
 - name: Add peers, retrieve keys
   ansible.builtin.shell: vps_wg_peer_keys
   register: wg_peerskeys
@@ -8,7 +10,7 @@
     executable: bash
   loop: "{{ wg_peers_to_add }}"
 
-- name: Fact, for each new peer, add information to internal dictionary
+- name: Fact, for each new peer, add information to wg_peers
   ansible.builtin.set_fact:
     wg_peers: "{{ wg_peers | default([]) | union([\
                  {'name': name, 'ip': ip, 'ipv6': ipv6, \
@@ -27,16 +29,17 @@
     pkalive: "{{ wireguard_persistentkeepalive | string if wireguard_persistentkeepalive > 0 else '' }}"
   no_log: "{{ wireguard_no_log }}"
 
-- name: Create a client config for each peer on the ansible controller
-  ansible.builtin.include_tasks: peer_to_client.yml
-  loop: "{{ wg_peers }}"
-  loop_control:
-    loop_var: wg_peer
-  no_log: "{{ wireguard_no_log }}"
-
-# uses wg_peers
+# uses wg_peers in loop in template
 - name: Create file wg_part_new containing all peers on the host
   ansible.builtin.template:
     src: host_peers.yml.j2
     dest: "{{ wg_part_new }}"
     mode: "0600"
+
+# uses wg_peers and wg_host_as_peer
+- name: For each peer create a client interface on the ansible controller
+  ansible.builtin.include_tasks: peer_to_client.yml
+  loop: "{{ wg_peers }}"
+  loop_control:
+    loop_var: wg_client
+  no_log: "{{ wireguard_no_log }}"

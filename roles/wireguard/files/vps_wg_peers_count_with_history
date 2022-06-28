@@ -5,4 +5,4 @@
 # Otherwise, a file with no peers results in a non zero return code
 
 set -o pipefail
-grep -E '^# --> .* <-- ANSIBLE MANAGED BLOCK|^# Peer REMOVED' "$1" | wc -l
+grep -E '^# --> .* <-- ANSIBLE MANAGED BLOCK|^# Peer DELETED' "$1" | wc -l

@@ -29,18 +29,3 @@
   notify:
     - Remove parts
     - Restart wireguard
-
-# - name: Peers delete locally
-#   ansible.builtin.stat:
-#     path: "{{ wireguard_config_path }}{{ item.0 }}.{{ item.1 }}"
-#   loop: "{{ wg_peers_to_delete | product(['conf', 'png']) }}"
-#   register: _stat_result
-
-# - name: Peers delete debug locally
-#   ansible.builtin.debug:
-#     msg: "{{ _stat_result }}"
-# - name: Peers delete locally
-#   become: false
-#   ansible.builtin.file:
-#     path: "{{ wireguard_config_path }}{{ wg_peer.name }}.conf"
-#     state: absent

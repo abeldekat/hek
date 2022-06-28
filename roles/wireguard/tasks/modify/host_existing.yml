@@ -7,7 +7,26 @@
     remote_src: true
     mode: 0600
 
-- name: Remove all blocks from existing peers not present in user configuration
+- name: Existing wg host, retrieve public key
+  ansible.builtin.shell: vps_wg_host_get_pubkey "{{ wireguard_host_conf }}"
+  register: wg_host_pubkey_result
+  changed_when: false
+  args:
+    executable: bash
+
+- name: debug
+  ansible.builtin.debug: var=wg_host_pubkey_result
+
+- name: Fact, add host as peer information to internal dictionary
+  ansible.builtin.set_fact:
+    wg_host_as_peer: "{{ wg_host_as_peer | default({}) | combine(\
+                { 'port': port, 'pubkey': pubkey }) }}"
+  vars:
+    port: "{{ wireguard_port }}"
+    pubkey: "{{ wg_host_pubkey_result.stdout_lines[0] }}"
+  no_log: "{{ wireguard_no_log }}"
+
+- name: Delete all blocks from existing peers not present in configured wireguard_users
   ansible.builtin.blockinfile:
     path: "{{ wg_part_host }}"
     marker_begin: "--> {{ item }} <--"
@@ -15,13 +34,23 @@
     block: ''
   loop: "{{ wg_peers_to_delete }}"
 
-- name: Ip adminstration, register deleted peer action
+- name: Register deleted peer actions for ip administration
   ansible.builtin.shell: |
     for i in {1..{{ wg_peers_to_delete | length }}}
     do
-      echo "# Peer REMOVED ANSIBLE MANAGED" >> {{ wg_part_host }}
+      echo "# Peer DELETED ANSIBLE MANAGED" >> {{ wg_part_host }}
     done
   when: wg_peers_to_delete | length > 0
   args:
     executable: bash
 
+- name: Deleted peers, move local client configurations not present in configured wireguard_users
+  block:
+    - name: Peers, locally, move deleted client configs
+      ansible.builtin.copy:
+        src: "{{ wireguard_config_path }}/{{ item.0 }}.{{ item.1 }}"
+        dest: "{{ wireguard_config_path }}/deleted"
+        mode: 0600
+      loop: "{{ wg_peers_to_delete | product(['conf', 'png']) }}"
+  delegate_to: localhost
+  become: false

@@ -9,7 +9,7 @@
 
 - name: Ensure wireguard folder on ansible controller exists
   ansible.builtin.file:
-    dest: "{{ wireguard_config_path }}"
+    dest: "{{ wireguard_config_path }}/deleted"
     state: directory
     recurse: true
   delegate_to: localhost

@@ -24,3 +24,12 @@
     src: host_interface.conf.j2
     dest: "{{ wg_part_host }}"
     mode: "0600"
+
+- name: Fact, add host as peer information to internal dictionary
+  ansible.builtin.set_fact:
+    wg_host_as_peer: "{{ wg_host_as_peer | default({}) | combine(\
+                { 'port': port, 'pubkey': pubkey }) }}"
+  vars:
+    port: "{{ wg_host.port }}"
+    pubkey: "{{ wg_host.pubkey }}"
+  no_log: "{{ wireguard_no_log }}"
