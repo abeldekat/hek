@@ -23,17 +23,14 @@
 #   libyaml = True
 
 # TODO:
-# refactor wireguard to not need private keys on ansible controller
-# wireguard prefer ipv6? Needs brackets in endpoint client.conf
-# Test python env
 # searxng: Override disabled engines, like searxng_engines_restrict
+# wireguard prefer ipv6? Needs brackets in endpoint client.conf
+# umask 077; ???
+# wireguard test generated MTU
+# Test python env
 # ssh: unknown terminal alacritty
 # Think of a name for the repo
 # Readme and repo on github
-#     umask 077; ???
-# wireguard scripts invoke with command
-# wireguard test generated MTU
-
 
 - name: Configure the server and install required software
   hosts: vps_servers

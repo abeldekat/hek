@@ -29,7 +29,6 @@
 
 - name: Override global variables
   ansible.builtin.set_fact:
-    wg_peernames_to_delete: []
     wg_peernames_to_add: "{{ wg_peernames_given }}"
     wg_host: "{{ {'pubkey': pubkey} }}"
   vars:

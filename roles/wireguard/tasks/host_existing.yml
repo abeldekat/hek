@@ -44,7 +44,7 @@
     mode: 0600
   when: wg_peernames_to_delete | union(wg_peernames_to_add) | length > 0
 
-- name: Process, delete all blocks from existing peers not specified by user
+- name: Process, delete existing peers not specified by user
   ansible.builtin.blockinfile:
     path: "{{ wg_part_host }}"
     marker_begin: "--> {{ item }} <--"
@@ -62,7 +62,7 @@
   args:
     executable: bash
 
-- name: Process, deleted peers, move local client configurations not specified by user
+- name: Process, deleted peers, move local client configurations
   block:
     - name: Peers, locally, copy deleted client configs to delete folder
       ansible.builtin.copy:
