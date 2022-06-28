@@ -1,0 +1,80 @@
+---
+
+- name: Block retrieve information from wireguard host config
+  block:
+    - name: Retrieve active peernames
+      ansible.builtin.command: vps_wg_current_peers "{{ wireguard_host_conf }}"
+      register: peers_current_result
+      changed_when: false
+
+    - name: Retrieve the number of peers, including deleted peers
+      ansible.builtin.command: vps_wg_peers_count_with_history "{{ wireguard_host_conf }}"
+      register: peers_count_result
+      changed_when: false
+
+    - name: Retrieve host public key
+      ansible.builtin.command: vps_wg_host_get_pubkey "{{ wireguard_host_conf }}"
+      register: host_pubkey_result
+      changed_when: false
+
+    - name: Debug retrieval results
+      ansible.builtin.debug:
+        msg: |
+          peers_current_result: {{ peers_current_result.stdout_lines }}
+          peers_count_result: {{ peers_count_result.stdout }}
+          host_pubkey_result: {{ host_pubkey_result.stdout }}
+
+- name: Override global variables
+  ansible.builtin.set_fact:
+    wg_peernames_to_delete: "{{ peernames_from_host | difference(wg_peernames_given) }}"
+    wg_peernames_to_add: "{{ wg_peernames_given | difference(peernames_from_host) }}"
+    wg_host_peers_ip_index_start: "{{ index_start }}"
+    wg_host: "{{ {'pubkey': pubkey} }}"
+  vars:
+    pubkey: "{{ host_pubkey_result.stdout_lines[0] }}"
+    peernames_from_host: "{{ peers_current_result.stdout_lines | default({}) }}"
+    index_start: "{{ peers_count_result.stdout | int | default(0)\
+                     + wg_host_peers_ip_index_start | int }}"
+
+- name: Process, copy existing host file to wg_part_host
+  ansible.builtin.copy:
+    src: "{{ wireguard_host_conf }}"
+    dest: "{{ wg_part_host }}"
+    remote_src: true
+    mode: 0600
+  when: wg_peernames_to_delete | union(wg_peernames_to_add) | length > 0
+
+- name: Process, delete all blocks from existing peers not specified by user
+  ansible.builtin.blockinfile:
+    path: "{{ wg_part_host }}"
+    marker_begin: "--> {{ item }} <--"
+    marker_end: "{{ item }} END"
+    block: ''
+  loop: "{{ wg_peernames_to_delete }}"
+
+- name: Process, register deleted records for ip administration
+  ansible.builtin.shell: |
+    for i in {1..{{ wg_peernames_to_delete | length }}}
+    do
+      echo "# Peer DELETED ANSIBLE MANAGED" >> {{ wg_part_host }}
+    done
+  when: wg_peernames_to_delete | length > 0
+  args:
+    executable: bash
+
+- name: Process, deleted peers, move local client configurations not specified by user
+  block:
+    - name: Peers, locally, copy deleted client configs to delete folder
+      ansible.builtin.copy:
+        src: "{{ wireguard_config_path }}/{{ item.0 }}.{{ item.1 }}"
+        dest: "{{ wireguard_config_path }}/deleted"
+        mode: 0600
+      loop: "{{ wg_peernames_to_delete | product(['conf', 'png']) }}"
+
+    - name: Peers, locally, remove deleted client configs
+      ansible.builtin.file:
+        path: "{{ wireguard_config_path }}/{{ item.0 }}.{{ item.1 }}"
+        state: absent
+      loop: "{{ wg_peernames_to_delete | product(['conf', 'png']) }}"
+  delegate_to: localhost
+  become: false

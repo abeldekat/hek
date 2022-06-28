@@ -1,0 +1,36 @@
+---
+
+- name: Retrieve generated keys for new wg host
+  ansible.builtin.command: vps_wg_host_keys
+  register: host_keys_result
+  changed_when: false
+
+- name: Debug retrieval results
+  ansible.builtin.debug:
+    msg: |
+      host_keys_result: {{ host_keys_result.stdout_lines }}
+
+- name: Build internal dictionary containing new host information
+  ansible.builtin.set_fact:
+    wg_host_new: "{{ { 'ip': ip, 'ipv6': ipv6, 'key': key, 'pubkey': pubkey } }}"
+  vars:
+    ip: "{{ wireguard_network_ipv4 | ansible.utils.ipaddr(wireguard_host_ip_index) }}"
+    ipv6: "{{ wireguard_network_ipv6 | ansible.utils.ipaddr(wireguard_host_ip_index) if vps_ipv6_support else '' }}"
+    key: "{{ host_keys_result.stdout_lines[0] }}"
+    pubkey: "{{ host_keys_result.stdout_lines[1] }}"
+  no_log: "{{ wireguard_no_log }}"
+
+# uses wg_host_new
+- name: Process, create host interface file
+  ansible.builtin.template:
+    src: host_interface.conf.j2
+    dest: "{{ wg_part_host }}"
+    mode: "0600"
+
+- name: Override global variables
+  ansible.builtin.set_fact:
+    wg_peernames_to_delete: []
+    wg_peernames_to_add: "{{ wg_peernames_given }}"
+    wg_host: "{{ {'pubkey': pubkey} }}"
+  vars:
+    pubkey: "{{ wg_host_new.pubkey }}"

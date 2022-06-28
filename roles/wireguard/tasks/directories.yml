@@ -1,11 +1,10 @@
 ---
 
-- name: Ensure parts directory on host is emptied and exists
+- name: Ensure parts directory on host exists
   ansible.builtin.file:
     dest: "{{ wireguard_parts_path }}"
-    state: "{{ item }}"
+    state: directory
     mode: 0700
-  loop: [absent, directory]
 
 - name: Ensure wireguard folder on ansible controller exists
   ansible.builtin.file:

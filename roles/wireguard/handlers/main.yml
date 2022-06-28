@@ -1,8 +1,9 @@
 ---
 - name: Remove parts
   ansible.builtin.file:
-    path: /etc/wireguard/parts
+    dest: "{{ item }}"
     state: absent
+  loop: ["{{ wg_part_host }}", "{{ wg_part_new_peers }}"]
 
 - name: Restart wireguard
   ansible.builtin.systemd:

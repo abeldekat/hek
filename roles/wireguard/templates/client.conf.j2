@@ -7,8 +7,8 @@ Address = {{ wg_client.ip }}{{ '' if wg_client.ipv6 == '' else ',' + wg_client.i
 {% endif %}
 
 [Peer]
-PublicKey = {{ wg_host_as_peer.pubkey }}
+PublicKey = {{ wg_host.pubkey }}
 PresharedKey = {{ wg_client.pskkey }}
 AllowedIPs = 0.0.0.0/0,::/0
-Endpoint = {{ wireguard_host_ip }}:{{ wg_host_as_peer.port }}
-{{ '' if wg_client.pkalive == '' else 'PersistentKeepalive = ' + wg_client.pkalive }}
+Endpoint = {{ wireguard_host_ip }}:{{ wireguard_port }}
+"{{ wireguard_persistentkeepalive | string if wireguard_persistentkeepalive > 0 else '' }}"

@@ -1,9 +1,9 @@
-{% for wg_peer in wg_peers %}
-# --> {{ wg_peer.name }} <-- ANSIBLE MANAGED BLOCK
+{% for peer in wg_peers %}
+# --> {{ peer.name }} <-- ANSIBLE MANAGED BLOCK
 
 [Peer]
-PublicKey = {{ wg_peer.pubkey }}
-PresharedKey = {{ wg_peer.pskkey }}
-AllowedIPs = {{ wg_peer.ip }}/32{{ '' if wg_peer.ipv6 == '' else ',' + wg_peer.ipv6 + '/128' }}
-# {{ wg_peer.name }} END ANSIBLE MANAGED BLOCK
+PublicKey = {{ peer.pubkey }}
+PresharedKey = {{ peer.pskkey }}
+AllowedIPs = {{ peer.ip }}/32{{ '' if peer.ipv6 == '' else ',' + peer.ipv6 + '/128' }}
+# {{ peer.name }} END ANSIBLE MANAGED BLOCK
 {% endfor %}
