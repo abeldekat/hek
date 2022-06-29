@@ -23,9 +23,7 @@
 #   libyaml = True
 
 # TODO:
-# searxng: Override disabled engines, like searxng_engines_restrict
 # wireguard prefer ipv6? Needs brackets in endpoint client.conf
-# umask 077; ???
 # wireguard test generated MTU
 # Test python env
 # ssh: unknown terminal alacritty

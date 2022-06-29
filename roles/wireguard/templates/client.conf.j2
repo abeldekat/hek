@@ -3,7 +3,8 @@ PrivateKey = {{ wg_client.key }}
 Address = {{ wg_client.ip }}{{ '' if wg_client.ipv6 == '' else ',' + wg_client.ipv6 }}
 {% if wireguard_dns_servers|length > 0 %}DNS = {{ wireguard_dns_servers }}
 {% endif %}
-{% if wireguard_reduce_mtu|int > 0 %}MTU = {{ 1420 - reduce_mtu|int }}
+{% if wireguard_reduce_mtu|int > 0 %}
+MTU = {{ 1420 - reduce_mtu|int }}
 {% endif %}
 
 [Peer]
