@@ -64,13 +64,6 @@
 
 - name: Process, deleted peers, move local client configurations
   block:
-    - name: Peers, locally, copy deleted client configs to delete folder
-      ansible.builtin.copy:
-        src: "{{ wireguard_config_path }}/{{ item.0 }}.{{ item.1 }}"
-        dest: "{{ wireguard_config_path }}/deleted"
-        mode: 0600
-      loop: "{{ wg_peernames_to_delete | product(['conf', 'png']) }}"
-
     - name: Peers, locally, remove deleted client configs
       ansible.builtin.file:
         path: "{{ wireguard_config_path }}/{{ item.0 }}.{{ item.1 }}"

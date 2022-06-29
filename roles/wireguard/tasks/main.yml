@@ -1,5 +1,9 @@
 ---
 # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
+# Approach on server:
+# Part 1 file: Generate new server config part or copy old server config and if necessary delete existing clients
+# Part 2 file: Generate new peers
+# Concatenate both files into a wireguard config
 
 - name: Ensure wireguard installed
   ansible.builtin.apt:
