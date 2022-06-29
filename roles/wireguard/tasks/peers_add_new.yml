@@ -1,7 +1,7 @@
 ---
 
 - name: Retrieve generated keys
-  ansible.builtin.command: vps_wg_peer_keys
+  ansible.builtin.command: vps_wg_script peer_generate_keys
   register: peer_keys_result
   changed_when: false
   loop: "{{ wg_peernames_to_add }}"

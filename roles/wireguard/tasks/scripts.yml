@@ -6,8 +6,4 @@
     dest: "/usr/local/bin/{{ item }}"
     mode: 0750
   loop:
-    - vps_wg_host_keys
-    - vps_wg_peer_keys
-    - vps_wg_current_peers
-    - vps_wg_peers_count_with_history
-    - vps_wg_host_get_pubkey
+    - vps_wg_script

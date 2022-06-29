@@ -3,17 +3,17 @@
 - name: Block retrieve information from wireguard host config
   block:
     - name: Retrieve active peernames
-      ansible.builtin.command: vps_wg_current_peers "{{ wireguard_host_conf }}"
+      ansible.builtin.command: vps_wg_script peers_current_names "{{ wireguard_host_conf }}"
       register: peers_current_result
       changed_when: false
 
     - name: Retrieve the number of peers, including deleted peers
-      ansible.builtin.command: vps_wg_peers_count_with_history "{{ wireguard_host_conf }}"
+      ansible.builtin.command: vps_wg_script peers_count_with_history "{{ wireguard_host_conf }}"
       register: peers_count_result
       changed_when: false
 
     - name: Retrieve host public key
-      ansible.builtin.command: vps_wg_host_get_pubkey "{{ wireguard_host_conf }}"
+      ansible.builtin.command: vps_wg_script host_get_pubkey "{{ wireguard_host_conf }}"
       register: host_pubkey_result
       changed_when: false
 

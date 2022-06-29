@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# use || true, grep returns non zero code when no matches
+
+set -o pipefail
+
+_host_generate_keys(){
+  _key=$(wg genkey)
+  _pubkey=$(echo "$_key" | wg pubkey)
+  echo "$_key"
+  echo "$_pubkey"
+}
+
+_peer_generate_keys(){
+  _key=$(wg genkey)
+  _pskkey=$(wg genpsk)
+  _pubkey=$(echo "$_key" | wg pubkey)
+  echo "$_key"
+  echo "$_pskkey"
+  echo "$_pubkey"
+}
+
+# Change:
+# phone ANSIBLE MANAGED BLOCK
+# phone END ANSIBLE MANAGED BLOCK
+# desktop ANSIBLE MANAGED BLOCK
+# desktop END ANSIBLE MANAGED BLOCK
+# Into:
+# phone
+# desktop
+_peers_current_names(){
+  grep '^# --> .* <-- ANSIBLE MANAGED BLOCK' "$1" | sed 's/# --> //g' | cut -d' ' -f1 || true
+}
+
+_peers_count_with_history(){
+  grep -Ec '^# --> .* <-- ANSIBLE MANAGED BLOCK|^# Peer DELETED' "$1"
+}
+
+_host_get_pubkey(){
+  grep 'PrivateKey = ' "$1" | sed 's/PrivateKey = //g' | wg pubkey || true
+}
+
+action=$1
+shift
+case "$action" in
+"host_generate_keys") _host_generate_keys ;;
+"peer_generate_keys") _peer_generate_keys ;;
+"peers_current_names") _peers_current_names "$1" ;;
+"peers_count_with_history") _peers_count_with_history "$1" ;;
+"host_get_pubkey") _host_get_pubkey "$1" ;;
+*) exit 1 ;;
+esac

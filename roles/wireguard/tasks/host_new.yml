@@ -1,7 +1,7 @@
 ---
 
 - name: Retrieve generated keys for new wg host
-  ansible.builtin.command: vps_wg_host_keys
+  ansible.builtin.command: vps_wg_script host_generate_keys
   register: host_keys_result
   changed_when: false
 

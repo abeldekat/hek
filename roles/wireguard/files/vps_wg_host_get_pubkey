@@ -1,4 +1,0 @@
-#! /bin/bash
-set -o pipefail
-
-grep 'PrivateKey = ' "$1" | sed 's/PrivateKey = //g' | wg pubkey || true
