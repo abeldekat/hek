@@ -26,7 +26,7 @@ wireguard_persistentkeepalive: 0
 # The playbook will attempt to set this automatically based on your server,
 # but if connections hang you might need to adjust this yourself.
 # See: https://github.com/trailofbits/algo/blob/master/docs/troubleshooting.md#various-websites-appear-to-be-offline-through-the-vpn
-wireguard_reduce_mtu: 10
+wireguard_reduce_mtu: 0
 #
 # Disable logging when generating keys:
 wireguard_no_log: true

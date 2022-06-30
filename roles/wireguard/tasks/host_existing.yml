@@ -62,7 +62,7 @@
   args:
     executable: bash
 
-- name: Process, deleted peers, move local client configurations
+- name: Process, deleted peers, remove local client configurations
   block:
     - name: Peers, locally, remove deleted client configs
       ansible.builtin.file:
