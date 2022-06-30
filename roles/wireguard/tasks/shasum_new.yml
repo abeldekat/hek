@@ -1,0 +1,17 @@
+---
+
+- name: Retrieve new checksum
+  ansible.builtin.stat:
+    path: "{{ wireguard_host_conf }}"
+    checksum_algorithm: sha256
+  register: new_checksum_result
+
+- name: Local checksum block
+  block:
+    - name: Store new checksum locally
+      ansible.builtin.copy:
+        dest: "{{ wireguard_checksum_file }}"
+        content: "{{ new_checksum_result.stat.checksum }}"
+        mode: 0600
+  delegate_to: localhost
+  become: false

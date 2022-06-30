@@ -45,6 +45,7 @@
     # The next available ip index for new peers
     wg_host_peers_ip_index_start: "{{ wireguard_peers_ip_index_start }}"
 
+
 - name: Block wireguard host interface part
   block:
     - name: Include new host tasks
@@ -53,15 +54,14 @@
     - name: Include existing host tasks
       ansible.builtin.include_tasks: host_existing.yml
       when: not wg_is_new_host
-
-- name: Print global vars
-  ansible.builtin.debug:
-    msg: |
-      wg_peernames_given: {{ wg_peernames_given }}
-      wg_peernames_to_add: "{{ wg_peernames_to_add }}"
-      wg_peernames_to_delete: "{{ wg_peernames_to_delete }}"
-      wg_host: "{{ wg_host }}"
-      wg_host_peers_ip_index_start: "{{ wg_host_peers_ip_index_start }}"
+    - name: Print global vars
+      ansible.builtin.debug:
+        msg: |
+          wg_peernames_given: {{ wg_peernames_given }}
+          wg_peernames_to_add: "{{ wg_peernames_to_add }}"
+          wg_peernames_to_delete: "{{ wg_peernames_to_delete }}"
+          wg_host: "{{ wg_host }}"
+          wg_host_peers_ip_index_start: "{{ wg_host_peers_ip_index_start }}"
 
 - name: Block wireguard peers part
   block:
@@ -75,15 +75,19 @@
         - wg_peernames_to_add | length > 0
 
 # Files are assembled in string sorting order, overwrites destination
-- name: Assemble parts into a host config
-  ansible.builtin.assemble:
-    src: "{{ wireguard_parts_path }}"
-    dest: "{{ wireguard_host_conf }}"
-    mode: "0600"
+- name: Block assemble
+  block:
+    - name: Assemble parts into a host config
+      ansible.builtin.assemble:
+        src: "{{ wireguard_parts_path }}"
+        dest: "{{ wireguard_host_conf }}"
+        mode: "0600"
+      notify:
+        - Remove parts
+        - Restart wireguard
+    - name: Store new shasum
+      ansible.builtin.include_tasks: shasum_new.yml
   when: wg_peernames_to_delete | union(wg_peernames_to_add) | length > 0
-  notify:
-    - Remove parts
-    - Restart wireguard
 
 - name: Ensure handlers run now
   ansible.builtin.meta: flush_handlers

@@ -60,6 +60,7 @@ wireguard_host_conf: "{{ wireguard_etc_path }}/{{ wireguard_interface }}.conf"
 # Local storage, modify with care, should not be needed
 #
 wireguard_config_path: "configs/{{ wireguard_host_ip }}/wireguard/"
+wireguard_checksum_file: "{{ wireguard_config_path }}{{ wireguard_interface }}.sha256"
 
 ###############################################################################
 # Not modifiable:

@@ -5,10 +5,10 @@
   register: host_keys_result
   changed_when: false
 
-- name: Debug retrieval results
-  ansible.builtin.debug:
-    msg: |
-      host_keys_result: {{ host_keys_result.stdout_lines }}
+# - name: Debug retrieval results
+#   ansible.builtin.debug:
+#     msg: |
+#       host_keys_result: {{ host_keys_result.stdout_lines }}
 
 - name: Build internal dictionary containing new host information
   ansible.builtin.set_fact:

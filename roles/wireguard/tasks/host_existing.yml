@@ -1,5 +1,8 @@
 ---
 
+- name: Ensure host file has no changes applied externally
+  ansible.builtin.include_tasks: shasum_validation.yml
+
 - name: Block retrieve information from wireguard host config
   block:
     - name: Retrieve active peernames

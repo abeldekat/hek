@@ -1,0 +1,48 @@
+---
+
+# - name: Debug results
+#   ansible.builtin.debug:
+#     msg: |
+#         last_checksum_result: {{ last_checksum_result }}
+#         last: {{ wg_last_checksum }}
+- name: Block read local checksum
+  block:
+    - name: Initial checksum
+      ansible.builtin.set_fact:
+        wg_last_checksum: ''
+
+    - name: Statistics last checksum
+      ansible.builtin.stat:
+        path: "{{ wireguard_checksum_file }}"
+      register: last_checksum_result
+
+    - name: Read last checksum
+      ansible.builtin.set_fact:
+        wg_last_checksum: "{{ lookup('file', wireguard_checksum_file) | default('') }}"
+      when: last_checksum_result.stat.exists
+
+  delegate_to: localhost
+  become: false
+
+- name: Block checksum validation
+  block:
+    - name: Retrieve current checksum
+      ansible.builtin.stat:
+        path: "{{ wireguard_host_conf }}"
+        checksum_algorithm: sha256
+      register: existing_checksum_result
+
+    - name: Fail when checksum differs
+      ansible.builtin.fail:
+        msg: |
+          File {{ wireguard_host_conf }} might have been changed externally
+          Actions: Inspect the file on the server.
+          To proceed, delete local file {{ wireguard_checksum_file }}
+          Otherwise, delete {{ wireguard_host_conf }}, thereby revoking all current clients
+          Rerun the playbook
+
+          Last checksum: {{ wg_last_checksum }}
+          Existing checksum: {{ existing_checksum_result.stat.checksum }}
+      when:
+        - wg_last_checksum != ''
+        - existing_checksum_result.stat.checksum != wg_last_checksum
