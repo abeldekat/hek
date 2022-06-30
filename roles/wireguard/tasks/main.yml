@@ -1,8 +1,10 @@
 ---
 # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
-# Approach on server:
-# Part 1 file: Generate new server config part or copy old server config and if necessary delete existing clients
-# Part 2 file: Generate new peers
+# Approach:
+# Part 1 file:
+#   - Generate new server config part or copy old server config
+#   - Delete stale existing clients from the server copy
+# Part 2 file: Add new peers
 # Concatenate both files into a wireguard config
 
 - name: Ensure wireguard installed
@@ -43,12 +45,11 @@
     # The next available ip index for new peers
     wg_host_peers_ip_index_start: "{{ wireguard_peers_ip_index_start }}"
 
-- name: Block wg_part_host
+- name: Block wireguard host interface part
   block:
     - name: Include new host tasks
       ansible.builtin.include_tasks: host_new.yml
       when: wg_is_new_host
-
     - name: Include existing host tasks
       ansible.builtin.include_tasks: host_existing.yml
       when: not wg_is_new_host
@@ -62,10 +63,16 @@
       wg_host: "{{ wg_host }}"
       wg_host_peers_ip_index_start: "{{ wg_host_peers_ip_index_start }}"
 
-- name: Include new peers tasks
-  ansible.builtin.include_tasks: peers_add_new.yml
-  when:
-    - wg_peernames_to_add | length > 0
+- name: Block wireguard peers part
+  block:
+    - name: Delete peers
+      ansible.builtin.include_tasks: peers_delete.yml
+      when:
+        - wg_peernames_to_delete | length > 0
+    - name: Add peers
+      ansible.builtin.include_tasks: peers_add.yml
+      when:
+        - wg_peernames_to_add | length > 0
 
 # Files are assembled in string sorting order, overwrites destination
 - name: Assemble parts into a host config

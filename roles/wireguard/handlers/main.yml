@@ -1,12 +1,14 @@
 ---
-- name: Remove parts
-  ansible.builtin.file:
-    dest: "{{ item }}"
-    state: absent
-  loop: ["{{ wg_part_host }}", "{{ wg_part_new_peers }}"]
 
 - name: Restart wireguard
   ansible.builtin.systemd:
     name: "{{ wireguard_service_name }}"
     state: restarted
     daemon_reload: true
+
+# Remove the building blocks used in this role
+- name: Remove parts
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    state: absent
+  loop: ["{{ wg_part_host }}", "{{ wg_part_new_peers }}"]

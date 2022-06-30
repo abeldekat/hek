@@ -1,0 +1,29 @@
+---
+
+- name: Delete existing peers not specified by user
+  ansible.builtin.blockinfile:
+    path: "{{ wg_part_host }}"
+    marker_begin: "--> {{ item }} <--"
+    marker_end: "{{ item }} END"
+    block: ''
+  loop: "{{ wg_peernames_to_delete }}"
+
+- name: Register deleted records for ip administration
+  ansible.builtin.shell: |
+    for i in {1..{{ wg_peernames_to_delete | length }}}
+    do
+      echo "# Peer DELETED ANSIBLE MANAGED" >> {{ wg_part_host }}
+    done
+  when: wg_peernames_to_delete | length > 0
+  args:
+    executable: bash
+
+- name: Remove local client configurations of deleted peers when still there...
+  block:
+    - name: Peers, locally, remove deleted client configs
+      ansible.builtin.file:
+        path: "{{ wireguard_config_path }}/{{ item.0 }}.{{ item.1 }}"
+        state: absent
+      loop: "{{ wg_peernames_to_delete | product(['conf', 'png']) }}"
+  delegate_to: localhost
+  become: false

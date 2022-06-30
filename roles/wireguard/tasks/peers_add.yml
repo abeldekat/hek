@@ -41,7 +41,7 @@
 
 # uses wg_peers and wg_host
 - name: Process, for each peer create a client interface on the ansible controller
-  ansible.builtin.include_tasks: generate_clients.yml
+  ansible.builtin.include_tasks: generate_client_configs.yml
   loop: "{{ wg_peers }}"
   loop_control:
     loop_var: wg_client
