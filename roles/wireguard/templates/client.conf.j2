@@ -1,10 +1,8 @@
 [Interface]
 PrivateKey = {{ wg_client.key }}
 Address = {{ wg_client.ip }}{{ '' if wg_client.ipv6 == '' else ',' + wg_client.ipv6 }}
-{% if wireguard_dns_servers|length > 0 %}DNS = {{ wireguard_dns_servers }}
-{% endif %}
-{% if wireguard_reduce_mtu|int > 0 %}
-MTU = {{ 1420 - reduce_mtu|int }}
+DNS = {{ wireguard_dns_servers }}
+{% if wireguard_reduce_mtu | int > 0 %}MTU = {{ 1420 - wireguard_reduce_mtu | int }}
 {% endif %}
 
 [Peer]
@@ -12,4 +10,4 @@ PublicKey = {{ wg_host.pubkey }}
 PresharedKey = {{ wg_client.pskkey }}
 AllowedIPs = 0.0.0.0/0,::/0
 Endpoint = {{ wireguard_host_ip }}:{{ wireguard_port }}
-"{{ wireguard_persistentkeepalive | string if wireguard_persistentkeepalive > 0 else '' }}"
+{{ 'PersistentKeepalive = ' + wireguard_persistentkeepalive | string if wireguard_persistentkeepalive > 0 else '' }}

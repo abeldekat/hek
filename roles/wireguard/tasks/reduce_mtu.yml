@@ -1,9 +1,19 @@
 ---
-- name: Global variables
+
+# - name: Debug reduce MTU
+#   ansible.builtin.debug:
+#     msg: |
+#       wireguard_reduce_mtu: {{ wireguard_reduce_mtu }}
+#       default_ipv4_mtu: {{ ansible_default_ipv4['mtu'] }}
+
+# Try to adjust the mtu only when the user did not configure wireguard_reduce_mtu
+# Uses the difference of 1500 and the mtu of default ipv4 interface
+# ip addr | grep mtu
+- name: Reduce MTU
   ansible.builtin.set_fact:
     wireguard_reduce_mtu: >
-      "{{
+      {{
       1500 - ansible_default_ipv4['mtu'] | int
       if wireguard_reduce_mtu | int == 0 and ansible_default_ipv4['mtu'] | int < 1500
       else wireguard_reduce_mtu | int
-      }}"
+      }}

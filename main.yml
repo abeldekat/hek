@@ -24,7 +24,6 @@
 
 # TODO:
 # wireguard prefer ipv6? Needs brackets in endpoint client.conf
-# wireguard test generated MTU
 # Test python env
 # ssh: unknown terminal alacritty
 # Think of a name for the repo
