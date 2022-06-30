@@ -45,15 +45,16 @@
     # The next available ip index for new peers
     wg_host_peers_ip_index_start: "{{ wireguard_peers_ip_index_start }}"
 
-
 - name: Block wireguard host interface part
   block:
     - name: Include new host tasks
       ansible.builtin.include_tasks: host_new.yml
       when: wg_is_new_host
+
     - name: Include existing host tasks
       ansible.builtin.include_tasks: host_existing.yml
       when: not wg_is_new_host
+
     - name: Print global vars
       ansible.builtin.debug:
         msg: |
@@ -69,6 +70,7 @@
       ansible.builtin.include_tasks: peers_delete.yml
       when:
         - wg_peernames_to_delete | length > 0
+
     - name: Add peers
       ansible.builtin.include_tasks: peers_add.yml
       when:
@@ -85,6 +87,7 @@
       notify:
         - Remove parts
         - Restart wireguard
+
     - name: Store new shasum
       ansible.builtin.include_tasks: shasum_new.yml
   when: wg_peernames_to_delete | union(wg_peernames_to_add) | length > 0
