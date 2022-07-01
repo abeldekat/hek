@@ -50,7 +50,7 @@ wireguard_network_ipv6: 2001:db8:a160::/48
 wireguard_etc_path: "/etc/wireguard/"
 # parts for server(containing private key) and client peers(contain preshared and public keys)
 wireguard_parts_path: "/etc/wireguard/parts"
-wireguard_host_conf: "{{ wireguard_etc_path }}/{{ wireguard_interface }}.conf"
+wireguard_host_config: "{{ wireguard_etc_path }}/{{ wireguard_interface }}.conf"
 
 ###############################################################################
 # Local storage, modify with care, should not be needed

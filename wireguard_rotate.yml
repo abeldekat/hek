@@ -24,28 +24,18 @@
       ansible.builtin.set_fact:
         wireguard_rotate_confirmed: "{{ booleans_map[_answer.user_input] | default(false) }}"
 
-    - block:
-
+    - name: Start processing
+      block:
         - name: Import facts role
           ansible.builtin.import_role:
             name: facts
 
-        - name: Find files to delete on server
-          ansible.builtin.find:
-            paths: '/etc/wireguard'
-            patterns:
-              - '*.lock'
-              - '*.conf'
-          register: files_to_delete
-
-        - name: Ensure server files are deleted
+        - name: Ensure server file is deleted
           ansible.builtin.file:
-            dest: "{{ item.path }}"
+            dest: "{{ wireguard_host_config }}"
             state: absent
-          with_items:
-            - "{{ files_to_delete.files }}"
 
-        - name: Ensure all local wireguard configuration is removed
+        - name: Ensure all local wireguard clients are deleted
           ansible.builtin.file:
             dest: "{{ wireguard_config_path }}"
             state: absent

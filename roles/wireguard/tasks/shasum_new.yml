@@ -2,7 +2,7 @@
 
 - name: Retrieve new checksum
   ansible.builtin.stat:
-    path: "{{ wireguard_host_conf }}"
+    path: "{{ wireguard_host_config }}"
     checksum_algorithm: sha256
   register: new_checksum_result
 

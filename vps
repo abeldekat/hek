@@ -36,7 +36,7 @@ _wireguard_rotate(){
   ansible-playbook -K wireguard_rotate.yml
 }
 
-_wireguard_update_users(){
+_wireguard_users_add_and_delete(){
   ansible-playbook -K main.yml --tags="wireguard";
 }
 
@@ -60,14 +60,13 @@ _with_tags(){
 action=$1
 shift
 case "$action" in
-  1) _all ;;
-  2) _main ;;
-  3) _provision ;;
-  10) _wireguard_update_users ;;
-  11) _wireguard_rotate ;;
-  20) _searxng_update ;;
-  99) _with_tags "$1" ;;
+  "all") _all ;;
+  "main") _main ;;
+  "provision") _provision ;;
+  "wireguard_users_add_and_delete") _wireguard_users_add_and_delete ;;
+  "wireguard_rotate") _wireguard_rotate ;;
+  "searxng_update") _searxng_update ;;
+  "with_tags") _with_tags "$1" ;;
+  "help") tail -n 12 "$0" ;;
   *) echo -e "Unknown subcommand. " && exit 1 ;;
 esac
-
-# ansible-playbook ${PLAYBOOK} "${ARGS[@]}"

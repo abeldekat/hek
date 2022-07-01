@@ -28,17 +28,17 @@
   block:
     - name: Retrieve current checksum
       ansible.builtin.stat:
-        path: "{{ wireguard_host_conf }}"
+        path: "{{ wireguard_host_config }}"
         checksum_algorithm: sha256
       register: existing_checksum_result
 
     - name: Fail when checksum differs
       ansible.builtin.fail:
         msg: |
-          File {{ wireguard_host_conf }} might have been changed externally
+          File {{ wireguard_host_config }} might have been changed externally
           Actions: Inspect the file on the server.
           To proceed, delete local file {{ wireguard_checksum_file }}
-          Otherwise, delete {{ wireguard_host_conf }}, thereby revoking all current clients
+          Otherwise, delete {{ wireguard_host_config }}, thereby revoking all current clients
           Rerun the playbook
 
           Last checksum: {{ wg_last_checksum }}

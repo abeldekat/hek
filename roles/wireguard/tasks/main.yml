@@ -82,7 +82,7 @@
     - name: Assemble parts into a host config
       ansible.builtin.assemble:
         src: "{{ wireguard_parts_path }}"
-        dest: "{{ wireguard_host_conf }}"
+        dest: "{{ wireguard_host_config }}"
         mode: "0600"
       notify:
         - Remove parts
