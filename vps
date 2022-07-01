@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-# The playbook can also be ran directly when knowing the code:
-# Example:
-# ansible-playbook -K main.yml --skip-tags="common,dns,wireguard,searxng"
-
 set -e
 
 # if [ -z ${VIRTUAL_ENV+x} ]
@@ -32,12 +28,14 @@ _all(){
   _main;
 }
 
+# Start generating new wireguard configs
 _wireguard_rotate(){
   ansible-playbook -K wireguard_rotate.yml
 }
 
+# Add and delete users given an existing wireguard config 
 _wireguard_users_add_and_delete(){
-  ansible-playbook -K main.yml --tags="wireguard";
+  ansible-playbook -K wireguard_users_add_and_delete.yml
 }
 
 _searxng_update(){
@@ -53,10 +51,6 @@ _with_tags(){
   ansible-playbook -K main.yml --tags="$tags";
 }
 
-
-# p) PLAYBOOK=provision.yml; ARGS=( "${@:2}"  -t update-users ) ;;
-# *) PLAYBOOK=main.yml; ARGS=( "${@}" ) ;;
-# ansible-playbook -K main.yml --skip-tags="common,dns,wireguard,searxng"
 action=$1
 shift
 case "$action" in

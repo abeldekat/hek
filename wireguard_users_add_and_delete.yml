@@ -1,8 +1,6 @@
 ---
 
-# All wireguard clients will have to import a new config...
-
-- name: Remove existing wireguard setup and rebuild from scratch
+- name: Add and delete wireguard users
   hosts: vps_servers
   gather_facts: true
   become: true
@@ -16,9 +14,10 @@
       ansible.builtin.pause:
         prompt: |
           Please note:
-            This will remove:
-              The wireguard config on the host
-              As a consequence: All existing users
+            Advise: Only change the users listed in playbook var "wireguard_users"
+            The following will be kept:
+              The existing config on the host
+              Existing client configs that remain present in playbook var "wireguard_users"
 
           Users specified: {{ wireguard_users }}
           Are you sure(y/N)?
@@ -39,19 +38,6 @@
           ansible.builtin.import_role:
             name: facts
 
-        - name: Ensure host file is deleted
-          ansible.builtin.file:
-            dest: "{{ wireguard_host_config }}"
-            state: absent
-
-        - name: Ensure all local wireguard clients are deleted
-          ansible.builtin.file:
-            dest: "{{ wireguard_config_path }}"
-            state: absent
-          delegate_to: localhost
-          become: false
-
-        # wireguard references dns variables
         - name: Wireguard uses variables from dns role
           ansible.builtin.import_role:
             name: dns
@@ -61,5 +47,5 @@
           ansible.builtin.import_role:
             name: wireguard
       when:
-        - confirmation
         - wireguard_enabled
+        - confirmation
