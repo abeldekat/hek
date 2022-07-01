@@ -21,7 +21,7 @@
     loop_var: zone
   when: firewalld_webserver_enabled
 
-- name: vpn specific config, anticipate possibilty of multiple vpn zones in the future
+- name: vpn block
   block:
     - name: access to vpn
       ansible.builtin.include_tasks: service_wireguard.yml

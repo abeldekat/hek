@@ -1,7 +1,7 @@
 ---
 ###############################################################################
 # Deploy WireGuard. WireGuard will listen on 51820/UDP.
-# You might need to change to another port if your network blocks this one.
+# If the network blocks this port another port can be chosen.
 # Be aware that 53/UDP (DNS) is blocked on some mobile data networks.
 
 ###############################################################################
@@ -20,12 +20,10 @@ wireguard_users:
 wireguard_persistentkeepalive: 0
 #
 # Reduce the MTU of the VPN tunnel
-# Some cloud and internet providers use a smaller MTU (Maximum Transmission
-# Unit) than the normal value of 1500 and if you don't reduce the MTU of your
-# VPN tunnel some network connections will hang.
+# The normal value is 1500, some providers use a smaller Maximum Transmission Unit
+# If connections are unresponsive adjust this value
 # The playbook will attempt to set this automatically based on your server,
 # but if connections hang you might need to adjust this yourself.
-# See: https://github.com/trailofbits/algo/blob/master/docs/troubleshooting.md#various-websites-appear-to-be-offline-through-the-vpn
 wireguard_reduce_mtu: 0
 #
 # Disable logging when generating keys:
