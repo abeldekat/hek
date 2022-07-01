@@ -28,7 +28,6 @@
 # This package contains the command-line tools.
 # Installs cgroup-tools libcgroup1
 #
-# Algo required screen instead of tmux and iptables-persistent instead of nftables
 #
 - name: Ensure software is installed
   ansible.builtin.apt:

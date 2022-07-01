@@ -56,10 +56,7 @@ searxng_email: searx@somedomain.xyz
 ################################################################################
 ## WIREGUARD: roles/wireguard/defaults/main.yml, default enabled
 ## Read when interested: wireguard_threadmodel.md
-## The main setup will create wireguard infrastructure only once(IDEMPOTENCE)
-## Modify an existing wireguard installation by using either:
-## ./vps 10 --> add or remove users
-## ./vps 11 --> new wireguard setup generated
+## Modify an existing wireguard installation by using the vps script
 #
 # wireguard_enabled: true
 #
