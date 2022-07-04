@@ -3,11 +3,6 @@
 # ipv6: digital ocean -> when creating a droplet, also activate ipv6
 # reference config on server: /etc/network/interfaces/cloud_init
 
-- name: "Sanity check"
-  import_playbook: playbooks/sanity_check.yml
-  tags:
-    - sanity
-
 - name: "Cloud setup"
   import_playbook: playbooks/cloud.yml
   tags:

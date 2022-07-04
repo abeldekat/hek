@@ -1,0 +1,72 @@
+---
+
+- hosts: localhost
+  become: false
+  tasks:
+    - name: Playbook dir statistics
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}"
+      register: playbook_dir_result
+
+    # https://docs.ansible.com/ansible/devel/reference_appendices/config.html#cfg-in-world-writable-dir
+    - name: Ensure Ansible is not being run in a world writable directory
+      ansible.builtin.assert:
+        that: playbook_dir_result.stat.mode|int <= 775
+        msg: >
+          {{ playbook_dir }} is world-writeable!
+          More information, https://docs.ansible.com/ansible/devel/reference_appendices/config.html#cfg-in-world-writable-dir
+
+    # ipaddr() is a Jinja2 filter designed to provide an interface to the netaddr Python package from within Ansible
+    # netaddr, '/usr/bin/netaddr', calculate ip addresses
+    - name: Ensure ipaddr pip installed
+      ansible.builtin.debug:
+        msg: "{{ '' | ansible.utils.ipaddr }}"
+      ignore_errors: true
+      no_log: true
+      register: ipaddr_result
+
+    # /usr/bin/segno, generate wireguard png
+    - name: Ensure segno pip installed
+      ansible.builtin.command: which segno
+      ignore_errors: true
+      changed_when: false
+      no_log: true
+      register: segno_result
+
+    # https://docs.ansible.com/ansible/latest/user_guide/playbooks_filters.html
+    # using named groups
+    - name: Parsing required ansible version from requirements
+      ansible.builtin.set_fact:
+        parsed_ansible_version:
+          "{{ item |  regex_replace('^ansible-core[\\s+]?(?P<op>[=,>,<]+)[\\s+]?(?P<ver>\\d.\\d+(.\\d+)?)$',
+                      '{\"op\": \"\\g<op>\",\"ver\": \"\\g<ver>\" }') }}"
+      when: '"ansible-core" in item'
+      with_items: "{{ lookup('file', './requirements.txt').splitlines() }}"
+
+    - name: Assert all requirements pass
+      ansible.builtin.assert:
+        that:
+          - meets_required_python_version
+          - meets_required_ansible_version
+          - not ipaddr_result.failed
+          - not segno_result.failed
+        msg: |
+          Minimum python required {{ minimum_python_required }}
+          Actual python version {{ actual_python_version }}
+          Result python {{ meets_required_python_version }}
+
+          Minimum ansible core required {{ parsed_ansible_version.op + ' ' + parsed_ansible_version.ver }}
+          Actual ansible version {{ actual_ansible_version }}
+          Result ansible {{ meets_required_ansible_version }}
+
+          Required netaddr, use pip install netaddr
+          Result netaddr {{ not ipaddr_result.failed }}
+
+          Required segno, use pip install segno
+          Result segno {{ not segno_result.failed }}
+      vars:
+        actual_python_version: "{{ ansible_python.version.major | string + '.' + ansible_python.version.minor | string }}"
+        minimum_python_required: 3.8
+        meets_required_python_version: "{{ actual_python_version is version(minimum_python_required, '>=') }}"
+        actual_ansible_version: "{{ ansible_version.full }}"
+        meets_required_ansible_version: "{{ actual_ansible_version is version(parsed_ansible_version.ver, parsed_ansible_version.op) }}"

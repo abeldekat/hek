@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# on manjaro, ansible installed:
+# ansible --version 2.13.1, the core
+# Packages (1) ansible-5.9.0-1
+# python 3.10.5
+# pip -V 21.0
+
 set -e
 
 # if [ -z ${VIRTUAL_ENV+x} ]
@@ -15,6 +21,10 @@ set -e
 #   fi
 # fi
 
+_ensure_requirements(){
+  ansible-playbook ensure_requirements.yml;
+}
+
 _provision(){
   ansible-playbook -e "ansible_ssh_user=root" provision.yml;
 }
@@ -24,6 +34,7 @@ _main(){
 }
 
 _all(){
+  _ensure_requirements
   _provision;
   _main;
 }
@@ -57,10 +68,11 @@ case "$action" in
   "all") _all ;;
   "main") _main ;;
   "provision") _provision ;;
+  "ensure_requirements") _ensure_requirements ;;
   "wireguard_users_add_and_delete") _wireguard_users_add_and_delete ;;
   "wireguard_rotate") _wireguard_rotate ;;
   "searxng_update") _searxng_update ;;
   "with_tags") _with_tags "$1" ;;
-  "help") tail -n 12 "$0" ;;
+  "help") tail -n 14 "$0" ;;
   *) echo -e "Unknown subcommand. " && exit 1 ;;
 esac
