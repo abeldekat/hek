@@ -1,5 +1,11 @@
 ---
 
+# The main limit is Certificates per Registered Domain (50 per week)
+# example searx1.domain.org, searx2.domain.org
+#
+# Renewals Duplicate Certificate limit of 5 per week
+# https://letsencrypt.org/docs/rate-limits/
+
 - name: Ensure local caddy folder exists
   ansible.builtin.file:
     path: "{{ caddy_results_path }}"
@@ -8,8 +14,8 @@
 
 - name: Archive caddy certificates directory
   community.general.archive:
-    path: "{{ caddy_dir_to_backup }}"
-    dest: "{{ caddy_dir }}/{{ caddy_backup_name }}"
+    path: "{{ caddy_dir }}/.local"
+    dest: "{{ caddy_dir }}/{{ caddy_certs_backup_name }}"
     owner: caddy
     group: caddy
     remove: false
@@ -18,52 +24,12 @@
 
 - name: Fetch
   ansible.builtin.fetch:
-    src: "{{ caddy_dir }}/{{ caddy_backup_name }}"
+    src: "{{ caddy_dir }}/{{ caddy_certs_backup_name }}"
     fail_on_missing: true
     flat: true
     dest: "{{ caddy_results_path }}/"
 
 - name: Remove backup from server
   ansible.builtin.file:
-    path: "{{ caddy_dir }}/{{ caddy_backup_name }}"
+    path: "{{ caddy_dir }}/{{ caddy_certs_backup_name }}"
     state: absent
-
-# # Use a negative age to find files equal to or less than the specified time.
-# # Uses mtime, the last time the contents of a file were modified
-# - name: Find the backup file if not older than one week
-#   ansible.builtin.find:
-#     paths: "{{ wireguard_config_path }}/searx.drieberen.xyz/var/lib/caddy/"
-#     pattern: certificates_backup.tar
-#     age: -1w
-#   register: find_result
-#   become: false
-#   delegate_to: localhost
-
-# # Note: When uninstalling caddy, also do sudo userdel caddy
-# # caddy:x:997:997:Caddy web server:/var/lib/caddy:/usr/sbin/nologin
-# - name: Restore backup block
-#   block:
-#     - name: Ensure caddy is stopped
-#       ansible.builtin.systemd:
-#         service: caddy
-#         state: stopped
-
-#     # After installation, caddy runs, but this directory is not present yet
-#     - name: Ensure caddy directory exists
-#       ansible.builtin.file:
-#         path: /var/lib/caddy/.local/
-#         owner: caddy
-#         group: caddy
-#         state: directory
-#         mode: 0700
-
-#     - name: Unarchive
-#       ansible.builtin.unarchive:
-#         src: "{{ wireguard_config_path }}/searx.drieberen.xyz/var/lib/caddy/certificates_backup.tar"
-#         dest: /var/lib/caddy/.local
-
-#     - name: Ensure caddy is started
-#       ansible.builtin.systemd:
-#         service: caddy
-#         state: started
-#   when: find_result.files | length > 0

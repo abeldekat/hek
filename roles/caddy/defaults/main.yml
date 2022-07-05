@@ -1,11 +1,18 @@
 ---
 ###############################################################################
 # Modifiable:
+
 caddy_results_path: "results/caddy"
-caddy_backup_name: backup_certificates.tar
+
+# Use the backup when present and meets criteria
+# Can be used to avoid rate-limiting when letsencrypt reissues an existing certificate
+caddy_certs_use_backup: true
+# backups should not be older than ( -1w, -1d, -1h )
+caddy_certs_backup_max_age: -1w
+caddy_certs_backup_name: backup_certificates.tar
 
 ###############################################################################
 # Not modifiable:
+#
 caddy_enabled: false
 caddy_dir: /var/lib/caddy
-caddy_dir_to_backup: "{{ caddy_dir }}/.local"

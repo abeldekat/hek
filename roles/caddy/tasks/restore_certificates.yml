@@ -1,0 +1,32 @@
+---
+
+# # Use a negative age to find files equal to or less than the specified time.
+# # Uses mtime, the last time the contents of a file were modified
+- name: Find the backup file if recent enough
+  ansible.builtin.find:
+    paths: "{{ caddy_results_path }}"
+    pattern: "{{ caddy_certs_backup_name }}"
+    age: "{{ caddy_certs_backup_max_age }}"
+  register: find_result
+  become: false
+  delegate_to: localhost
+
+# # Note: When uninstalling caddy, also do sudo userdel caddy
+# # caddy:x:997:997:Caddy web server:/var/lib/caddy:/usr/sbin/nologin
+- name: Restore backup block
+  block:
+    - name: Ensure caddy is stopped
+      ansible.builtin.systemd:
+        service: caddy
+        state: stopped
+
+    - name: Unarchive
+      ansible.builtin.unarchive:
+        src: "{{ find_result.files[0].path }}"
+        dest: "{{ caddy_dir }}"
+
+    - name: Ensure caddy is started
+      ansible.builtin.systemd:
+        service: caddy
+        state: started
+  when: find_result.files | length == 1

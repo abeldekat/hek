@@ -22,7 +22,6 @@
       ansible.builtin.set_fact:
         ipify_controller_ipv6: "{{ ipify_public_ip }}/64"
 
-    # - name: Debug ipify results
     #   ansible.builtin.debug:
     #     msg: "{{ 'ipv4:' + ipify_controller_ipv4 + ' , ipv6:' + ipify_controller_ipv6 }}"
 

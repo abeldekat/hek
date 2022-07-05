@@ -34,7 +34,6 @@
   register: searxng_running
   changed_when: false
 
-# TODO: stderr: '/bin/bash: line 1: docker: command not found'
 - name: Ensure searxng is running
   ansible.builtin.shell: |
     docker compose up -d

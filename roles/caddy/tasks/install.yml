@@ -4,6 +4,7 @@
     name:
       - caddy
     state: present
+  register: apt_result
 
 # on debian caddy is managed by systemd and the following is not strictly necessary:
 # sudo systemctl enable caddy.service
@@ -13,3 +14,7 @@
     service: caddy
     state: started
     enabled: true
+
+- name: Restore certificates tasks
+  ansible.builtin.import_tasks: restore_certificates.yml
+  when: caddy_certs_use_backup and apt_result.changed
