@@ -4,16 +4,16 @@
 # reference config on server: /etc/network/interfaces/cloud_init
 
 - name: "Cloud setup"
-  import_playbook: playbooks/cloud.yml
+  import_playbook: provision/cloud.yml
   tags:
     - cloud
 
 - name: "Obtain ansible controller ip"
-  import_playbook: playbooks/obtain_ip.yml
+  import_playbook: provision/obtain_ip.yml
   tags:
     - obtain_ip
 
 - name: "Add ansible controller ip to all hosts in group"
-  import_playbook: playbooks/process_ip.yml
+  import_playbook: provision/process_ip.yml
   tags:
     - process_ip
