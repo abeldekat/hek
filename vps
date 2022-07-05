@@ -15,24 +15,29 @@ set -e
 #   fi
 # fi
 
+# check local prerequisits
 _requirements(){
-  ansible-playbook requirements.yml;
+  ansible-playbook -K requirements.yml;
 }
 
+# harden ssh, create ssh user
 _provision(){
   ansible-playbook -e "ansible_ssh_user=root" provision.yml;
 }
 
+# install and configure software
 _main(){
   ansible-playbook -K main.yml;
 }
 
+# new server, run all
 _all(){
-  _ensure_requirements
+  _requirements
   _provision;
   _main;
 }
 
+# reuse certificates when disposing a server
 _backup_certificates(){
   ansible-playbook -K -e "standalone_role=caddy standalone_from=standalone/backup_certificates.yml" standalone.yml
 }
@@ -52,6 +57,7 @@ _searxng_update(){
   ansible-playbook -K main.yml --tags="searxng";
 }
 
+# run playbook limited to a tag
 _with_tags(){
   if [[ (-z "$1") ]]; then
 		echo "Usage: <tags>"
