@@ -15,8 +15,8 @@ set -e
 #   fi
 # fi
 
-_ensure_requirements(){
-  ansible-playbook ensure_requirements.yml;
+_requirements(){
+  ansible-playbook requirements.yml;
 }
 
 _provision(){
@@ -67,7 +67,7 @@ case "$action" in
   "all") _all ;;
   "main") _main ;;
   "provision") _provision ;;
-  "ensure_requirements") _ensure_requirements ;;
+  "requirements") _requirements ;;
   "backup_certificates") _backup_certificates ;;
   "wireguard_users_add_and_delete") _wireguard_users_add_and_delete ;;
   "wireguard_rotate") _wireguard_rotate ;;
