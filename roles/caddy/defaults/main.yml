@@ -1,5 +1,11 @@
 ---
+###############################################################################
+# Modifiable:
+caddy_results_path: "results/caddy"
+caddy_backup_name: backup_certificates.tar
 
 ###############################################################################
 # Not modifiable:
 caddy_enabled: false
+caddy_dir: /var/lib/caddy
+caddy_dir_to_backup: "{{ caddy_dir }}/.local"

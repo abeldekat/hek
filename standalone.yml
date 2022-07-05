@@ -1,0 +1,12 @@
+---
+
+- name: Standalone wireguard tasks
+  hosts: vps_servers
+  gather_facts: true
+  become: true
+  tasks:
+
+    - name: Wireguard role add and delete
+      ansible.builtin.include_role:
+        name: "{{ standalone_role }}"
+        tasks_from: "{{ standalone_from }}"

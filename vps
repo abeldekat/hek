@@ -39,14 +39,19 @@ _all(){
   _main;
 }
 
+_backup_certificates(){
+  ansible-playbook -K -e "standalone_role=caddy standalone_from=standalone/backup_certificates.yml" standalone.yml
+}
+
 # Start generating new wireguard configs
+# All wireguard clients will have to import a new config...
 _wireguard_rotate(){
-  ansible-playbook -K wireguard_rotate.yml
+  ansible-playbook -K -e "standalone_role=wireguard standalone_from=standalone/rotate.yml" standalone.yml
 }
 
 # Add and delete users given an existing wireguard config 
 _wireguard_users_add_and_delete(){
-  ansible-playbook -K wireguard_users_add_and_delete.yml
+  ansible-playbook -K -e "standalone_role=wireguard standalone_from=standalone/add_and_delete.yml" standalone.yml
 }
 
 _searxng_update(){
@@ -69,10 +74,11 @@ case "$action" in
   "main") _main ;;
   "provision") _provision ;;
   "ensure_requirements") _ensure_requirements ;;
+  "backup_certificates") _backup_certificates ;;
   "wireguard_users_add_and_delete") _wireguard_users_add_and_delete ;;
   "wireguard_rotate") _wireguard_rotate ;;
   "searxng_update") _searxng_update ;;
   "with_tags") _with_tags "$1" ;;
-  "help") tail -n 14 "$0" ;;
+  "help") tail -n 15 "$0" ;;
   *) echo -e "Unknown subcommand. " && exit 1 ;;
 esac

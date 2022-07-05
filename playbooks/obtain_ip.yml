@@ -1,10 +1,11 @@
 ---
+
 - hosts: localhost
   become: false
   gather_facts: false
   vars:
-    - ipify_controller_ipv4: ''
-    - ipify_controller_ipv6: ''
+    ipify_controller_ipv4: ''
+    ipify_controller_ipv6: ''
 
   tasks:
     - name: Obtain controller public ipv4

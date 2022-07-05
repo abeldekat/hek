@@ -1,0 +1,62 @@
+---
+
+- name: Abort when wireguard is not enabled
+  ansible.builtin.fail:
+    msg: Wireguard is not enabled, abort
+  when: not wireguard_enabled
+
+- name: Ask block
+  block:
+    - name: Ask for confirmation
+      ansible.builtin.pause:
+        prompt: |
+          Please note:
+            This will remove:
+              The wireguard config on the host
+              As a consequence: All existing users
+
+          Users specified: {{ wireguard_users }}
+          Are you sure(y/N)?
+      register: confirmation_result
+
+    - name: Translate answer into fact
+      ansible.builtin.set_fact:
+        confirmation: "{{ booleans_map[confirmation_result.user_input] | default(false) }}"
+  vars:
+    booleans_map:
+      Y: true
+      y: true
+
+- name: User aborted
+  ansible.builtin.fail:
+    msg: User aborted
+  when: not confirmation
+
+- name: Start processing
+  block:
+    - name: Ensure host file is deleted
+      ansible.builtin.file:
+        dest: "{{ wireguard_host_config }}"
+        state: absent
+
+    - name: Ensure all local wireguard clients are deleted
+      ansible.builtin.file:
+        dest: "{{ wireguard_config_path }}"
+        state: absent
+      delegate_to: localhost
+      become: false
+
+    - name: Import facts role
+      ansible.builtin.import_role:
+        name: facts
+
+    # wireguard references dns variables
+    - name: Wireguard uses variables from dns role
+      ansible.builtin.import_role:
+        name: dns
+      when: false
+
+    - name: Include wireguard tasks
+      ansible.builtin.include_tasks: main.yml
+  when:
+    - confirmation
