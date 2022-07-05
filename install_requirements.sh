@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# on manjaro, ansible installed:
+# ansible --version 2.13.1, the core
+# Packages (1) ansible-5.9.0-1
+# python 3.10.5
+# pip -V 21.0
+
 set -e
 
 # For now, only consider system installation on arch-manjaro and virtualenv installation inside directory
