@@ -1,19 +1,29 @@
 ---
 
 - hosts: localhost
+  gather_facts: true
   become: false
   tasks:
+
+    - name: Fact, playbook_dir is one level up
+      ansible.builtin.set_fact:
+        real_playbook_dir: "{{ playbook_dir }}/.."
+
     - name: Playbook dir statistics
       ansible.builtin.stat:
-        path: "{{ playbook_dir }}"
+        path: "{{ real_playbook_dir }}"
       register: playbook_dir_result
+
+    - name: Debug playbook_dir
+      ansible.builtin.debug:
+        msg: "{{ playbook_dir_result }}"
 
     # https://docs.ansible.com/ansible/devel/reference_appendices/config.html#cfg-in-world-writable-dir
     - name: Ensure Ansible is not being run in a world writable directory
       ansible.builtin.assert:
         that: playbook_dir_result.stat.mode|int <= 775
         msg: >
-          {{ playbook_dir }} is world-writeable!
+          {{ real_playbook_dir }} is world-writeable!
           More information, https://docs.ansible.com/ansible/devel/reference_appendices/config.html#cfg-in-world-writable-dir
 
     # ipaddr() is a Jinja2 filter designed to provide an interface to the netaddr Python package from within Ansible
@@ -41,7 +51,7 @@
           "{{ item |  regex_replace('^ansible-core[\\s+]?(?P<op>[=,>,<]+)[\\s+]?(?P<ver>\\d.\\d+(.\\d+)?)$',
                       '{\"op\": \"\\g<op>\",\"ver\": \"\\g<ver>\" }') }}"
       when: '"ansible-core" in item'
-      with_items: "{{ lookup('file', './requirements.txt').splitlines() }}"
+      with_items: "{{ lookup('file', '../requirements.txt').splitlines() }}"
 
     - name: Assert all requirements pass
       ansible.builtin.assert:

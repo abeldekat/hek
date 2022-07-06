@@ -1,7 +1,7 @@
 ---
 # override ansible_ssh_user in invoking shellscript
 - hosts: vps_servers
-  gather_facts: false
+  gather_facts: true
 
   # ansible webserver -m ping
   # ansible webserver -m shell -a id

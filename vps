@@ -15,9 +15,8 @@ set -e
 #   fi
 # fi
 
-# check local prerequisits
-_requirements(){
-  ansible-playbook -K requirements.yml;
+_ensure_requirements(){
+  ansible-playbook -e "ansible_ssh_user=root" provision.yml --tags=ensure_requirements;
 }
 
 # harden ssh, create ssh user
@@ -32,7 +31,6 @@ _main(){
 
 # new server, run all
 _all(){
-  _requirements
   _provision;
   _main;
 }
@@ -73,7 +71,7 @@ case "$action" in
   "all") _all ;;
   "main") _main ;;
   "provision") _provision ;;
-  "requirements") _requirements ;;
+  "ensure_requirements") _ensure_requirements ;;
   "backup_certificates") _backup_certificates ;;
   "wireguard_users_add_and_delete") _wireguard_users_add_and_delete ;;
   "wireguard_rotate") _wireguard_rotate ;;

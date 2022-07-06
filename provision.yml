@@ -3,6 +3,11 @@
 # ipv6: digital ocean -> when creating a droplet, also activate ipv6
 # reference config on server: /etc/network/interfaces/cloud_init
 
+- name: "Ensure requirements are met"
+  ansible.builtin.import_playbook: provision/ensure_requirements.yml
+  tags:
+    - ensure_requirements
+
 - name: "Cloud setup"
   import_playbook: provision/cloud.yml
   tags:

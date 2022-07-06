@@ -65,7 +65,8 @@ searxng_email: searx@somedomain.xyz
 ## The list defaults to one client named vpnuser, emailaddresses are not allowed
 wireguard_users:
   - phone
-  - pc
+  - laptop
+  - desktop
 
 ################################################################################
 ## DNS: roles/dns/defaults/main.yml, dnscrypt-proxy with adblocking default dynamically enabled
@@ -87,9 +88,6 @@ wireguard_users:
 
 ###############################################################################
 ## FIREWALLD: firewall, roles/firewalld/defaults/main/default.yml, default enabled
-
-################################################################################
-## NFTABLES: firewall, roles/nftables/defaults/main.yml, default disabled, deprecated
 
 ################################################################################
 ## BASE: roles/base/defaults/main.yml
