@@ -26,7 +26,6 @@
   changed_when: false
   register: rootlesskit_bin
 
-# TODO: Test this, idempotence
 - name: Capture rootlesskit current cap
   ansible.builtin.command: "getcap {{ rootlesskit_bin.stdout }}"
   changed_when: false

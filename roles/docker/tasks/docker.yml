@@ -37,7 +37,6 @@
     - "docker.service"
     - "docker.socket"
 
-# notify: reset connection
 - name: Ensure user is added to the docker group
   ansible.builtin.user:
     name: "{{ vps_user }}"
