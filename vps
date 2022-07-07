@@ -2,6 +2,7 @@
 
 set -e
 
+# try sourcing python virtualenv
 if [ -z ${VIRTUAL_ENV+x} ]
 then
   ACTIVATE_SCRIPT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.env/bin/activate"
@@ -10,7 +11,8 @@ then
     # shellcheck source=/dev/null
     source "$ACTIVATE_SCRIPT"
   else
-    echo "$ACTIVATE_SCRIPT not found. Assuming user has installed ansible systemwide"
+# No virtualenv, fallback to systemwide ansible installtion
+    [[ -z "$(command -v ansible)" ]] && echo "Ansible not found. Please use script install_requirements" && exit 1
   fi
 fi
 
