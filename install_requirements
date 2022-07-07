@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+
+set -e
+
+# For now, only consider system installation on arch-manjaro and virtualenv installation inside directory
+
+_install_systemwide_on_arch(){
+
+  sudo pacman -S ansible
+  # Packages (7):
+  # ansible-core-2.13.1-1 
+  # python-bcrypt-3.2.1-1  python-jinja-1:3.1.2-1 
+  # python-markupsafe-2.1.1-1  python-paramiko-2.11.0-1  python-pynacl-1.4.0-5 
+  # ansible-5.9.0-1
+  #
+  #   Optional dependencies for python-jinja
+  #     python-babel: for i18n support
+  # (6/7) installing ansible-core
+  # Optional dependencies for ansible-core
+  #     sshpass: for ssh connections with password
+  #     python-passlib: crypt values for vars_prompt
+  #     python-netaddr: for the ipaddr filter
+  #     python-systemd: log to journal [installed]
+  #     python-pywinrm: connect to Windows machines
+  #     python-dnspython: for dig lookup [installed]
+  #     python-jmespath: json_query support
+
+  sudo pacman -S python-netaddr
+  # python-netaddr-0.8.0-5-any
+
+  sudo pip install segno
+  # Collecting segno
+  # Using cached segno-1.5.2-py2.py3-none-any.whl (83 kB)
+  # Installing collected packages: segno
+  # Successfully installed segno-1.5.2
+
+  sudo pacman -S ansible-lint
+  # Packages (18) python-ansible-compat-2.1.0-1  python-bracex-2.3-1  python-commonmark-0.9.1-5  python-docutils-1:0.18.1-1  python-enrich-1.2.7-1  python-future-0.18.2-7
+  #             python-jsonschema-3.2.0-6  python-pathspec-0.9.0-3  python-pyaml-21.10.1-1  python-pyrsistent-0.18.1-1  python-rich-12.4.4-1  python-ruamel-yaml-0.17.21-1
+  #             python-ruamel.yaml.clib-0.2.6-3  python-subprocess-tee-0.3.5-3  python-typing_extensions-4.2.0-1  python-wcmatch-8.4-1  yamllint-1.26.2-2  ansible-lint-6.3.0-1
+}
+
+# Manjaro: python 3.10.5 is present
+# python3 and python are the same binary
+#
+# # The version displayed by this command is for the associated ansible-core package that has been installed:
+# ansible --version
+# # To check the version of the ansible package that has been installed:
+# python3 -m pip show ansible
+#
+# # Python and Pip version
+# python -V
+# python3 -m pip -V
+#
+# 20220701: Without any version numbers in requirements.txt this is installed:
+# ansible 2.13.1
+# ansible 6.0.0
+# jinja2 3.1.2
+# netaddr 0.8.0
+# segno 1.5.2
+# Manually: ansible-lint 6.3.0
+_install_in_virtual_env(){
+
+  echo "Install python-virtualenv"
+  sudo pacman -S --needed python-virtualenv
+
+  dir=$(dirname "$0")
+  echo "Project folder is $dir"
+
+  echo "Install virtualenv in $dir"
+  python -m virtualenv "$dir/.env"
+
+  echo "cd to $dir"
+  cd "$dir"
+  echo "sourcing virtual env"
+  source .env/bin/activate
+  echo "Pip: install and upgrade pip and virtualenv"
+  python -m pip install -U pip virtualenv
+  echo "Pip: install from requirements.txt"
+  python -m pip install -r requirements.txt
+  echo "Done..."
+}
+
+while getopts "hae" o; do
+	case "$o" in
+    h) tail -n 10 "$0" ;;
+    a) _install_systemwide_on_arch ;;
+    e) _install_in_virtual_env ;;
+    *) echo -e "Invalid option \\n" && exit ;;
+	esac
+done
