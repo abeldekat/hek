@@ -10,14 +10,3 @@
   ansible.builtin.set_fact:
     run_setuptool: "{{ not run_dockerd_rootless_setuptool_required.stat.exists }}"
   become: false
-
-- name: Ensure reboot before rootless setup script runs
-  ansible.builtin.reboot:
-  when: run_setuptool
-
-- name: Wait until the server becomes ready...
-  ansible.builtin.wait_for_connection:
-    delay: 20
-    timeout: 320
-  when: run_setuptool
-

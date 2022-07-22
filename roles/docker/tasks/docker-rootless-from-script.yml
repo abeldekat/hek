@@ -31,6 +31,10 @@
     - {line: 'export PATH=$HOME/bin:$PATH', dest: '~/.bashrc'}
   become: false
 
+- name: Ensure all sysctl settings are loaded before rootless docker script runs
+  ansible.builtin.shell: sysctl -p --system
+  when: run_setuptool
+
 - name: Ensure script dockerd-rootless-setuptool runs
   ansible.builtin.shell: |
     set -o pipefail && \
@@ -59,16 +63,6 @@
     executable: /bin/bash
     creates: "$HOME/.docker/cli-plugins/docker-compose"
   become: false
-  when: run_setuptool
-
-- name: Ensure reboot after rootless setup script has ran.
-  ansible.builtin.reboot:
-  when: run_setuptool
-
-- name: Wait until the server becomes ready...
-  ansible.builtin.wait_for_connection:
-    delay: 20
-    timeout: 320
   when: run_setuptool
 
 # # The socket path is set to $XDG_RUNTIME_DIR/docker.sock by default. $XDG_RUNTIME_DIR is typically set to /run/user/$UID.
