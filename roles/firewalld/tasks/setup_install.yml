@@ -1,11 +1,15 @@
 ---
 
+# Linode: On installation of firewalld, ipset and iptables are also installed
+# Hetzner has iptables installed by default, but not ipset. 
+# ipset is a recommended package for firewalld, so on hetzner this is not installed automatically
 - name: Ensure firewalld and nftables are installed
   ansible.builtin.apt:
     name: "{{ item }}"
     state: present
     update_cache: true
   with_items:
+    - ipset
     - nftables
     - firewalld
 

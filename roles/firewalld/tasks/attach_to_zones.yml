@@ -9,14 +9,20 @@
   loop: "{{ fw_ipsets_active }}"
   notify: reload firewalld
 
-- name: Ensure interfaces are bound
+- name: Ensure ipv4 interfaces is bound
   ansible.posix.firewalld:
     zone: "{{ fw_zone_public }}"
     permanent: true
-    interface: "{{ item.interface }}"
+    interface: "{{ ansible_default_ipv4['interface'] }}"
     state: enabled
-  when: item.use and fw_zones_active | intersect([fw_zone_public])
-  loop:
-    - {use: true, interface: "{{ ansible_default_ipv4['interface'] }}"}
-    - {use: "{{ vps_ipv6_support }}", interface: "{{ ansible_default_ipv6['interface'] }}"}
+  when: fw_zones_active | intersect([fw_zone_public])
+  notify: reload firewalld
+
+- name: Ensure ipv6 interface is bound
+  ansible.posix.firewalld:
+    zone: "{{ fw_zone_public }}"
+    permanent: true
+    interface: "{{ ansible_default_ipv6['interface'] }}"
+    state: enabled
+  when: vps_ipv6_support and fw_zones_active | intersect([fw_zone_public])
   notify: reload firewalld
