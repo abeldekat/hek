@@ -10,7 +10,7 @@
 # https://yaml-multiline.info/
 
 # TODO:
-# vps_ipv6 not working on hetzner
+# On hetzner: Always add vps_ipv6 and an AAAA record to provider. Otherwise vps_ipv6_support var in facts is incorrect
 # Readme and repo on github
 
 - name: Configure the server and install required software
