@@ -13,6 +13,8 @@ firewalld_webserver_enabled: false
 # port 53 on dnscrypt proxy local ip
 firewalld_dnscrypt_proxy_enabled: false
 #
+firewalld_snikket_enabled: false
+#
 # Not recommended, still untested. Samba on wireguard.
 # For the moment, samba software is not installed
 firewalld_samba_enabled: false

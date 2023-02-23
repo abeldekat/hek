@@ -4,4 +4,5 @@
 # Not modifiable:
 # defaults for facts set in tasks, used by other roles:
 #
-vps_ipv6_support: "{% if ansible_default_ipv6['gateway'] is defined %}true{% else %}false{% endif %}"
+# vps_ipv6_support: "{% if ansible_default_ipv6['gateway'] is defined %}true{% else %}false{% endif %}"
+vps_ipv6_support: false

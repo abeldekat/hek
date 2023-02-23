@@ -1,0 +1,48 @@
+---
+
+# For a simple configuration that only proxies the Snikket web portal, the following Caddyfile can be used.
+
+- name: Ensure snikket folder is present
+  ansible.builtin.file:
+    dest: "{{ snikket_folder }}"
+    state: directory
+    mode: 0755
+
+- name: Ensure snikket config is present
+  ansible.builtin.template:
+    src: snikket.conf.j2
+    dest: "{{ snikket_folder }}/snikket.conf"
+    mode: 0644
+
+- name: Ensure docker compose file is present
+  ansible.builtin.shell:
+    set -o pipefail && \
+    curl -o {{ snikket_folder }}/docker-compose.yml https://snikket.org/service/resources/docker-compose.beta.yml
+  args:
+    warn: false
+    creates: "{{ snikket_folder }}/docker-compose.yml"
+    executable: /bin/bash
+
+- name: Snikket find the backup file to restore
+  ansible.builtin.find:
+    paths: "{{ snikket_results_path }}"
+    pattern: "{{ snikket_backup_name }}"
+  register: find_result
+  become: false
+  delegate_to: localhost
+
+- name: Snikket unarchive the backup file
+  ansible.builtin.unarchive:
+    src: "{{ find_result.files[0].path }}"
+    dest: "{{ snikket_docker_volumes }}"
+  when: find_result.files | length == 1
+
+- name: Ensure snikket is started using docker compose
+  ansible.builtin.shell: |
+    docker compose up -d
+  args:
+    chdir: "{{ snikket_folder }}"
+    executable: /bin/bash
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  ansible.builtin.meta: flush_handlers

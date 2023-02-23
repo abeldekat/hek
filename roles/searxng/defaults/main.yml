@@ -1,4 +1,5 @@
 ---
+
 ###############################################################################
 # Modifiable:
 searxng_enabled: true
@@ -27,19 +28,7 @@ searxng_engines_restrict_keep: false
 ###############################################################################
 # Path configuration, modify with care, should not be needed
 # Install dir, working dir in service file
-searxng_install_dir_systemwide: "/usr/local/searxng-docker"
-searxng_install_dir_rootless: "{{ '/home/' + vps_user + '/builds/searxng-docker' }}"
+searxng_install_dir: "/usr/local/searxng-docker"
 #
 # Service dir
-searxng_systemd_dir_systemwide: "/etc/systemd/system"
-searxng_systemd_dir_rootless: "{{ '/home/' + vps_user + '/.config/systemd/user' }}"
-
-# Defaults to systemwide:
-searxng_install_dir: "{{ searxng_install_dir_systemwide }}"
-searxng_systemd_dir: "{{ searxng_systemd_dir_systemwide }}"
-
-###############################################################################
-# Not modifiable:
-#
-# see groupvars:
-searxng_rootless: false
+searxng_systemd_dir: "/etc/systemd/system"

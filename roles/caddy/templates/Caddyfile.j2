@@ -2,6 +2,7 @@
 	admin off
 }
 
+{% if searxng_enabled %}
 {{ searxng_hostname }} {
 	log {
 		output discard
@@ -104,3 +105,22 @@
 		}
 	}
 }
+{% endif %}
+
+{% if snikket_enabled %}
+http://{{ snikket_domain }},
+http://groups.{{ snikket_domain }},
+http://share.{{ snikket_domain }} {
+    reverse_proxy localhost:5080
+}
+
+{{ snikket_domain }},
+groups.{{ snikket_domain }},
+share.{{ snikket_domain }} {
+    reverse_proxy https://localhost:5443 {
+      transport http {
+      tls_insecure_skip_verify
+		}
+	}
+}
+{% endif %}

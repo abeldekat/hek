@@ -1,0 +1,25 @@
+---
+
+###############################################################################
+# Modifiable:
+#
+snikket_results_path: "results/snikket"
+# Use the backup when present
+snikket_use_backup: true
+snikket_backup_name: backup_snikket.tar
+
+snikket_enabled: true
+snikket_domain: ""
+snikket_admin_email: ""
+snikket_turnserver_min_port: "49152"
+snikket_turnserver_max_port: "49202"
+
+###############################################################################
+# Not modifiable:
+snikket_folder: "/etc/snikket"
+# contains /letsencrypt/_data, prosody/_data, inside letsencrypt live: snikket_domain folder 
+snikket_docker_volumes: "/var/lib/docker/volumes"
+# snikket_data: "/var/lib/docker/volumes/snikket_snikket_data"
+# folder is empty, backup not needed
+# snikket_data: "{ snikket_docker }/snikket_snikket_data"
+# snikket_acme: "{ snikket_docker }/snikket_acme_challenges"

@@ -1,0 +1,32 @@
+---
+
+# prosody volume: systemd-network systemd-resolve
+# acme volume: normal user
+
+- name: Ensure local snikket folder exists
+  ansible.builtin.file:
+    path: "{{ snikket_results_path }}"
+    state: directory
+    mode: 0755
+
+- name: Archive docker volume snikket_snikket_data
+  community.general.archive:
+    path: "{{ snikket_docker_volumes }}/snikket_snikket_data"
+    dest: "{{ snikket_docker_volumes }}/{{ snikket_backup_name }}"
+    owner: root
+    group: root
+    remove: false
+    format: tar
+    mode: 0600
+
+- name: Fetch
+  ansible.builtin.fetch:
+    src: "{{ snikket_docker_volumes }}/{{ snikket_backup_name }}"
+    fail_on_missing: true
+    flat: true
+    dest: "{{ snikket_results_path }}/"
+
+- name: Remove backup from server
+  ansible.builtin.file:
+    path: "{{ snikket_docker_volumes }}/{{ snikket_backup_name }}"
+    state: absent

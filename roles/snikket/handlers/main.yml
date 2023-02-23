@@ -1,0 +1,14 @@
+---
+
+# - name: restart caddy
+#   ansible.builtin.systemd:
+#     name: caddy
+#     state: restarted
+#   become: true
+
+- name: restart snikket
+  ansible.builtin.shell: |
+    docker compose restart
+  args:
+    chdir: "{{ snikket_folder }}"
+    executable: /bin/bash

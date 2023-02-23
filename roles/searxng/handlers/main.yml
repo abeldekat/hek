@@ -1,19 +1,12 @@
 ---
 
-- name: restart caddy
-  ansible.builtin.systemd:
-    name: caddy
-    state: restarted
-  become: true
+# - name: restart caddy
+#   ansible.builtin.systemd:
+#     name: caddy
+#     state: restarted
+#   become: true
 
 - name: restart searxng
   ansible.builtin.systemd:
     name: searxng-docker
     state: restarted
-
-- name: restart rootless searxng
-  ansible.builtin.shell: |
-    docker compose restart
-  args:
-    chdir: "{{ searxng_install_dir }}"
-    executable: /bin/bash

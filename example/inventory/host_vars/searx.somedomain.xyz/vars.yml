@@ -1,6 +1,7 @@
 ---
 ################################################################################
-## Default roles enabled: WIREGUARD(dnscrypt and adblocking included), SEARXNG(private instance), FIREWALLD
+## Default roles enabled:
+## FIREWALLD, WIREGUARD(dnscrypt and adblocking included), SEARXNG(private instance), SNIKKET
 ## Roles that are dynamically inferred by the system: DNS, CADDY, DOCKER
 ##
 ## Each role in this personal configuration points to the file containing the default values
@@ -28,11 +29,20 @@ vps_provision_ssh_keys:
   - "/.ssh/laptop2somedomain.pub"
 
 ################################################################################
+## BASE: roles/base/defaults/main.yml
+## 1. setup software
+## 2. unattended_reboot, default true
+
+################################################################################
+## DOCKER: containers, roles/docker/defaults/main.yml, default dynamically enabled
+
+###############################################################################
+## FIREWALLD: firewall, roles/firewalld/defaults/main/default.yml, default enabled
+
+################################################################################
 ## SEARXNG, roles/searxng/defaults/main.yml, non-public default enabled
+## searxng_enabled:
 ## REQUIRED: Change these variables
-#
-# searxng_enabled: false
-#
 ## openssl rand -hex 32
 searxng_secret_key: change_this_secret
 #
@@ -52,6 +62,16 @@ searxng_email: searx@somedomain.xyz
 #   - google
 #   - startpage
 # searxng_engines_restrict_keep: false
+
+################################################################################
+## SNIKKET, roles/snikket/defaults/main.yml
+## https://snikket.org/service/quickstart/
+## REQUIRED: Change these variables
+## snikket_enabled:
+snikket_domain: "chat.somedomain.xyz"
+snikket_admin_email: "snikket@somedomain.xyz"
+# snikket_turnserver_min_port
+# snikket_turnserver_max_port
 
 ################################################################################
 ## WIREGUARD: roles/wireguard/defaults/main.yml, default enabled
@@ -81,26 +101,12 @@ wireguard_users:
 # dns_adblocking_enabled: true
 
 ################################################################################
-## DOCKER: containers, roles/docker/defaults/main.yml, default dynamically enabled
-
-################################################################################
-## CADDY: webserver, roles/caddy/defaults/main.yml, default dynamically enabled
-
-###############################################################################
-## FIREWALLD: firewall, roles/firewalld/defaults/main/default.yml, default enabled
-
-################################################################################
-## BASE: roles/base/defaults/main.yml
-## 1. setup software
-## 2. unattended_reboot, default true
-
-################################################################################
 ## TERMINAL: roles/terminal/defaults/main.yml, default disabled
 ## Install extra software(zsh and more)
 ## Install repos: zsh-completions, z.lua
 ## Install zsh theme: spaceship
+## terminal_software_enabled: true
 #
-# terminal_software_enabled: true
 #
 ## Personal repos, rsync from controller to host .config, excluding git folder
 # terminal_software_personal_config_repos:
@@ -114,6 +120,9 @@ wireguard_users:
 ## flags
 # terminal_software_zsh_enabled: true
 # terminal_software_spaceship_enabled: true
+
+################################################################################
+## CADDY: webserver, roles/caddy/defaults/main.yml, default dynamically enabled
 
 ################################################################################
 ## PROVISION: These settings are set automatically when running the script

@@ -9,7 +9,7 @@
   loop: "{{ fw_ipsets_active }}"
   notify: reload firewalld
 
-- name: Ensure ipv4 interfaces is bound
+- name: Ensure ipv4 interface is bound
   ansible.posix.firewalld:
     zone: "{{ fw_zone_public }}"
     permanent: true

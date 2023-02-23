@@ -1,3 +1,4 @@
+.python-version
 /inventory/*
 !/inventory/.gitkeep
 !/inventory/host_vars/.gitkeep

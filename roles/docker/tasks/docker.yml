@@ -20,7 +20,6 @@
     src: daemon.json
     dest: /etc/docker
     mode: 0600
-  when: not docker_rootless_enabled
 
 - name: Install tasks
   ansible.builtin.import_tasks: apt.yml
