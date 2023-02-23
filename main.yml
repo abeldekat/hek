@@ -10,8 +10,7 @@
 # https://yaml-multiline.info/
 
 # TODO:
-# ssh: unknown terminal alacritty
-# Think of a name for the repo
+# vps_ipv6 not working on hetzner
 # Readme and repo on github
 
 - name: Configure the server and install required software
@@ -29,12 +28,6 @@
       ansible.builtin.import_role:
         name: base
       tags: [base]
-
-    # - name: Import nftables role
-    #   ansible.builtin.import_role:
-    #     name: nftables_deprecated
-    #   when: nftables_enabled
-    #   tags: [nftables]
 
     - name: Import firewalld role
       ansible.builtin.import_role:
@@ -76,5 +69,10 @@
       ansible.builtin.import_role:
         name: searxng
       when: searxng_enabled
-      become: "{{ not searxng_rootless }}"
       tags: [searxng]
+
+    - name: Import snikket role
+      ansible.builtin.import_role:
+        name: snikket
+      when: snikket_enabled
+      tags: [snikket]

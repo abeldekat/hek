@@ -6,6 +6,19 @@
     state: present
   register: apt_result
 
+- name: Restore certificates tasks
+  ansible.builtin.import_tasks: restore_certificates.yml
+  when: caddy_certs_use_backup and apt_result.changed
+
+- name: Ensure custom caddyfile is installed in /etc/caddy
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: /etc/caddy/Caddyfile
+    backup: true
+    mode: 0644
+  become: true
+  notify: restart caddy
+
 # on debian caddy is managed by systemd and the following is not strictly necessary:
 # sudo systemctl enable caddy.service
 # At first, Caddy will run a default site on port 80
@@ -14,7 +27,3 @@
     service: caddy
     state: started
     enabled: true
-
-- name: Restore certificates tasks
-  ansible.builtin.import_tasks: restore_certificates.yml
-  when: caddy_certs_use_backup and apt_result.changed

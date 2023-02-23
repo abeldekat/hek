@@ -24,7 +24,9 @@ dns_local_service_ip_seed: "{{ vps_seed + ansible_fqdn }}"
 #  firewalld: default enabled
 #
 ######################################################################
-firewalld_webserver_enabled: "{{ true if searxng_enabled else false }}"
+firewalld_webserver_enabled: "{{ true if searxng_enabled or snikket_enabled else false }}"
+firewalld_snikket_enabled: "{{ true if snikket_enabled else false }}"
+#
 # exposes vars from wireguard role
 firewalld_vpn_enabled: "{{ true if wireguard_enabled else false }}"
 # exposes vars from dns role
@@ -34,18 +36,6 @@ firewalld_vpn_port: "{{ wireguard_port }}"
 firewalld_vpn_ports_to_redirect: "{{ wireguard_ports_to_redirect }}"
 firewalld_vpn_network_ipv4: "{{ wireguard_network_ipv4 }}"
 firewalld_vpn_network_ipv6: "{{ wireguard_network_ipv6 }}"
-
-######################################################################
-#
-#  nftables: deprecated
-#
-######################################################################
-#
-# nftables_webserver_enabled: "{{ true if searxng_enabled else false }}"
-# # exposes vars from wireguard role
-# nftables_wireguard_enabled: "{{ true if wireguard_enabled else false }}"
-# # exposes vars from dns role
-# nftables_dnscrypt_proxy_enabled: "{{ true if dns_encryption_enabled or dns_adblocking_enabled else false }}"
 
 ######################################################################
 #
@@ -62,30 +52,37 @@ wireguard_dns_servers: >-
 
 ######################################################################
 #
-#  docker: must be enabled by its services
+#  docker: enabled conditionally
 #
 ######################################################################
-
-######################################################################
-#
-#  caddy: must be enabled by its services
-#
-######################################################################
+docker_enabled: "{{ true if searxng_enabled or snikket_enabled else false }}"
 
 ######################################################################
 #
 #  searxng
 #
 ######################################################################
-caddy_enabled: "{{ true if searxng_enabled else false }}"
-docker_enabled: "{{ true if searxng_enabled else false }}"
-searxng_rootless: "{{ true if docker_rootless_enabled else false }}"
-searxng_install_dir: "{{ searxng_install_dir_rootless if docker_rootless_enabled else searxng_install_dir_systemwide }}"
-searxng_systemd_dir: "{{ searxng_systemd_dir_rootless if docker_rootless_enabled else searxng_systemd_dir_systemwide }}"
+
+######################################################################
+#
+#  snikket
+#
+######################################################################
 
 ######################################################################
 #
 #  terminal software
 #
 ######################################################################
-terminal_software_add_docker_rootless_to_zsh: "{{ true if docker_rootless_enabled and terminal_software_zsh_enabled else false }}"
+
+######################################################################
+#
+#  caddy: enabled conditionally
+#
+######################################################################
+caddy_enabled: "{{ true if searxng_enabled or snikket_enabled else false }}"
+# caddy file uses:
+# searxng_enabled
+# searxng_hostname
+# searxng_public
+# vps_home_ipv4 vps_home_ipv6 wireguard_network_ipv4 wireguard_network_ipv6

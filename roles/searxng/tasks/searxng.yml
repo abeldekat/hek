@@ -6,15 +6,6 @@
     dest: "{{ searxng_systemd_dir + '/searxng-docker.service' }}"
     mode: 0644
 
-- name: Ensure custom caddyfile is installed in /etc/caddy
-  ansible.builtin.template:
-    src: Caddyfile.j2
-    dest: /etc/caddy/Caddyfile
-    backup: true
-    mode: 0644
-  become: true
-  notify: restart caddy
-
 - name: Ensure custom docker-compose file is installed
   ansible.builtin.template:
     src: docker-compose.yaml.j2

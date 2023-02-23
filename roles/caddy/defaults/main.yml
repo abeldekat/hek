@@ -14,5 +14,5 @@ caddy_certs_backup_name: backup_certificates.tar
 ###############################################################################
 # Not modifiable:
 #
-caddy_enabled: false
 caddy_dir: /var/lib/caddy
+caddy_enabled: false

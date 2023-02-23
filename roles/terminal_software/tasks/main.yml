@@ -92,18 +92,6 @@
   when: terminal_software_zsh_enabled
   become: false
 
-- name: Ensure .zshenv contains DOCKER_HOST export and bin path
-  ansible.builtin.lineinfile:
-    dest: "{{ item.dest }}"
-    line: "{{ item.line }}"
-    state: present
-    backup: true
-  with_items:
-    - {line: 'export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock', dest: '~/.config/zsh/.zshenv'}
-    - {line: 'export PATH=$HOME/bin:$PATH', dest: '~/.config/zsh/.zshenv'}
-  when: terminal_software_add_docker_rootless_to_zsh
-  become: false
-
 - name: Ensure git repos are cloned
   ansible.builtin.git:
     clone: true

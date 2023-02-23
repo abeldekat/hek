@@ -5,9 +5,6 @@ services:
   redis:
     container_name: redis
     image: "redis:alpine"
-{% if searxng_rootless %}
-    restart: unless-stopped
-{% endif %}
     command: redis-server --save "" --appendonly "no"
     networks:
       - searxng
@@ -23,9 +20,6 @@ services:
   searxng:
     container_name: searxng
     image: searxng/searxng:latest
-{% if searxng_rootless %}
-    restart: unless-stopped
-{% endif %}
     networks:
       - searxng
     ports:

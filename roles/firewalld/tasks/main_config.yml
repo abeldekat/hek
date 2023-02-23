@@ -6,41 +6,46 @@
 
 # To get the difference of 2 lists (items in 1 that don’t exist in 2):
 - name: ssh accept on all zones but fw_zone_public
-  ansible.builtin.include_tasks: service_ssh_accept.yml
+  ansible.builtin.include_tasks: services/service_ssh_accept.yml
   loop: "{{ fw_zones_active | difference([fw_zone_public]) }}"
 
 # To get the intersection of 2 lists (unique list of all items in both):
 - name: ssh drop on fw_zone_public only
-  ansible.builtin.include_tasks: service_ssh_drop.yml
+  ansible.builtin.include_tasks: services/service_ssh_drop.yml
   loop: "{{ fw_zones_active | intersect([fw_zone_public]) }}"
 
 - name: http and https on all zones
-  ansible.builtin.include_tasks: service_web.yml
+  ansible.builtin.include_tasks: services/service_web.yml
   loop: "{{ fw_zones_active }}"
   loop_control:
     loop_var: zone
   when: firewalld_webserver_enabled
 
+- name: snikket on all zones
+  ansible.builtin.include_tasks: services/service_snikket.yml
+  loop: "{{ fw_zones_active }}"
+  when: firewalld_snikket_enabled
+
 - name: vpn block
   block:
     - name: access to vpn
-      ansible.builtin.include_tasks: service_wireguard.yml
+      ansible.builtin.include_tasks: services/service_wireguard.yml
       loop: "{{ fw_zones_active | intersect(fw_zones_other) }}"
 
     - name: access to vpn from other ports, redirected to wireguard port
-      ansible.builtin.include_tasks: service_wireguard_by_redirection.yml
+      ansible.builtin.include_tasks: services/service_wireguard_by_redirection.yml
       loop: "{{ fw_zones_active | intersect(fw_zone_public) }}"
       loop_control:
         loop_var: zone
       when: firewalld_vpn_ports_to_redirect
 
     - name: dns accept on vpn
-      ansible.builtin.include_tasks: service_dns.yml
+      ansible.builtin.include_tasks: services/service_dns.yml
       loop: "{{ fw_zones_active | intersect(fw_zones_vpn) }}"
       when: firewalld_dnscrypt_proxy_enabled
 
     - name: samba accept on vpn, not recommended, untested
-      ansible.builtin.include_tasks: service_samba.yml
+      ansible.builtin.include_tasks: services/service_samba.yml
       loop: "{{ fw_zones_active | intersect(fw_zones_vpn) }}"
       when: firewalld_samba_enabled
 

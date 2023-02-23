@@ -1,0 +1,10 @@
+
+---
+
+- name: Ensure zones allow snikket xmpp
+  ansible.posix.firewalld:
+    permanent: true
+    zone: "{{ item }}"
+    service: snikket
+    state: enabled
+  notify: reload firewalld

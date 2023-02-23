@@ -23,4 +23,3 @@ terminal_software_spaceship_repo: "https://github.com/spaceship-prompt/spaceship
 
 ###############################################################################
 # Not modifiable:
-terminal_software_add_docker_rootless_to_zsh: false

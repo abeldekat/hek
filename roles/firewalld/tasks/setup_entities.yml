@@ -25,3 +25,12 @@
   when: firewalld_vpn_enabled
   notify:
     - reload firewalld
+
+- name: Ensure snikket service is present
+  ansible.builtin.template:
+    src: snikket.xml.j2
+    dest: "/etc/firewalld/services/snikket.xml"
+    mode: 0644
+  when: firewalld_snikket_enabled
+  notify:
+    - reload firewalld

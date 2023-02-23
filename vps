@@ -37,8 +37,10 @@ _all(){
 }
 
 # reuse certificates when disposing a server
-_backup_certificates(){
+# backup snikket
+_backup(){
   ansible-playbook -K -e "standalone_role=caddy standalone_from=standalone/backup_certificates.yml" standalone.yml
+  ansible-playbook -K -e "standalone_role=snikket standalone_from=standalone/backup_snikket.yml" standalone.yml
 }
 
 # Start generating new wireguard configs
@@ -73,7 +75,7 @@ case "$action" in
   "main") _main ;;
   "provision") _provision ;;
   "ensure_requirements") _ensure_requirements ;;
-  "backup_certificates") _backup_certificates ;;
+  "backup") _backup ;;
   "wireguard_users_add_and_delete") _wireguard_users_add_and_delete ;;
   "wireguard_rotate") _wireguard_rotate ;;
   "searxng_update") _searxng_update ;;
