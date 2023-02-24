@@ -10,7 +10,16 @@
 # https://yaml-multiline.info/
 
 # TODO:
+# --> For now, ipv6 is hardcoded to false. Do not use an AAAA record, even if the 
+# server provides an ipv6 address
 # On hetzner: Always add vps_ipv6 and an AAAA record to provider. Otherwise vps_ipv6_support var in facts is incorrect
+# Offending line:
+# vps_ipv6_support: "{% if ansible_default_ipv6['gateway'] is defined %}true{% else %}false{% endif %}"
+#
+# Snikket and gajim videocalling on pc with ipv6:
+# org.gajim.Gajim:1537 gajim Address family mismatch while trying to rewrite URI
+# Note: Snikket and dino videocalling works perfectly
+#
 # Readme and repo on github
 
 - name: Configure the server and install required software
